@@ -191,6 +191,7 @@
 323 = objects/323_waterfallControl
 324 = objects/324_curve
 325 = objects/325_trigger
+326 = objects/326
 327 = objects/327
 330 = objects/330_CampFire
 331 = objects/331_genprops
