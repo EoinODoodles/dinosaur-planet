@@ -283,6 +283,7 @@
 477 = objects/477_DBSH_Shrine
 478 = objects/478_DBSH_Symbol
 481 = objects/481_NWSH_Shrine
+484 = objects/484_NWSH_Sacrifice
 486 = objects/486_CCSH_Shrine
 488 = objects/488_WGSH_Shrine
 489 = objects/489_WGSH_ObjCreator

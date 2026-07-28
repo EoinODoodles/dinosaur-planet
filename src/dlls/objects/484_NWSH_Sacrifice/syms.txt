@@ -1,0 +1,15 @@
+.text = 0x0:
+NWSH_Sacrifice_ctor = 0x0;
+NWSH_Sacrifice_dtor = 0xC;
+NWSH_Sacrifice_obj_Setup = 0x18;
+NWSH_Sacrifice_obj_Control = 0xC4;
+NWSH_Sacrifice_obj_Update = 0x178;
+NWSH_Sacrifice_obj_Print = 0x184;
+NWSH_Sacrifice_obj_Free = 0x19C;
+NWSH_Sacrifice_obj_GetModelFlags = 0x1E4;
+NWSH_Sacrifice_obj_GetDataSize = 0x1F4;
+
+.rodata = 0x24C:
+
+.data = 0x25C:
+data_0 = 0x0; // absolute:0x25C
