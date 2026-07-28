@@ -22,7 +22,7 @@ void MagicDust_ctor(void *dll) { }
 void MagicDust_dtor(void *dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void MagicDust_setup(Object* self, MagicDust_Setup* objSetup, s32 arg2) {
+void MagicDust_obj_Setup(Object* self, MagicDust_Setup* objSetup, s32 reset) {
     s32 angle;
     f32 speed;
     MagicDust_Data* objData = self->data;
@@ -130,7 +130,7 @@ void MagicDust_setup(Object* self, MagicDust_Setup* objSetup, s32 arg2) {
 }
 
 // offset: 0x3F0 | func: 1 | export: 1
-void MagicDust_control(Object* self) {
+void MagicDust_obj_Control(Object* self) {
     Object *player;
     MagicDust_Data *objData;
     f32 playerDistance;
@@ -371,10 +371,10 @@ void MagicDust_control(Object* self) {
 }
 
 // offset: 0xEFC | func: 2 | export: 2
-void MagicDust_update(Object *self) { }
+void MagicDust_obj_Update(Object *self) { }
 
 // offset: 0xF08 | func: 3 | export: 3
-void MagicDust_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+void MagicDust_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     //When the MagicDust gem is attached to a MagicPlant, the plant handles drawing the gem instead
     if (visibility && (self->unkC4 == NULL)) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
@@ -382,15 +382,15 @@ void MagicDust_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangl
 }
 
 // offset: 0xF68 | func: 4 | export: 4
-void MagicDust_free(Object *self, s32 a1) { }
+void MagicDust_obj_Free(Object *self, s32 onlySelf) { }
 
 // offset: 0xF78 | func: 5 | export: 5
-u32 MagicDust_get_model_flags(Object *self) {
+u32 MagicDust_obj_GetModelFlags(Object *self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0xF88 | func: 6 | export: 6
-u32 MagicDust_get_data_size(Object *self, u32 a1) {
+u32 MagicDust_obj_GetDataSize(Object *self, u32 offsetAddr) {
     return sizeof(MagicDust_Data);
 }
 

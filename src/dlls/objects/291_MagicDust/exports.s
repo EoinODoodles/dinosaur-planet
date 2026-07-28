@@ -8,10 +8,10 @@ _exports:
 .dword MagicDust_dtor
 
 # export table
-/*0*/ .dword MagicDust_setup
-/*1*/ .dword MagicDust_control
-/*2*/ .dword MagicDust_update
-/*3*/ .dword MagicDust_print
-/*4*/ .dword MagicDust_free
-/*5*/ .dword MagicDust_get_model_flags
-/*6*/ .dword MagicDust_get_data_size
+/*0*/ .dword MagicDust_obj_Setup
+/*1*/ .dword MagicDust_obj_Control
+/*2*/ .dword MagicDust_obj_Update
+/*3*/ .dword MagicDust_obj_Print
+/*4*/ .dword MagicDust_obj_Free
+/*5*/ .dword MagicDust_obj_GetModelFlags
+/*6*/ .dword MagicDust_obj_GetDataSize
