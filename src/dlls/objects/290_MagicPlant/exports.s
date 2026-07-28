@@ -8,10 +8,10 @@ _exports:
 .dword MagicPlant_dtor
 
 # export table
-/*0*/ .dword MagicPlant_setup
-/*1*/ .dword MagicPlant_control
-/*2*/ .dword MagicPlant_update
-/*3*/ .dword MagicPlant_print
-/*4*/ .dword MagicPlant_free
-/*5*/ .dword MagicPlant_get_model_flags
-/*6*/ .dword MagicPlant_get_data_size
+/*0*/ .dword MagicPlant_obj_Setup
+/*1*/ .dword MagicPlant_obj_Control
+/*2*/ .dword MagicPlant_obj_Update
+/*3*/ .dword MagicPlant_obj_Print
+/*4*/ .dword MagicPlant_obj_Free
+/*5*/ .dword MagicPlant_obj_GetModelFlags
+/*6*/ .dword MagicPlant_obj_GetDataSize

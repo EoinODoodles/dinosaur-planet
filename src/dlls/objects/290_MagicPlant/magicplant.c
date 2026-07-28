@@ -21,12 +21,12 @@
     -40, -35, -30, -25
 };
 
-static void MagicPlant_handle_state_growing(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData);
-static void MagicPlant_handle_state_idle(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData);
-static void MagicPlant_handle_state_damaged(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData);
-static void MagicPlant_handle_state_wilting(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData);
-static void MagicPlant_handle_state_bud(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData);
-static f32 MagicPlant_get_growth_tvalue(MagicPlant_Setup* objSetup);
+static void MagicPlant_handleStateGrowing(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData);
+static void MagicPlant_handleStateIdle(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData);
+static void MagicPlant_handleStateDamaged(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData);
+static void MagicPlant_handleStateWilting(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData);
+static void MagicPlant_handleStateBud(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData);
+static f32 MagicPlant_getGrowthTValue(MagicPlant_Setup* objSetup);
 
 // offset: 0x0 | ctor
 void MagicPlant_ctor(void *dll) { }
@@ -35,14 +35,14 @@ void MagicPlant_ctor(void *dll) { }
 void MagicPlant_dtor(void *dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void MagicPlant_setup(Object* self, MagicPlant_Setup* objSetup, s32 arg2) {
+void MagicPlant_obj_Setup(Object* self, MagicPlant_Setup* objSetup, s32 reset) {
     MagicPlant_Data* objData = self->data;
 
     objAddObjectType(self, OBJTYPE_MagicPlant);
     objAddObjectType(self, OBJTYPE_63);
 
     if (gDLL_29_Gplay->vtbl->did_time_expire(objSetup->base.uID) == FALSE) {
-        objData->growProgress = MagicPlant_get_growth_tvalue(objSetup);
+        objData->growProgress = MagicPlant_getGrowthTValue(objSetup);
     } else {
         objData->growProgress = 1.0f;
     }
@@ -65,7 +65,7 @@ void MagicPlant_setup(Object* self, MagicPlant_Setup* objSetup, s32 arg2) {
 }
 
 // offset: 0x160 | func: 1 | export: 1
-void MagicPlant_control(Object* self) {
+void MagicPlant_obj_Control(Object* self) {
     MagicPlant_Setup* objSetup;
     MagicPlant_Data* objData;
 
@@ -86,19 +86,19 @@ void MagicPlant_control(Object* self) {
     //State Machine
     switch (objData->state) {
     case MagicPlant_STATE_Growing:
-        MagicPlant_handle_state_growing(self, objSetup, objData);
+        MagicPlant_handleStateGrowing(self, objSetup, objData);
         break;
     case MagicPlant_STATE_Idle:
-        MagicPlant_handle_state_idle(self, objSetup, objData);
+        MagicPlant_handleStateIdle(self, objSetup, objData);
         break;
     case MagicPlant_STATE_Damaged:
-        MagicPlant_handle_state_damaged(self, objSetup, objData);
+        MagicPlant_handleStateDamaged(self, objSetup, objData);
         break;
     case MagicPlant_STATE_Wilting:
-        MagicPlant_handle_state_wilting(self, objSetup, objData);
+        MagicPlant_handleStateWilting(self, objSetup, objData);
         break;
     case MagicPlant_STATE_Bud:
-        MagicPlant_handle_state_bud(self, objSetup, objData);
+        MagicPlant_handleStateBud(self, objSetup, objData);
         break;
     }
 
@@ -107,10 +107,10 @@ void MagicPlant_control(Object* self) {
 }
 
 // offset: 0x300 | func: 2 | export: 2
-void MagicPlant_update(Object *self) { }
+void MagicPlant_obj_Update(Object *self) { }
 
 // offset: 0x30C | func: 3 | export: 3
-void MagicPlant_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+void MagicPlant_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     MtxF* jointMtx;
     f32 x;
     f32 y;
@@ -165,7 +165,7 @@ void MagicPlant_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triang
 }
 
 // offset: 0x52C | func: 4 | export: 4
-void MagicPlant_free(Object* self, s32 a1) {
+void MagicPlant_obj_Free(Object* self, s32 onlySelf) {
     MagicPlant_Data* objData = self->data;
     u32 soundHandle;
 
@@ -181,18 +181,18 @@ void MagicPlant_free(Object* self, s32 a1) {
 }
 
 // offset: 0x5CC | func: 5 | export: 5
-u32 MagicPlant_get_model_flags(Object* self) {
+u32 MagicPlant_obj_GetModelFlags(Object* self) {
     MagicPlant_Setup* objSetup = (MagicPlant_Setup*)self->setup;
     return MODFLAGS_MODEL_INDEX(objSetup->modelInstIdx) | MODFLAGS_LOAD_SINGLE_MODEL;
 }
 
 // offset: 0x5E4 | func: 6 | export: 6
-u32 MagicPlant_get_data_size(Object *self, u32 a1) {
+u32 MagicPlant_obj_GetDataSize(Object *self, u32 offsetAddr) {
     return sizeof(MagicPlant_Data);
 }
 
 // offset: 0x5F8 | func: 7
-static void MagicPlant_create_magic_dust(Object* self, s32 objectID) {
+static void MagicPlant_createMagicDust(Object* self, s32 objectID) {
     MagicDust_Setup* dustSetup;
     MagicPlant_Setup* objSetup;
     Object* magicDust;
@@ -230,14 +230,14 @@ static void MagicPlant_create_magic_dust(Object* self, s32 objectID) {
   * Bud waits for a gplay regrowth timer to expire (if active),
   * then grows up into the idle state and creates a new MagicDust gem Object.
   */
-void MagicPlant_handle_state_growing(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData) {
+void MagicPlant_handleStateGrowing(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData) {
     //Wait for the regrowth timer to expire (if it's active), then create a new MagicDust gem
     if (gDLL_29_Gplay->vtbl->did_time_expire(objSetup->base.uID)) {
-        MagicPlant_create_magic_dust(self, dMagicDustObjIDs[objSetup->dustIdx & 3]);
+        MagicPlant_createMagicDust(self, dMagicDustObjIDs[objSetup->dustIdx & 3]);
         objData->state = MagicPlant_STATE_Idle;
         objData->idleAnimDelay = mathRnd(300, 600);
     } else {
-        objData->growProgress = MagicPlant_get_growth_tvalue(objSetup);
+        objData->growProgress = MagicPlant_getGrowthTValue(objSetup);
     }
 
     //Use the growing-from-bud animation
@@ -254,7 +254,7 @@ void MagicPlant_handle_state_growing(Object* self, MagicPlant_Setup* objSetup, M
 /**
   * Plant sways in the wind, reacts to damage, and plays twinkling sound when nearby.
   */
-void MagicPlant_handle_state_idle(Object *self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData) {
+void MagicPlant_handleStateIdle(Object *self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData) {
     s32 hitType;
     s32 hitDamage;
     s32 i;
@@ -342,7 +342,7 @@ void MagicPlant_handle_state_idle(Object *self, MagicPlant_Setup* objSetup, Magi
 /**
   * Plant shakes and drops the MagicDust gem.
   */
-void MagicPlant_handle_state_damaged(Object* self, MagicPlant_Setup *objSetup, MagicPlant_Data* objData) {
+void MagicPlant_handleStateDamaged(Object* self, MagicPlant_Setup *objSetup, MagicPlant_Data* objData) {
     Object* magicDust;
     Object* player;
     f32 speed;
@@ -393,7 +393,7 @@ void MagicPlant_handle_state_damaged(Object* self, MagicPlant_Setup *objSetup, M
 /**
   * Plant falls over and fades out.
   */
-void MagicPlant_handle_state_wilting(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData) {
+void MagicPlant_handleStateWilting(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData) {
     s32 opacity;
 
     //Fade out when wilting animation finished
@@ -420,7 +420,7 @@ void MagicPlant_handle_state_wilting(Object* self, MagicPlant_Setup* objSetup, M
 /**
   * Bud fades in, and starts a gplay regrowth timer.
   */
-void MagicPlant_handle_state_bud(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData) {
+void MagicPlant_handleStateBud(Object* self, MagicPlant_Setup* objSetup, MagicPlant_Data* objData) {
     s32 opacity;
 
     //Fade in and set a gplay regrowth timer
@@ -439,7 +439,7 @@ void MagicPlant_handle_state_bud(Object* self, MagicPlant_Setup* objSetup, Magic
 /**
   * Returns the animation tValue to use while the plant's growing
   */
-f32 MagicPlant_get_growth_tvalue(MagicPlant_Setup* objSetup) {
+f32 MagicPlant_getGrowthTValue(MagicPlant_Setup* objSetup) {
     f32 tValue;
     f32 remaining;
     s32 duration;
