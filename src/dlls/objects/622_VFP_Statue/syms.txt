@@ -1,0 +1,12 @@
+.text = 0x0:
+VFP_Statue_ctor = 0x0;
+VFP_Statue_dtor = 0xC;
+VFP_Statue_obj_Setup = 0x18;
+VFP_Statue_obj_Control = 0x48;
+VFP_Statue_obj_Update = 0x190;
+VFP_Statue_obj_Print = 0x19C;
+VFP_Statue_obj_Free = 0x1B4;
+VFP_Statue_obj_GetModelFlags = 0x1FC;
+VFP_Statue_obj_GetDataSize = 0x20C;
+
+.rodata = 0x24C:
