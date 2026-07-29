@@ -35,11 +35,11 @@ typedef struct {
 } LevelName_Data;
 
 enum LevelNameStates{
-    LEVELNAME_STATE_0_WAITING = 0,
-    LEVELNAME_STATE_1_FADING_IN = 1,
-    LEVELNAME_STATE_2_HOLDING = 2,
-    LEVELNAME_STATE_3_FADING_OUT = 3,
-    LEVELNAME_STATE_4_FINISHED = 4
+    LevelName_STATE_0_WAITING = 0,
+    LevelName_STATE_1_FADING_IN = 1,
+    LevelName_STATE_2_HOLDING = 2,
+    LevelName_STATE_3_FADING_OUT = 3,
+    LevelName_STATE_4_FINISHED = 4
 };
 
 //Unused textureIDs?
@@ -60,23 +60,23 @@ enum LevelNameStates{
     0x01f6
 };
 
-static int levelname_anim_callback(Object* self, Object *overrideObj, AnimObj_Data* animData, s8 arg3);
+static int LevelName_animCallback(Object* self, Object *overrideObj, AnimObj_Data* animData, s8 prevCallbackValue);
 
 // offset: 0x0 | ctor
-void levelname_ctor(void* dll){ }
+void LevelName_ctor(void* dll){ }
 
 // offset: 0xC | dtor
-void levelname_dtor(void* dll){ }
+void LevelName_dtor(void* dll){ }
 
 // offset: 0x18 | func: 0 | export: 0
-void levelname_setup(Object* self, LevelName_Setup* setup, s32 arg2) {
+void LevelName_obj_Setup(Object* self, LevelName_Setup* setup, s32 reset) {
     LevelName_Data* objdata;
     GameTextChunk* gametext;
 
     objdata = self->data;
 
     fontLoad(FONT_DINO_MEDIUM_FONT_IN);
-    self->animCallback = levelname_anim_callback;
+    self->animCallback = LevelName_animCallback;
 
     gametext = gDLL_21_Gametext->vtbl->get_chunk(setup->textID);
 
@@ -87,65 +87,63 @@ void levelname_setup(Object* self, LevelName_Setup* setup, s32 arg2) {
     objdata->flagID = setup->flagID;
     objdata->opacity = 0;
 
-    objdata->state = LEVELNAME_STATE_0_WAITING;
+    objdata->state = LevelName_STATE_0_WAITING;
     objdata->timer = objdata->opacity;
 
-    if (objdata->flagID != NO_GAMEBIT) {
-        if (mainGetBits(objdata->flagID)) {
-            objdata->state = LEVELNAME_STATE_4_FINISHED;
-        }
+    if ((objdata->flagID != NO_GAMEBIT) && mainGetBits(objdata->flagID)) {
+        objdata->state = LevelName_STATE_4_FINISHED;
     }
     self->stateFlags |= OBJSTATE_UPDATE_DISABLED;
 }
 
 // offset: 0x120 | func: 1 | export: 1
-void levelname_control(Object* self) {
+void LevelName_obj_Control(Object* self) {
     LevelName_Data* objdata;
     f32 distance;
 
     objdata = self->data;
 
     switch (objdata->state) {
-        case LEVELNAME_STATE_0_WAITING:
+        case LevelName_STATE_0_WAITING:
             distance = vec3Distance(&self->globalPosition, &objGetPlayer()->globalPosition);
             if (distance < objdata->activationRadius) {
                 if (objdata->flagID != NO_GAMEBIT) {
                     mainSetBits(objdata->flagID, 1);
                 }
-                objdata->state = LEVELNAME_STATE_1_FADING_IN;
+                objdata->state = LevelName_STATE_1_FADING_IN;
             }
             break;
-        case LEVELNAME_STATE_1_FADING_IN:
+        case LevelName_STATE_1_FADING_IN:
             objdata->opacity += gUpdateRate * 4;
             if (objdata->opacity > 220) {
                 objdata->opacity = 220;
-                objdata->state = LEVELNAME_STATE_2_HOLDING;
+                objdata->state = LevelName_STATE_2_HOLDING;
             }
             break;
-        case LEVELNAME_STATE_2_HOLDING:
+        case LevelName_STATE_2_HOLDING:
             objdata->timer += gUpdateRate;
             if ((u32)objdata->timer > objdata->displayDuration) {
-                objdata->state = LEVELNAME_STATE_3_FADING_OUT;
+                objdata->state = LevelName_STATE_3_FADING_OUT;
             }    
             objdata->opacity = (s32) (mathSinfInterp(objdata->timer * 0x500) * 30.0f) + 0xDC;
             break;
-        case LEVELNAME_STATE_3_FADING_OUT:
+        case LevelName_STATE_3_FADING_OUT:
             objdata->opacity -= gUpdateRate * 4;
             if (objdata->opacity < 0) {
                 objdata->opacity = 0;
-                objdata->state = LEVELNAME_STATE_4_FINISHED;
+                objdata->state = LevelName_STATE_4_FINISHED;
             }
             break;
-        case LEVELNAME_STATE_4_FINISHED:
+        case LevelName_STATE_4_FINISHED:
             break;
     }
 }
 
 // offset: 0x304 | func: 2 | export: 2
-void levelname_update(Object* self){ }
+void LevelName_obj_Update(Object* self){ }
 
 // offset: 0x310 | func: 3 | export: 3
-void levelname_print(Object* self, Gfx** gfx, Mtx** mtx, Vertex** vtx, Triangle** pols, s8 visibility) {
+void LevelName_obj_Print(Object* self, Gfx** gfx, Mtx** mtx, Vertex** vtx, Triangle** pols, s8 visibility) {
     s32 index;
     s32 yCoord;
     LevelName_Data* objdata;
@@ -171,7 +169,7 @@ void levelname_print(Object* self, Gfx** gfx, Mtx** mtx, Vertex** vtx, Triangle*
 }
 
 // offset: 0x480 | func: 4 | export: 4
-void levelname_free(Object* self, s32 arg1) {
+void LevelName_obj_Free(Object* self, s32 onlySelf) {
     LevelName_Data* objdata = self->data;
 
     fontUnload(FONT_DINO_MEDIUM_FONT_IN);
@@ -179,17 +177,17 @@ void levelname_free(Object* self, s32 arg1) {
 }
 
 // offset: 0x4E4 | func: 5 | export: 5
-u32 levelname_get_model_flags(Object* self){
+u32 LevelName_obj_GetModelFlags(Object* self){
     return MODFLAGS_NONE;
 }
 
 // offset: 0x4F4 | func: 6 | export: 6
-u32 levelname_get_data_size(Object* self, s32 arg1){
+u32 LevelName_obj_GetDataSize(Object* self, s32 offsetAddr){
     return sizeof(LevelName_Data);
 }
 
 // offset: 0x508 | func: 7
-static int levelname_anim_callback(Object* self, Object *overrideObj, AnimObj_Data* animData, s8 arg3) {
+static int LevelName_animCallback(Object* self, Object *overrideObj, AnimObj_Data* animData, s8 prevCallbackValue) {
     LevelName_Data* objdata;
     s32 i;
 
@@ -200,7 +198,7 @@ static int levelname_anim_callback(Object* self, Object *overrideObj, AnimObj_Da
             if (objdata->flagID != -1) {
                 mainSetBits(objdata->flagID, 1);
             }
-            objdata->state = LEVELNAME_STATE_1_FADING_IN;
+            objdata->state = LevelName_STATE_1_FADING_IN;
             return 4;
         } 
     }

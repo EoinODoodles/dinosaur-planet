@@ -1,0 +1,16 @@
+.text = 0x0:
+LevelName_ctor = 0x0;
+LevelName_dtor = 0xC;
+LevelName_obj_Setup = 0x18;
+LevelName_obj_Control = 0x120;
+LevelName_obj_Update = 0x304;
+LevelName_obj_Print = 0x310;
+LevelName_obj_Free = 0x480;
+LevelName_obj_GetModelFlags = 0x4E4;
+LevelName_obj_GetDataSize = 0x4F4;
+LevelName_animCallback = 0x508;
+
+.rodata = 0x620:
+
+.data = 0x640:
+_data_0 = 0x0; // absolute:0x640

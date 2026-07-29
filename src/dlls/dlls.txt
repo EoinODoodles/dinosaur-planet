@@ -155,7 +155,7 @@
 281 = objects/281_area
 282 = objects/282_Crate
 283 = objects/283_krazoatext
-284 = objects/284_levelname
+284 = objects/284_LevelName
 285 = objects/285_ProjectileSwitch
 286 = objects/286_BlownUpTarget
 287 = objects/287_pressureswitch
