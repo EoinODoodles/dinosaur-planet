@@ -1,0 +1,15 @@
+.text = 0x0:
+MMP_GeyserVent_ctor = 0x0;
+MMP_GeyserVent_dtor = 0xC;
+MMP_GeyserVent_obj_Setup = 0x18;
+MMP_GeyserVent_obj_Control = 0x80;
+MMP_GeyserVent_obj_Update = 0x1DC;
+MMP_GeyserVent_obj_Print = 0x1E8;
+MMP_GeyserVent_obj_Free = 0x200;
+MMP_GeyserVent_obj_GetModelFlags = 0x210;
+MMP_GeyserVent_obj_GetDataSize = 0x220;
+
+.rodata = 0x278:
+
+.data = 0x278:
+dSoundIDs = 0x0; // absolute:0x278

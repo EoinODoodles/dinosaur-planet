@@ -256,6 +256,7 @@
 437 = objects/437_EWTrobotpatrol
 438 = objects/438_RobotBeam
 441 = objects/441_MMP_levelcontrol
+446 = objects/446_MMP_gyservent
 447 = objects/447_CCguardgiving
 448 = objects/448_CCcage
 449 = objects/449_CClightfoot

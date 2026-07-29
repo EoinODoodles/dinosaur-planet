@@ -801,6 +801,9 @@ enum SoundID {
 
     SOUND_AB4_Magic_Barrier_Deflect = 0xAB4, //Lunaimar
 
+    SOUND_AC5_Steam_Venting_Hiss_Low = 0xAC5, 
+    SOUND_AC6_Steam_Venting_Hiss_High = 0xAC6, 
+    
     SOUND_AC8_Ground_Impact = 0xAC8, // used by PointBack
     SOUND_AC9_Impact_Crumbling = 0xAC9, // used by PointBack
 
