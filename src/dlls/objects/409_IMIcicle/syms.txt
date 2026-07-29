@@ -1,0 +1,17 @@
+.text = 0x0:
+IMIcicle_ctor = 0x0;
+IMIcicle_dtor = 0x20;
+IMIcicle_obj_Setup = 0x70;
+IMIcicle_obj_Control = 0x18C;
+IMIcicle_obj_Update = 0x74C;
+IMIcicle_obj_Print = 0x758;
+IMIcicle_obj_Free = 0x7BC;
+IMIcicle_obj_GetModelFlags = 0x818;
+IMIcicle_obj_GetDataSize = 0x828;
+IMIcicle_getGroundY = 0x83C;
+IMIcicle_shouldIcicleFall = 0x940;
+
+.rodata = 0xA9C:
+
+.bss = 0xAAC:
+sModGfxDLL = 0x0; // absolute:0xAAC

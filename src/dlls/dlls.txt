@@ -232,7 +232,8 @@
 400 = objects/400_CFLevelControl
 405 = objects/405_CF_Lamp
 408 = objects/408_IMIceMountain
-412 = objects/412_IMicepillar
+409 = objects/409_IMIcicle
+412 = objects/412_IMIcePillar
 413 = objects/413_IMspacecraft
 415 = objects/415_IMSpaceRing
 417 = objects/417_DFlog

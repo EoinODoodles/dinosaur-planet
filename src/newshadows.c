@@ -267,7 +267,7 @@ void shadows_func_8004D974(s32 arg0) {
     D_80092BE8 = (s8) arg0;
 }
 
-void shadows_func_8004D984(s32 arg0) {
+void shadows_func_8004D984(Object* arg0) {
     D_80092BE8 = 1;
 }
 

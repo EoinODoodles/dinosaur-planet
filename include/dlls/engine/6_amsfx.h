@@ -485,6 +485,9 @@ enum SoundID {
 
     SOUND_50C_Low_Rumble_Loop = 0x50C, //IMSnowBike
     SOUND_50D_Jet_Loop = 0x50D,        //IMSnowBike
+    SOUND_50E = 0x50E,                 //IMIcicle
+    SOUND_50F = 0x50F,                 //IMIcicle
+    SOUND_510_Ice_Shatter = 0x510,                 //IMIcicle
 
     SOUND_53A_Spore_Spray_Intro = 0x53A, //used by SHkillermushroom
     SOUND_53B_Spore_Spray_Loop = 0x53B, //used by SHkillermushroom

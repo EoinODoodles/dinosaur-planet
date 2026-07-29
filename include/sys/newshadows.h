@@ -100,5 +100,6 @@ void shadows_func_8004D974(s32 arg0);
 void shadows_func_8004D9B8(void);
 void shadows_func_8004DABC(void);
 void shadows_func_8004D974(s32 arg0);
+void shadows_func_8004D984(Object* arg0);
 
 #endif
