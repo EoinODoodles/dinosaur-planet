@@ -1,0 +1,13 @@
+.text = 0x0:
+IMIcePillar_ctor = 0x0;
+IMIcePillar_dtor = 0xC;
+IMIcePillar_obj_Setup = 0x18;
+IMIcePillar_obj_Control = 0x2C;
+IMIcePillar_obj_Update = 0x38;
+IMIcePillar_obj_Print = 0x44;
+IMIcePillar_obj_Free = 0x98;
+IMIcePillar_obj_GetModelFlags = 0xA8;
+IMIcePillar_obj_GetDataSize = 0xB8;
+
+.rodata = 0xF4:
+_oob_rodata_0 = 0x0; // absolute:0xF4
