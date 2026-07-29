@@ -1,0 +1,18 @@
+.text = 0x0:
+KrazoaText_ctor = 0x0;
+KrazoaText_dtor = 0xC;
+KrazoaText_obj_Setup = 0x18;
+KrazoaText_obj_Control = 0x88;
+KrazoaText_obj_Update = 0x324;
+KrazoaText_obj_Print = 0x330;
+KrazoaText_obj_Free = 0x3A4;
+KrazoaText_obj_GetModelFlags = 0x414;
+KrazoaText_obj_GetDataSize = 0x424;
+KrazoaText_PrintText = 0x438;
+KrazoaText_loadRequiredGlyphTextures = 0x564;
+KrazoaText_unloadAllGlyphTextures = 0x61C;
+
+.rodata = 0x718:
+
+.bss = 0x728:
+currentGlyph = 0x0; // absolute:0x728
