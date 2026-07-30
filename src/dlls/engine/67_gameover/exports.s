@@ -8,6 +8,6 @@ _exports:
 .dword gameover_dtor
 
 # export table
-/*0*/ .dword gameover_update1
-/*1*/ .dword gameover_update2
-/*2*/ .dword gameover_draw
+/*0*/ .dword gameover_Update1
+/*1*/ .dword gameover_Update2
+/*2*/ .dword gameover_Draw

@@ -1,9 +1,9 @@
 .text = 0x0:
 gameover_ctor = 0x0;
 gameover_dtor = 0x198;
-gameover_update1 = 0x200;
-gameover_update2 = 0x868;
-gameover_draw = 0x870;
+gameover_Update1 = 0x200;
+gameover_Update2 = 0x868;
+gameover_Draw = 0x870;
 
 .rodata = 0x1320:
 

@@ -115,14 +115,14 @@ void gameover_ctor(void* dll) {
     PlayerStats* stats = gDLL_29_Gplay->vtbl->get_player_stats();
     
     //Load textures, font, and gametext
-    sTexDusterCounter = texLoadTexture(TEXTABLE_310);
+    sTexDusterCounter = texLoadTexture(TEXTABLE_310_PauseMenu_Dusters);
     fontLoad(FONT_FUN_FONT);
     sGameOverText = gDLL_21_Gametext->vtbl->get_chunk(GAMETEXT_200_Death_Screen);
     
     //@debug: set Duster count to 1 when player dies
     stats->dusters = 1;
 
-    //Start off at the "Use Duster?" screen, if the player has any
+    //Start off at the "Use Duster?" screen if Dusters are currently allowed to be used, and the player has any 
     if ((menu_func_80010028() == TRUE) && (stats->dusters > 0)) {
         sGameOverScreenState = STATE_0_Use_Duster;
         dPicmenuItems[0].flags |= PICMENU_INTANGIBLE;
@@ -158,7 +158,7 @@ void gameover_dtor(void *dll) {
 }
 
 // offset: 0x200 | func: 0 | export: 0
-s32 gameover_update1(void) {
+s32 gameover_Update1(void) {
     s32 action;
     s32 delay;
     PlayerStats* stats;
@@ -330,12 +330,12 @@ s32 gameover_update1(void) {
 }
 
 // offset: 0x868 | func: 1 | export: 1
-void gameover_update2(void) {
+void gameover_Update2(void) {
     return;
 }
 
 // offset: 0x870 | func: 2 | export: 2
-void gameover_draw(Gfx** gfx, Mtx** mtx, Vertex** vtx) {
+void gameover_Draw(Gfx** gfx, Mtx** mtx, Vertex** vtx) {
     s32 ulx;
     s32 uly;
     s32 lrx;
