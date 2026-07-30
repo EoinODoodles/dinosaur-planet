@@ -3815,20 +3815,20 @@ void dll_210_func_9E00(Object* player) {
 #endif
 
 // offset: 0x9F1C | func: 52
-static void dll_210_func_9F1C(Object* player, s32 arg1) {
-    if (arg1 != 0) {
-        if (gDLL_29_Gplay->vtbl->restart_is_set() != 0) {
+static void dll_210_func_9F1C(Object* player, s32 revivingNotAllowed) {
+    if (revivingNotAllowed) {
+        if (gDLL_29_Gplay->vtbl->restart_is_set()) {
             gDLL_29_Gplay->vtbl->restart_goto();
-            return;
+        } else {
+            menuSet(MENU_GAME_OVER);
+            menu_func_80010038(FALSE);
         }
-        menuSet(9);
-        menu_func_80010038(0);
-        return;
+    } else {
+        func_800267A4(player);
+        menuSet(MENU_GAME_OVER);
+        menu_func_80010038(TRUE);
+        objSendMesgMany(0, OBJMSG_SEND_IGNORE_SENDER | OBJMSG_SEND_ALL, player, 0xE0000, player);
     }
-    func_800267A4(player);
-    menuSet(9);
-    menu_func_80010038(1);
-    objSendMesgMany(0, OBJMSG_SEND_IGNORE_SENDER | OBJMSG_SEND_ALL, player, 0xE0000, player);
 }
 
 // offset: 0xA018 | func: 53

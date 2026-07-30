@@ -328,12 +328,14 @@ void menu_func_80010018(s32 param1) {
     D_8008C888 = param1;
 }
 
+/* Checks whether using Dusters is currently allowed */
 s32 menu_func_80010028(void) {
     return D_8008C88C;
 }
 
-void menu_func_80010038(s32 param1) {
-    D_8008C88C = param1;
+/* Allows Duster use to be blocked/unblocked (for example Dusters aren't allowed after dying from a fall) */
+void menu_func_80010038(s32 enable) {
+    D_8008C88C = enable;
 }
 
 s32 menu_func_80010048(void) {
