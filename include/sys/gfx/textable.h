@@ -787,7 +787,7 @@ enum TexTable {
     TEXTABLE_30D = 0x30D, // TEX0:752
     TEXTABLE_30E = 0x30E, // TEX0:753
     TEXTABLE_30F = 0x30F, // TEX0:0
-    TEXTABLE_310 = 0x310, // TEX0:754
+    TEXTABLE_310_PauseMenu_Dusters = 0x310, // TEX0:754
     TEXTABLE_311 = 0x311, // TEX0:0
     TEXTABLE_312 = 0x312, // TEX0:0
     TEXTABLE_313_Textbox_Centre_1 = 0x313, // TEX0:743

@@ -70,9 +70,9 @@ static PicMenuSounds pauseMenuSounds = {
 
 // offset: 0x0 | ctor
 void pausemenu_ctor(void *dll) {
-    textureSpellStone = texLoadTexture(0x31E);
-    textureDuster = texLoadTexture(0x310);
-    textureSpirit = texLoadTexture(0x31F);
+    textureSpellStone = texLoadTexture(TEXTABLE_31E_GameSelect_SpellStones);
+    textureDuster = texLoadTexture(TEXTABLE_310_PauseMenu_Dusters);
+    textureSpirit = texLoadTexture(TEXTABLE_31F_GameSelect_Spirits);
     gametext = gDLL_21_Gametext->vtbl->get_chunk(GAMETEXT_000_Pause_Menu);
     pauseMenuItems[0].text = gametext->strings[0];
     pauseMenuItems[1].text = gametext->strings[1];
@@ -104,7 +104,7 @@ void pausemenu_dtor(void *dll) {
 }
 
 // offset: 0x1F8 | func: 0 | export: 0
-s32 pausemenu_update1(void) {
+s32 pausemenu_Update1(void) {
     s32 action;
     s32 index;
     s32 selectedItem;
@@ -165,10 +165,10 @@ s32 pausemenu_update1(void) {
 }
 
 // offset: 0x524 | func: 1 | export: 1
-void pausemenu_update2(void){ }
+void pausemenu_Update2(void){ }
 
 // offset: 0x52C | func: 2 | export: 2
-void pausemenu_draw(Gfx** gfx, Mtx** mtx, Vertex** vtx) {
+void pausemenu_Draw(Gfx** gfx, Mtx** mtx, Vertex** vtx) {
     s32 ulx;
     s32 uly;
     s32 lrx;
@@ -204,63 +204,63 @@ void pausemenu_draw(Gfx** gfx, Mtx** mtx, Vertex** vtx) {
     fontWindowUseFont(1, FONT_FUN_FONT);
 
     switch (pauseScreenState){
-        case PAUSE_MENU_GAME_SAVED:
-            //Draw "Game Saved" message
-            fontWindowAddStringXY(1, GAME_SAVED_X, GAME_SAVED_Y, gametext->strings[4], 1, ALIGN_TOP_CENTER);
-    
-            //Draw "Game Saved" message drop-shadow
-            fontWindowSetTextColour(1, DROP_SHADOW_R, DROP_SHADOW_G, DROP_SHADOW_B, DROP_SHADOW_A, ((u8)opacity_main * DROP_SHADOW_MULTIPLIER) >> 8);
-            fontWindowAddStringXY(1, GAME_SAVED_X + DROP_SHADOW_X, GAME_SAVED_Y + DROP_SHADOW_Y, gametext->strings[4], 1, ALIGN_TOP_CENTER);
-            break;
-        default:   
-            //Draw icons
-            rcpScreenFullWrite(gfx, textureSpellStone, SPELLSTONE_X, SPELLSTONE_Y, 0, 0, opacity_main, SCREEN_WRITE_TRANSLUCENT);
-            rcpScreenFullWrite(gfx, textureDuster, DUSTER_X, DUSTER_Y, 0, 0, opacity_main, SCREEN_WRITE_TRANSLUCENT);
-            rcpScreenFullWrite(gfx, textureSpirit, SPIRIT_X, SPIRIT_Y, 0, 0, opacity_main, SCREEN_WRITE_TRANSLUCENT);
-            
-            //Draw completion percentage
-            sprintf(completionPercentage, formatCompletionPercentage, dll_task->GetCompletionPercentage());
-            fontWindowAddStringXY(1, COMPLETION_X, COMPLETION_Y, completionPercentage, 1, ALIGN_TOP_CENTER);
-    
-            //@bug: forgot to add a drop-shadow for the completion percentage
-    
-            //Draw gameplay time
-            gDLL_7_Newday->vtbl->convert_ticks_to_real_time(gDLL_29_Gplay->vtbl->get_time_played(), &hours, &minutes, &seconds);
-            sprintf(gameplayTime, formatGameplayTime, hours, minutes, seconds);
-            fontWindowAddStringXY(1, GAME_TIME_X, GAME_TIME_Y, gameplayTime, 1, ALIGN_TOP_CENTER);
-            
-            //Draw gameplay time drop-shadow
-            opacity_drop_shadow = ((u8)opacity_main * DROP_SHADOW_MULTIPLIER) >> 8;
-            fontWindowSetTextColour(1, DROP_SHADOW_R, DROP_SHADOW_G, DROP_SHADOW_B, DROP_SHADOW_A, opacity_drop_shadow);
-            fontWindowAddStringXY(1, GAME_TIME_X + DROP_SHADOW_X, GAME_TIME_Y + DROP_SHADOW_Y, gameplayTime, 2, ALIGN_TOP_CENTER);
-    
-            //Change font
-            fontWindowUseFont(1, FONT_DINO_SUBTITLE_FONT_1);
-    
-            //@bug: counters weren't yet connected up to anything, and always read as 0
-            
-            //Draw SpellStone count
-            sprintf(spellStoneCount, formatSpellStoneCount, 0);
-            fontWindowAddStringXY(1, SPELLSTONE_X + 41, SPELLSTONE_Y + 20, spellStoneCount, 1, ALIGN_TOP_LEFT);
-    
-            //Draw Duster count
-            sprintf(dusterCount, formatDusterCount, 0);
-            fontWindowAddStringXY(1, DUSTER_X + 55, DUSTER_Y + 22, dusterCount, 1, ALIGN_TOP_RIGHT);
-    
-            //Draw Spirit count
-            sprintf(spiritCount, formatSpiritCount, 0);
-            fontWindowAddStringXY(1, SPIRIT_X + 16, SPIRIT_Y + 19, spiritCount, 1, ALIGN_TOP_LEFT);
-    
-            //Draw "Game Time" and "Complete" strings
-            fontWindowSetTextColour(1, BEIGE_R, BEIGE_G, BEIGE_B, BEIGE_A, opacity_main);
-            fontWindowAddStringXY(1, COMPLETION_CAPTION_X, COMPLETION_CAPTION_Y, gametext->strings[3], 2, ALIGN_TOP_CENTER);
-            fontWindowAddStringXY(1, GAME_TIME_CAPTION_X, GAME_TIME_CAPTION_Y, gametext->strings[2], 2, ALIGN_TOP_CENTER);
-            
-            //Draw "Game Time" and "Complete" strings' drop-shadows
-            fontWindowSetTextColour(1, DROP_SHADOW_R, DROP_SHADOW_G, DROP_SHADOW_B, DROP_SHADOW_A, opacity_drop_shadow);
-            fontWindowAddStringXY(1, COMPLETION_CAPTION_X + DROP_SHADOW_X, COMPLETION_CAPTION_Y + DROP_SHADOW_Y, gametext->strings[3], 2, ALIGN_TOP_CENTER);
-            fontWindowAddStringXY(1, GAME_TIME_CAPTION_X + DROP_SHADOW_X, GAME_TIME_CAPTION_Y + DROP_SHADOW_Y, gametext->strings[2], 2, ALIGN_TOP_CENTER);
-            break;
+    case PAUSE_MENU_GAME_SAVED:
+        //Draw "Game Saved" message
+        fontWindowAddStringXY(1, GAME_SAVED_X, GAME_SAVED_Y, gametext->strings[4], 1, ALIGN_TOP_CENTER);
+
+        //Draw "Game Saved" message drop-shadow
+        fontWindowSetTextColour(1, DROP_SHADOW_R, DROP_SHADOW_G, DROP_SHADOW_B, DROP_SHADOW_A, ((u8)opacity_main * DROP_SHADOW_MULTIPLIER) >> 8);
+        fontWindowAddStringXY(1, GAME_SAVED_X + DROP_SHADOW_X, GAME_SAVED_Y + DROP_SHADOW_Y, gametext->strings[4], 1, ALIGN_TOP_CENTER);
+        break;
+    default:   
+        //Draw icons
+        rcpScreenFullWrite(gfx, textureSpellStone, SPELLSTONE_X, SPELLSTONE_Y, 0, 0, opacity_main, SCREEN_WRITE_TRANSLUCENT);
+        rcpScreenFullWrite(gfx, textureDuster, DUSTER_X, DUSTER_Y, 0, 0, opacity_main, SCREEN_WRITE_TRANSLUCENT);
+        rcpScreenFullWrite(gfx, textureSpirit, SPIRIT_X, SPIRIT_Y, 0, 0, opacity_main, SCREEN_WRITE_TRANSLUCENT);
+        
+        //Draw completion percentage
+        sprintf(completionPercentage, formatCompletionPercentage, dll_task->GetCompletionPercentage());
+        fontWindowAddStringXY(1, COMPLETION_X, COMPLETION_Y, completionPercentage, 1, ALIGN_TOP_CENTER);
+
+        //@bug: forgot to add a drop-shadow for the completion percentage
+
+        //Draw gameplay time
+        gDLL_7_Newday->vtbl->convert_ticks_to_real_time(gDLL_29_Gplay->vtbl->get_time_played(), &hours, &minutes, &seconds);
+        sprintf(gameplayTime, formatGameplayTime, hours, minutes, seconds);
+        fontWindowAddStringXY(1, GAME_TIME_X, GAME_TIME_Y, gameplayTime, 1, ALIGN_TOP_CENTER);
+        
+        //Draw gameplay time drop-shadow
+        opacity_drop_shadow = ((u8)opacity_main * DROP_SHADOW_MULTIPLIER) >> 8;
+        fontWindowSetTextColour(1, DROP_SHADOW_R, DROP_SHADOW_G, DROP_SHADOW_B, DROP_SHADOW_A, opacity_drop_shadow);
+        fontWindowAddStringXY(1, GAME_TIME_X + DROP_SHADOW_X, GAME_TIME_Y + DROP_SHADOW_Y, gameplayTime, 2, ALIGN_TOP_CENTER);
+
+        //Change font
+        fontWindowUseFont(1, FONT_DINO_SUBTITLE_FONT_1);
+
+        //@bug: counters weren't yet connected up to anything, and always read as 0
+        
+        //Draw SpellStone count
+        sprintf(spellStoneCount, formatSpellStoneCount, 0);
+        fontWindowAddStringXY(1, SPELLSTONE_X + 41, SPELLSTONE_Y + 20, spellStoneCount, 1, ALIGN_TOP_LEFT);
+
+        //Draw Duster count
+        sprintf(dusterCount, formatDusterCount, 0);
+        fontWindowAddStringXY(1, DUSTER_X + 55, DUSTER_Y + 22, dusterCount, 1, ALIGN_TOP_RIGHT);
+
+        //Draw Spirit count
+        sprintf(spiritCount, formatSpiritCount, 0);
+        fontWindowAddStringXY(1, SPIRIT_X + 16, SPIRIT_Y + 19, spiritCount, 1, ALIGN_TOP_LEFT);
+
+        //Draw "Game Time" and "Complete" strings
+        fontWindowSetTextColour(1, BEIGE_R, BEIGE_G, BEIGE_B, BEIGE_A, opacity_main);
+        fontWindowAddStringXY(1, COMPLETION_CAPTION_X, COMPLETION_CAPTION_Y, gametext->strings[3], 2, ALIGN_TOP_CENTER);
+        fontWindowAddStringXY(1, GAME_TIME_CAPTION_X, GAME_TIME_CAPTION_Y, gametext->strings[2], 2, ALIGN_TOP_CENTER);
+        
+        //Draw "Game Time" and "Complete" strings' drop-shadows
+        fontWindowSetTextColour(1, DROP_SHADOW_R, DROP_SHADOW_G, DROP_SHADOW_B, DROP_SHADOW_A, opacity_drop_shadow);
+        fontWindowAddStringXY(1, COMPLETION_CAPTION_X + DROP_SHADOW_X, COMPLETION_CAPTION_Y + DROP_SHADOW_Y, gametext->strings[3], 2, ALIGN_TOP_CENTER);
+        fontWindowAddStringXY(1, GAME_TIME_CAPTION_X + DROP_SHADOW_X, GAME_TIME_CAPTION_Y + DROP_SHADOW_Y, gametext->strings[2], 2, ALIGN_TOP_CENTER);
+        break;
     }
 
     fontWindowDraw(gfx, NULL, NULL, 1);

@@ -8,6 +8,6 @@ _exports:
 .dword pausemenu_dtor
 
 # export table
-.dword pausemenu_update1
-.dword pausemenu_update2
-.dword pausemenu_draw
+.dword pausemenu_Update1
+.dword pausemenu_Update2
+.dword pausemenu_Draw
