@@ -163,7 +163,7 @@ void LevelName_obj_Print(Object* self, Gfx** gfx, Mtx** mtx, Vertex** vtx, Trian
 
     for (index = 0; index < gametext->count; index++, yCoord += 30) {
         fontWindowAddStringXY(6, -0x8000, yCoord, 
-            gametext->strings[index], 1, 4);
+            gametext->strings[index], 1, ALIGN_TOP_CENTER);
         fontWindowDraw(gfx, mtx, vtx, 6);
     }
 }
