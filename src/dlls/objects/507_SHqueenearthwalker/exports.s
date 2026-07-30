@@ -8,10 +8,10 @@ _exports:
 .dword SHqueenearthwalker_dtor
 
 # export table
-/*0*/ .dword SHqueenearthwalker_setup
-/*1*/ .dword SHqueenearthwalker_control
-/*2*/ .dword SHqueenearthwalker_update
-/*3*/ .dword SHqueenearthwalker_print
-/*4*/ .dword SHqueenearthwalker_free
-/*5*/ .dword SHqueenearthwalker_get_model_flags
-/*6*/ .dword SHqueenearthwalker_get_data_size
+/*0*/ .dword SHqueenearthwalker_obj_Setup
+/*1*/ .dword SHqueenearthwalker_obj_Control
+/*2*/ .dword SHqueenearthwalker_obj_Update
+/*3*/ .dword SHqueenearthwalker_obj_Print
+/*4*/ .dword SHqueenearthwalker_obj_Free
+/*5*/ .dword SHqueenearthwalker_obj_GetModelFlags
+/*6*/ .dword SHqueenearthwalker_obj_GetDataSize
