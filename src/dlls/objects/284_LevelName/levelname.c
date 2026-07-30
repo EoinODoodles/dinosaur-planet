@@ -14,7 +14,7 @@
 
 typedef struct {
     ObjSetup base;
-    s16 flagID;
+    s16 gamebitShown;
     s16 unk1A;
     s16 unk1C;
     s16 textID;
@@ -27,7 +27,7 @@ typedef struct {
 /*08*/ u32 displayDuration;
 /*0C*/ u8 activationRadius;
 /*0D*/ s8 unusedD;
-/*0E*/ s16 flagID;
+/*0E*/ s16 gamebitShown;
 /*10*/ s16 timer;
 /*12*/ s16 opacity;
 /*14*/ u8 state;
@@ -60,13 +60,13 @@ enum LevelNameStates{
     0x01f6
 };
 
-static int LevelName_animCallback(Object* self, Object *overrideObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static int LevelName_animCallback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 prevCallbackValue);
 
 // offset: 0x0 | ctor
-void LevelName_ctor(void* dll){ }
+void LevelName_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void LevelName_dtor(void* dll){ }
+void LevelName_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
 void LevelName_obj_Setup(Object* self, LevelName_Setup* setup, s32 reset) {
@@ -84,13 +84,13 @@ void LevelName_obj_Setup(Object* self, LevelName_Setup* setup, s32 reset) {
     objdata->displayDuration = gametext->commands[0];
     objdata->gametext = gametext;
     objdata->activationRadius = setup->activationRadius;
-    objdata->flagID = setup->flagID;
+    objdata->gamebitShown = setup->gamebitShown;
     objdata->opacity = 0;
 
     objdata->state = LevelName_STATE_0_WAITING;
     objdata->timer = objdata->opacity;
 
-    if ((objdata->flagID != NO_GAMEBIT) && mainGetBits(objdata->flagID)) {
+    if ((objdata->gamebitShown != NO_GAMEBIT) && mainGetBits(objdata->gamebitShown)) {
         objdata->state = LevelName_STATE_4_FINISHED;
     }
     self->stateFlags |= OBJSTATE_UPDATE_DISABLED;
@@ -107,8 +107,8 @@ void LevelName_obj_Control(Object* self) {
         case LevelName_STATE_0_WAITING:
             distance = vec3Distance(&self->globalPosition, &objGetPlayer()->globalPosition);
             if (distance < objdata->activationRadius) {
-                if (objdata->flagID != NO_GAMEBIT) {
-                    mainSetBits(objdata->flagID, 1);
+                if (objdata->gamebitShown != NO_GAMEBIT) {
+                    mainSetBits(objdata->gamebitShown, 1);
                 }
                 objdata->state = LevelName_STATE_1_FADING_IN;
             }
@@ -140,7 +140,7 @@ void LevelName_obj_Control(Object* self) {
 }
 
 // offset: 0x304 | func: 2 | export: 2
-void LevelName_obj_Update(Object* self){ }
+void LevelName_obj_Update(Object* self) { }
 
 // offset: 0x310 | func: 3 | export: 3
 void LevelName_obj_Print(Object* self, Gfx** gfx, Mtx** mtx, Vertex** vtx, Triangle** pols, s8 visibility) {
@@ -151,17 +151,17 @@ void LevelName_obj_Print(Object* self, Gfx** gfx, Mtx** mtx, Vertex** vtx, Trian
 
     yCoord = 80;
     objdata = self->data;
-    if (objdata->opacity == 0)
+    if (objdata->opacity == 0) {
         return;
+    }
 
     gametext = objdata->gametext;
     fontWindowSetCoords(6, 0, 0, 320, 240);
     fontWindowUseFont(6, FONT_DINO_MEDIUM_FONT_IN);
     fontWindowFlushStrings(6);
-    fontWindowSetTextColour(6, 
-        0xFF, 0xFF, 0xFF, 0, objdata->opacity);
+    fontWindowSetTextColour(6, 0xFF, 0xFF, 0xFF, 0, objdata->opacity);
 
-    for (index = 0; index < gametext->count; index++, yCoord += 30){
+    for (index = 0; index < gametext->count; index++, yCoord += 30) {
         fontWindowAddStringXY(6, -0x8000, yCoord, 
             gametext->strings[index], 1, 4);
         fontWindowDraw(gfx, mtx, vtx, 6);
@@ -177,26 +177,26 @@ void LevelName_obj_Free(Object* self, s32 onlySelf) {
 }
 
 // offset: 0x4E4 | func: 5 | export: 5
-u32 LevelName_obj_GetModelFlags(Object* self){
+u32 LevelName_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x4F4 | func: 6 | export: 6
-u32 LevelName_obj_GetDataSize(Object* self, s32 offsetAddr){
+u32 LevelName_obj_GetDataSize(Object* self, s32 offsetAddr) {
     return sizeof(LevelName_Data);
 }
 
 // offset: 0x508 | func: 7
-static int LevelName_animCallback(Object* self, Object *overrideObj, AnimObj_Data* animData, s8 prevCallbackValue) {
+static int LevelName_animCallback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 prevCallbackValue) {
     LevelName_Data* objdata;
     s32 i;
 
     objdata = self->data;
 
-    for (i = 0; i < animData->messageCount; i++){
+    for (i = 0; i < animData->messageCount; i++) {
         if (animData->messages[i] == 1) {
-            if (objdata->flagID != -1) {
-                mainSetBits(objdata->flagID, 1);
+            if (objdata->gamebitShown != NO_GAMEBIT) {
+                mainSetBits(objdata->gamebitShown, 1);
             }
             objdata->state = LevelName_STATE_1_FADING_IN;
             return 4;
