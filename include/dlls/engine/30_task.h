@@ -6,12 +6,14 @@
 
 DLL_INTERFACE(DLL_30_task) {
     /*:*/ DLL_INTERFACE_BASE(DLL);
-    /*0*/ void (*load_recently_completed)(void);
-    /*1*/ void (*mark_task_completed)(u8 task);
-    /*2*/ u8 (*get_num_recently_completed)(void);
-    /*3*/ char *(*get_recently_completed_task_text)(u8 idx);
-    /*4*/ char *(*get_completion_task_text)(void);
-    /*5*/ s16 (*get_completion_percentage)(void);
+    /*0*/ void (*LoadRecentlyCompleted)(void);
+    /*1*/ void (*MarkTaskCompleted)(u8 task);
+    /*2*/ u8 (*GetNumRecentlyCompleted)(void);
+    /*3*/ char *(*GetRecentlyCompletedTaskText)(u8 idx);
+    /*4*/ char *(*GetCompletionTaskText)(void);
+    /*5*/ s16 (*GetCompletionPercentage)(void);
 };
+
+#define dll_task (gDLL_30_Task->vtbl)
 
 #endif //_DLLS_30_H

@@ -1,6 +1,8 @@
 #include "PR/ultratypes.h"
 #include "PR/gbi.h"
 #include "game/gamebits.h"
+#include "game/gametexts.h"
+#include "game/objects/interaction_arrow.h"
 #include "game/objects/object.h"
 #include "sys/gfx/animseq.h"
 #include "sys/joypad.h"
@@ -77,8 +79,8 @@ void SHqueenearthwalker_control(Object* self) {
                 if (objdata->eatenWhiteMushrooms <= 0) {
                     gDLL_3_Animation->vtbl->start_obj_sequence(3, self, -1);
                 } else {
-                    objdata->questProgress = 4U;
-                    gDLL_30_Task->vtbl->mark_task_completed(0xB);
+                    objdata->questProgress = 4;
+                    dll_task->MarkTaskCompleted(TASK_NUM(GAMETEXT_0FF_Task_011));
                     mainSetBits(BIT_SH_Move_Thorntail_Blocking_Swapstone, 1);
                 }
                 mainSetBits(BIT_Inventory_White_Mushrooms, 0);

@@ -219,7 +219,7 @@ void pausemenu_draw(Gfx** gfx, Mtx** mtx, Vertex** vtx) {
             rcpScreenFullWrite(gfx, textureSpirit, SPIRIT_X, SPIRIT_Y, 0, 0, opacity_main, SCREEN_WRITE_TRANSLUCENT);
             
             //Draw completion percentage
-            sprintf(completionPercentage, formatCompletionPercentage, gDLL_30_Task->vtbl->get_completion_percentage());
+            sprintf(completionPercentage, formatCompletionPercentage, dll_task->GetCompletionPercentage());
             fontWindowAddStringXY(1, COMPLETION_X, COMPLETION_Y, completionPercentage, 1, ALIGN_TOP_CENTER);
     
             //@bug: forgot to add a drop-shadow for the completion percentage

@@ -268,7 +268,7 @@ void mainInit(void) {
         gDLL_54_pickup = dllLoad(DLL_ID_PICKUP, 12); // 0x2F in SFA
         gDLL_57 = dllLoad(DLL_ID_57, 4);
         gDLL_58 = dllLoad(DLL_ID_58, 2);
-        gDLL_30_Task->vtbl->load_recently_completed();
+        dll_task->LoadRecentlyCompleted();
     }
     mainInitBits();
     alSynFlag = 1;
@@ -542,7 +542,7 @@ void mainChangeMap(s32 mapID, s32 setupID, s32 playerno, s32 menuID) {
 
     mainClearPlayerPosBuffer();
 
-    gDLL_30_Task->vtbl->load_recently_completed();
+    dll_task->LoadRecentlyCompleted();
     gDLL_29_Gplay->vtbl->set_playerno(playerno);
 
     location = gDLL_29_Gplay->vtbl->get_player_saved_location();
@@ -737,7 +737,7 @@ void mainSetBits(s32 entry, u32 value) {
         }
 
         if (gFile_BITTABLE[entry].field_0x2 & (1 << 5)) {
-            gDLL_30_Task->vtbl->mark_task_completed(gFile_BITTABLE[entry].task);
+            dll_task->MarkTaskCompleted(gFile_BITTABLE[entry].task);
         }
 
         startBit = gFile_BITTABLE[entry].start;

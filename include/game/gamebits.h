@@ -320,7 +320,7 @@ typedef enum {
     BIT_Recent_Task_3 = 0x139, // len:8 group:1
     BIT_Recent_Task_4 = 0x13A, // len:8 group:1
     BIT_Recent_Task_5 = 0x13B, // len:8 group:1
-    BIT_Furthest_Completed_Task = 0x13C, // len:8 group:1
+    BIT_Next_Game_Task = 0x13C, // len:8 group:1
     BIT_Krystal_Fireflies = 0x13D, // len:5 group:1 (Firefly Lantern) [INVENTORY]
     BIT_13E = 0x13E, // len:1 group:1
     BIT_13F = 0x13F, // len:1 group:1

@@ -1,21 +1,25 @@
 #include "PR/ultratypes.h"
 #include "dll.h"
 #include "game/gamebits.h"
+#include "game/gametexts.h"
 #include "sys/main.h"
 
 static u8 sRecentlyCompleted[5];
 static u8 sCompletionIdx;
 static s8 sRecentlyCompletedNextIdx;
 
+// offset: 0x0 | ctor
 void task_ctor(void *self) {
 
 }
 
+// offset: 0xC | dtor
 void task_dtor(void *self) {
 
 }
 
-void task_load_recently_completed(void) {
+// offset: 0x18 | func: 0 | export: 0
+void task_LoadRecentlyCompleted(void) {
     s32 i;
     u8 val;
 
@@ -28,7 +32,7 @@ void task_load_recently_completed(void) {
         }
     }
 
-    val = mainGetBits(BIT_Furthest_Completed_Task);
+    val = mainGetBits(BIT_Next_Game_Task);
     sCompletionIdx = val;
     if (val == 0) {
         sCompletionIdx = 1;
@@ -36,7 +40,8 @@ void task_load_recently_completed(void) {
     }
 }
 
-void task_mark_task_completed(u8 task) {
+// offset: 0xDC | func: 1 | export: 1
+void task_MarkTaskCompleted(u8 task) {
     s16 i;
     s16 bs_entry;
     s16 bit_idx;
@@ -96,7 +101,7 @@ void task_mark_task_completed(u8 task) {
 
         } while ((bs_value >> bit_idx) & 1);
 
-        mainSetBits(BIT_Furthest_Completed_Task, sCompletionIdx);
+        mainSetBits(BIT_Next_Game_Task, sCompletionIdx);
     }
 
     // hmm
@@ -105,19 +110,32 @@ void task_mark_task_completed(u8 task) {
     }
 }
 
-u8 task_get_num_recently_completed(void) {
+// offset: 0x368 | func: 2 | export: 2
+u8 task_GetNumRecentlyCompleted(void) {
     return sRecentlyCompletedNextIdx + 1;
 }
 
-char *task_get_recently_completed_task_text(u8 idx) {
-    return gDLL_21_Gametext->vtbl->get_text(sRecentlyCompleted[idx] + 244, 0);
+// offset: 0x390 | func: 3 | export: 3
+/**
+  * Get descriptive text for a recently completed gameplay task. 
+  */
+char *task_GetRecentlyCompletedTaskText(u8 idx) {
+    return gDLL_21_Gametext->vtbl->get_text(GAMETEXT_0F4_Task_Header + sRecentlyCompleted[idx], 0);
 }
 
-char *task_get_completion_task_text(void) {
-    return gDLL_21_Gametext->vtbl->get_text(sCompletionIdx + 244, 1);
+// offset: 0x3F8 | func: 4 | export: 4
+/**
+  * Get hint text about the upcoming gameplay task. 
+  */
+char *task_GetCompletionTaskText(void) {
+    return gDLL_21_Gametext->vtbl->get_text(GAMETEXT_0F4_Task_Header + sCompletionIdx, 1);
 }
 
-s16 task_get_completion_percentage(void) {
-    f32 tmp = sCompletionIdx / 206.0f;
-    return tmp * 100.0f;
+// offset: 0x454 | func: 5 | export: 5
+/**
+  * Get hint text about the upcoming gameplay task. 
+  */
+s16 task_GetCompletionPercentage(void) {
+    f32 fraction = sCompletionIdx / 206.0f;
+    return fraction * 100.0f;
 }

@@ -614,4 +614,6 @@ typedef enum {
         GAMETEXT_261_WM_Randorn_and_Krystal_Meeting_3 = 0x261  //But theres something else,
 } GameTexts;
 
+#define TASK_NUM(taskGametextID) (taskGametextID - GAMETEXT_0F4_Task_Header)
+
 #endif // _GAME_GAMETEXTS_H

@@ -475,7 +475,7 @@ void dll_63_draw(Gfx **gdl, Mtx **mtxs, Vertex **vtxs) {
             rcpScreenFullWrite(gdl, sLogoShadowTexture, 119, 92, 0, 0, 0xFF, SCREEN_WRITE_TRANSLUCENT);
             rcpScreenFullWrite(gdl, sLogoTexture, 129, 100, 0, 0, 0xFF, SCREEN_WRITE_TRANSLUCENT);
 
-            numRecentTasks = gDLL_30_Task->vtbl->get_num_recently_completed();
+            numRecentTasks = dll_task->GetNumRecentlyCompleted();
             if (numRecentTasks > 3) {
                 numRecentTasks = 3;
             }
@@ -490,7 +490,7 @@ void dll_63_draw(Gfx **gdl, Mtx **mtxs, Vertex **vtxs) {
             for (i = 0; i < numRecentTasks; i++) {
                 sprintf(sRecentTaskNumStrs[i], "%1d.", (int)(i + 1));
                 fontWindowAddStringXY(1, 75, y, sRecentTaskNumStrs[i], 1, ALIGN_TOP_LEFT);
-                fontWindowAddStringXY(3, 2, y, gDLL_30_Task->vtbl->get_recently_completed_task_text(i), 1, ALIGN_TOP_LEFT);
+                fontWindowAddStringXY(3, 2, y, dll_task->GetRecentlyCompletedTaskText(i), 1, ALIGN_TOP_LEFT);
                 y += 40;
             }
 
@@ -500,7 +500,7 @@ void dll_63_draw(Gfx **gdl, Mtx **mtxs, Vertex **vtxs) {
             for (i = 0; i < numRecentTasks; i++) {
                 sprintf(sRecentTaskNumStrs[i], "%1d.", (int)(i + 1));
                 fontWindowAddStringXY(1, 73, y - 2, sRecentTaskNumStrs[i], 1, ALIGN_TOP_LEFT);
-                fontWindowAddStringXY(3, 0, y - 2, gDLL_30_Task->vtbl->get_recently_completed_task_text(i), 1, ALIGN_TOP_LEFT);
+                fontWindowAddStringXY(3, 0, y - 2, dll_task->GetRecentlyCompletedTaskText(i), 1, ALIGN_TOP_LEFT);
                 y += 40;
             }
         } else {
@@ -918,9 +918,9 @@ static void dll_63_act_game_confirm(PicMenuAction action, s32 selected) {
     } else {
         gDLL_29_Gplay->vtbl->load_save(sSelectedSaveIdx, /*startGame*/FALSE);
 
-        gDLL_30_Task->vtbl->load_recently_completed();
+        dll_task->LoadRecentlyCompleted();
 
-        if (gDLL_30_Task->vtbl->get_num_recently_completed() != 0) {
+        if (dll_task->GetNumRecentlyCompleted() != 0) {
             dll_63_goto_game_recap();
         } else {
             sExitToGame = TRUE;

@@ -1087,7 +1087,7 @@ void SB_Galleon_func_EAC(Object *self) {
                     gDLL_29_Gplay->vtbl->set_obj_group_status(SOME_MAP_ID, 2, 1);
                     gDLL_29_Gplay->vtbl->set_obj_group_status(SOME_MAP_ID, 5, 1);
                     gDLL_3_Animation->vtbl->start_obj_sequence(0, self, -1);
-                    gDLL_30_Task->vtbl->mark_task_completed(1);
+                    dll_task->MarkTaskCompleted(TASK_NUM(GAMETEXT_0F5_Task_001));
                     return;
                 }
             }
