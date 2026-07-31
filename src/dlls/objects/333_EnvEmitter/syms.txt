@@ -1,0 +1,12 @@
+.text = 0x0:
+EnvEmitter_ctor = 0x0;
+EnvEmitter_dtor = 0xC;
+EnvEmitter_obj_Setup = 0x18;
+EnvEmitter_obj_Control = 0x8C;
+EnvEmitter_obj_Update = 0x2F4;
+EnvEmitter_obj_Print = 0x300;
+EnvEmitter_obj_Free = 0x318;
+EnvEmitter_obj_GetModelFlags = 0x328;
+EnvEmitter_obj_GetDataSize = 0x338;
+
+.rodata = 0x384:

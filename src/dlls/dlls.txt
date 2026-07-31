@@ -196,6 +196,7 @@
 330 = objects/330_CampFire
 331 = objects/331_genprops
 332 = objects/332_FXEmit
+333 = objects/333_EnvEmitter
 334 = objects/334_Transporter
 336 = objects/336_FirePole
 339 = objects/339
