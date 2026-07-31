@@ -6,7 +6,7 @@ typedef struct {
     s8 activateRange;
     s8 unk19;
     s16 actionIdxBase;
-    s16 gamebitA;
+    s16 gamebitActivate;
     s16 gamebitActionIdxOffset;
 } EnvEmitter_Setup;
 
@@ -35,7 +35,7 @@ void EnvEmitter_obj_Setup(Object* self, EnvEmitter_Setup* objSetup, s32 reset) {
     objData->activateRange = objSetup->activateRange * 4;
     objData->unk14 = objSetup->unk19;
     objData->actionIdxBase = objSetup->actionIdxBase;
-    objData->gamebitActivate = objSetup->gamebitA;
+    objData->gamebitActivate = objSetup->gamebitActivate;
     objData->gamebitActionIdxOffset = objSetup->gamebitActionIdxOffset;
     objData->prevActivated = -1;
     objData->prevActionIdxOffset = -1;
