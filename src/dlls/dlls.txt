@@ -224,6 +224,7 @@
 382 = objects/382_CFIllusionClaw
 383 = objects/383_CFPerch
 385 = objects/385
+387 = objects/387_CFBigDoorSwitch
 388 = objects/388_CFbarrel
 393 = objects/393_CFMainSlideDoor
 394 = objects/394_CFTreasureDoor
