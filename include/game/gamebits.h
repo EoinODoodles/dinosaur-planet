@@ -1428,8 +1428,8 @@ typedef enum {
     BIT_Hide_Minimap = 0x58D, // len:1 group:0 // [MINIMAP] Hides minimap!
     BIT_58E = 0x58E, // len:1 group:0
     BIT_MINIMAP_LightFoot_Village_Inside_Mound = 0x58F, // len:1 group:0 [MINIMAP | TILE] Shows the minimap for the interior of LightVillage's mound, instead of the outside
-    BIT_590 = 0x590, // len:1 group:0
-    BIT_591 = 0x591, // len:1 group:0
+    BIT_CRF_Galleon_Fade_to_High_Detail = 0x590, // len:1 group:0 (Fades to high-detail if the low-detail Galleon is currently visible)
+    BIT_CRF_Galleon_Fade_to_Low_Detail = 0x591, // len:1 group:0  (Fades to low-detail if the high-detail Galleon is currently visible)
     BIT_592 = 0x592, // len:1 group:0
     BIT_593 = 0x593, // len:1 group:0
     BIT_594 = 0x594, // len:1 group:0

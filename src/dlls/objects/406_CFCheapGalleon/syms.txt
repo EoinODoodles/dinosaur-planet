@@ -1,0 +1,13 @@
+.text = 0x0:
+CFCheapGalleon_ctor = 0x0;
+CFCheapGalleon_dtor = 0xC;
+CFCheapGalleon_obj_Setup = 0x18;
+CFCheapGalleon_obj_Control = 0x58;
+CFCheapGalleon_obj_Update = 0x250;
+CFCheapGalleon_obj_Print = 0x2D4;
+CFCheapGalleon_obj_Free = 0x2EC;
+CFCheapGalleon_obj_GetModelFlags = 0x2FC;
+CFCheapGalleon_obj_GetDataSize = 0x30C;
+
+.rodata = 0x35C:
+str_0 = 0x0; // absolute:0x35C
