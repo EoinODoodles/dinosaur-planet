@@ -104,24 +104,24 @@ void SeqDoor_obj_Setup(Object* self, SeqDoor_Setup* objSetup, s32 reset) {
 // offset: 0x1C8 | func: 1 | export: 1
 void SeqDoor_obj_Control(Object* self) {
     SeqDoor_Data* objData;
-    SeqDoor_Setup* setup;
+    SeqDoor_Setup* objSetup;
     s32 enabledActors;
 
-    setup = (SeqDoor_Setup*)self->setup;
+    objSetup = (SeqDoor_Setup*)self->setup;
     objData = (SeqDoor_Data*)self->data;
 
     if (objData->startSequence) {
         //Skip the door's objSeq to its preemptTime, if the door's not in its initial state
-        if (setup->preemptTime && (objData->state != SeqDoor_STATE_0_Initial)) {
-            enabledActors = setup->preemptEnabledActors;
-            gDLL_3_Animation->vtbl->preempt_sequence_time(self, setup->preemptTime);
+        if (objSetup->preemptTime && (objData->state != SeqDoor_STATE_0_Initial)) {
+            enabledActors = objSetup->preemptEnabledActors;
+            gDLL_3_Animation->vtbl->preempt_sequence_time(self, objSetup->preemptTime);
         } else {
             enabledActors = -1;
         }
         
         //Play the door's sequence
-        if (setup->objSeqIdx != -1) {
-            gDLL_3_Animation->vtbl->start_obj_sequence(setup->objSeqIdx, self, enabledActors);
+        if (objSetup->objSeqIdx != -1) {
+            gDLL_3_Animation->vtbl->start_obj_sequence(objSetup->objSeqIdx, self, enabledActors);
         }
 
         objData->startSequence = FALSE;
