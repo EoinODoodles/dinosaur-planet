@@ -1,6 +1,7 @@
 #include "common.h"
 #include "macros.h"
 #include "dlls/objects/210_player.h"
+#include "dlls/objects/251_weapons.h"
 #include "dlls/objects/common/sidekick.h"
 #include "game/objects/object.h"
 #include "sys/gfx/model.h"
@@ -150,7 +151,7 @@ s32 objAnimSet(Object* object, s32 modAnimIndex, f32 animProgress, u8 arg3) {
     animState->curAnimationFrame[0] = animState->totalAnimationFrames[0] * animProgress;
     
     if (object->linkedObject && object->linkedObject->controlNo == OBJCONTROL_Weapon) {
-        ((ObjectAnim_Data_2*)object->linkedObject->data)->unk84 &= ~1;
+        ((DLL251_Data*)object->linkedObject->data)->unk84 &= ~1;
     }
     
     return 0;

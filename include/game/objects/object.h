@@ -514,11 +514,6 @@ typedef struct ObjListItem {
     Object *obj;
 } ObjListItem;
 
-typedef struct {
-/*00*/ s8 unk0[0x84 - 0];
-/*84*/ u8 unk84;
-} ObjectAnim_Data_2;
-
 /** Used to load Tricky/Kyte's object 
   * 
 */

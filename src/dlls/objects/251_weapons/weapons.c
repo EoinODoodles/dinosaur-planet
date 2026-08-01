@@ -6,47 +6,6 @@
 #include "sys/lfx.h"
 #include "dlls/objects/251_weapons.h"
 
-typedef struct {
-    s8 unk0[0x8 - 0];
-    void* unk8;
-    s8 unkC[0x14 - 0xC];
-    f32 unk14;
-    f32 unk18;
-    f32 unk1C;
-    f32 unk20;
-    f32 unk24;
-    f32 unk28;
-    f32 unk2C;
-    f32 unk30;
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-    f32 unk40;
-    s8 unk44[0x58 - 0x44];
-    f32 unk58; //Vec3f?
-    f32 unk5C;
-    f32 unk60;
-    s8 unk64[0x6C - 0x64];
-    u32 unk6C; //soundHandle
-    s16 unk70;
-    s16 unk72;
-    s16 unk74;
-    s16 unk76;
-    s16 unk78;
-    s16 unk7A;
-    s16 unk7C;
-    s16 unk7E;
-    s16 unk80;
-    s16 unk82;
-    u8 unk84;
-    s8 unk85[0x8A - 0x85];
-    s16 unk8A;
-    s16 unk8C;
-    s8 unk8E;
-    s8 unk8F;
-    s8 unk90[0x94 - 0x90];
-} DLL251_Data; //0x94
-
 /*0x0*/ static s16 data_0[2] = {TEXTABLE_3ED, TEXTABLE_3EC}; //Krystal
 /*0x4*/ static s16 data_4[2] = {TEXTABLE_3E8, TEXTABLE_3EC}; //Sabre
 
