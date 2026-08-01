@@ -87,7 +87,7 @@ void SeqDoor_obj_Control(Object* self) {
     s32 enabledActors;
 
     objSetup = (SeqDoor_Setup*)self->setup;
-    objData = (SeqDoor_Data*)self->data;
+    objData = self->data;
 
     if (objData->startSequence) {
         //Skip the door's objSeq to its preemptTime, if the door's not in its initial state
