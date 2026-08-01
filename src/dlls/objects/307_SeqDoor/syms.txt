@@ -9,7 +9,7 @@ SeqDoor_obj_Free = 0x308;
 SeqDoor_obj_GetModelFlags = 0x318;
 SeqDoor_obj_GetDataSize = 0x328;
 SeqDoor_animCallback = 0x33C;
-SeqDoor_func_6E4 = 0x6E4;
+SeqDoor_setCameraPositionGamebits = 0x6E4;
 
 .rodata = 0x864:
 _oob_rodata_0 = 0x0; // absolute:0x864

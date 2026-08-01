@@ -10,44 +10,49 @@
 
 typedef struct {
     ObjSetup base;
-    s16 gamebitA;
-    s16 gamebitRestoreState;
-    s16 preemptTime;
-    s8 objSeqIdx;
+    s16 gamebitOpenA;           //animCallback advances door to "Opening" state when this gamebit (and gamebitOpenB if specified) is set, or to "Closing" state when unset (obj must be in a sequence!)
+    s16 gamebitRestoreState;    //Restores state when the door loads (either "Open" or "Closed" state) - objSeq will use a preemptTime to skip the door to its open position when restoring "Open" state.
+    s16 preemptTime;            //The sequence time to jump to when the object loads in its "Open" state (state restored via `gamebitRestoreState`).
+    s8 objSeqIdx;               //The door opening cutscene's objSeqIdx
     u8 yaw;
-    u8 enabledActors;
-    u8 scale;
-    s16 gamebitB;
-    s16 gamebitC;
-    s16 gamebitD;
-    u8 flipBitsGamebitC;
-    u8 flipBitsGamebitD;
+    u8 preemptEnabledActors;    //Configures which actors to include when the door's sequence is played using a preemptTime
+    u8 scale;                   //Scale factor for the door (0x40 is 1x scale)
+    s16 gamebitOpenB;           //When specified, animCallback advances door to "Opening" state when this gamebit and gamebitOpenA are set (obj must be in a sequence!)
+    s16 gamebitCameraBack;      //When specified, animCallback flips part (`flipBitsCameraBack`) of this gamebit's value if the camera is behind the door when the door finishes opening/closing (obj must be in a sequence!)
+    s16 gamebitCameraFront;     //When specified, animCallback flips part (`flipBitsCameraFront`) of this gamebit's value if the camera is in front of the door when the door finishes opening/closing (obj must be in a sequence!)
+    u8 flipBitsCameraBack;      //The section of `gamebitCameraBack`'s value to flip when `gamebitCameraBack`'s value is updated
+    u8 flipBitsCameraFront;     //The section of `gamebitCameraFront`'s value to flip when `gamebitCameraFront`'s value is updated
 } SeqDoor_Setup;
 
 typedef struct {
-    f32 sinYaw;
-    f32 cosYaw;
-    f32 unk8;
-    u8 state;
-    u8 startSequence;
-    u8 flags;
+    f32 sinYaw;                  //Used to streamline calculating whether the camera is in front of/behind the door
+    f32 cosYaw;                  //Used to streamline calculating whether the camera is in front of/behind the door
+    f32 worldOriginObjectSpaceZ; //Used to streamline calculating whether the camera is in front of/behind the door
+    u8 state;                    //The door's state machine value (handled in animCallback only)
+    u8 startSequence;            //Whether the control function should start playing the door's objSeq (always activates the first time control runs)
+    u8 flags;                    //Tracks whether gamebitOpenA and gamebitOpenB (if specified) are set - used to apply textureAnimators to the door, etc.
 } SeqDoor_Data;
 
 typedef enum {
-    SeqDoor_STATE_0,
-    SeqDoor_STATE_1,
-    SeqDoor_STATE_2,
-    SeqDoor_STATE_3,
+    SeqDoor_STATE_0_Initial,
+    SeqDoor_STATE_1_Open,
+    SeqDoor_STATE_2_Opening,
+    SeqDoor_STATE_3_Closing,
     SeqDoor_STATE_4
 } SeqDoor_States;
 
 typedef enum {
-    SeqDoor_FLAG_1 = 1,
-    SeqDoor_FLAG_2 = 2
+    SeqDoor_FLAG_1_Activated_A = 1,
+    SeqDoor_FLAG_2_Activated_B = 2
 } SeqDoor_Flags;
 
+typedef enum {
+    SeqDoor_SEQCMD_1_Finished_Closing = 1,
+    SeqDoor_SEQCMD_2_Finished_Opening = 2
+} SeqDoor_ObjSeqMessages;
+
 static int SeqDoor_animCallback(Object *self, Object *animObj, AnimObj_Data *animData, s8 prevCallbackValue);
-static void SeqDoor_func_6E4(SeqDoor_Data *objdata, SeqDoor_Setup *setup);
+static void SeqDoor_setCameraPositionGamebits(SeqDoor_Data *objData, SeqDoor_Setup *objSetup);
 
 // offset: 0x0 | ctor
 void SeqDoor_ctor(void* dll) { }
@@ -56,17 +61,17 @@ void SeqDoor_ctor(void* dll) { }
 void SeqDoor_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void SeqDoor_obj_Setup(Object* self, SeqDoor_Setup* setup, s32 reset) {
-    SeqDoor_Data* objdata = self->data;
+void SeqDoor_obj_Setup(Object* self, SeqDoor_Setup* objSetup, s32 reset) {
+    SeqDoor_Data* objData = self->data;
     
-    objdata->startSequence = TRUE;
-    self->srt.yaw = setup->yaw << 8;
+    objData->startSequence = TRUE;
+    self->srt.yaw = objSetup->yaw << 8;
     self->animCallback = SeqDoor_animCallback;
     self->stateFlags |= OBJSTATE_UPDATE_DISABLED;
 
     //Set scale
     {
-        self->srt.scale = setup->scale * (1.0f / 64.0f);
+        self->srt.scale = objSetup->scale * (1.0f / 64.0f);
         if (self->srt.scale == 0.0f) {
             self->srt.scale = 1.0f;
         }
@@ -74,47 +79,52 @@ void SeqDoor_obj_Setup(Object* self, SeqDoor_Setup* setup, s32 reset) {
     }
 
     //Restore state via gamebit
-    if (setup->gamebitRestoreState != NO_GAMEBIT) {
-        objdata->state = mainGetBits(setup->gamebitRestoreState);
+    if (objSetup->gamebitRestoreState != NO_GAMEBIT) {
+        objData->state = mainGetBits(objSetup->gamebitRestoreState);
     } else {
-        objdata->state = SeqDoor_STATE_0;
+        objData->state = SeqDoor_STATE_0_Initial;
     }
 
-    objdata->sinYaw = mathSinfInterp(self->srt.yaw);
-    objdata->cosYaw = mathCosfInterp(self->srt.yaw);
-    objdata->unk8 = -((objdata->sinYaw * self->srt.transl.x) + (objdata->cosYaw * self->srt.transl.z));
+    //Project the world origin onto the door's objectSpace Z-axis
+    //(Helps with later calcs determining whether the camera is in front of or behind the door)
+    objData->sinYaw = mathSinfInterp(self->srt.yaw);
+    objData->cosYaw = mathCosfInterp(self->srt.yaw);
+    objData->worldOriginObjectSpaceZ = -((objData->sinYaw * self->srt.transl.x) + (objData->cosYaw * self->srt.transl.z));
 
-    objdata->flags = 0;
-    if (mainGetBits(setup->gamebitA)) {
-        objdata->flags |= SeqDoor_FLAG_1;
+    //Set flags based on gamebits (for WCDoorSlab lighting up its Moon/Sun icons, etc.)
+    objData->flags = 0;
+    if (mainGetBits(objSetup->gamebitOpenA)) {
+        objData->flags |= SeqDoor_FLAG_1_Activated_A;
     }
-    if (mainGetBits(setup->gamebitB)) {
-        objdata->flags |= SeqDoor_FLAG_2;
+    if (mainGetBits(objSetup->gamebitOpenB)) {
+        objData->flags |= SeqDoor_FLAG_2_Activated_B;
     }
 }
 
 // offset: 0x1C8 | func: 1 | export: 1
 void SeqDoor_obj_Control(Object* self) {
-    SeqDoor_Data* objdata;
+    SeqDoor_Data* objData;
     SeqDoor_Setup* setup;
     s32 enabledActors;
 
     setup = (SeqDoor_Setup*)self->setup;
-    objdata = (SeqDoor_Data*)self->data;
+    objData = (SeqDoor_Data*)self->data;
 
-    if (objdata->startSequence) {
-        if (setup->preemptTime && (objdata->state != SeqDoor_STATE_0)) {
-            enabledActors = setup->enabledActors;
+    if (objData->startSequence) {
+        //Skip the door's objSeq to its preemptTime, if the door's not in its initial state
+        if (setup->preemptTime && (objData->state != SeqDoor_STATE_0_Initial)) {
+            enabledActors = setup->preemptEnabledActors;
             gDLL_3_Animation->vtbl->preempt_sequence_time(self, setup->preemptTime);
         } else {
             enabledActors = -1;
         }
         
+        //Play the door's sequence
         if (setup->objSeqIdx != -1) {
             gDLL_3_Animation->vtbl->start_obj_sequence(setup->objSeqIdx, self, enabledActors);
         }
 
-        objdata->startSequence = FALSE;
+        objData->startSequence = FALSE;
     }
 }
 
@@ -143,25 +153,28 @@ u32 SeqDoor_obj_GetDataSize(Object *self, u32 offsetAddr) {
 
 // offset: 0x33C | func: 7
 static int SeqDoor_animCallback(Object *self, Object *animObj, AnimObj_Data *animData, s8 prevCallbackValue) {
-    SeqDoor_Data *objdata;
+    SeqDoor_Data *objData;
     SeqDoor_Setup *setup;
     TextureAnimator *animator;
-    u32 valueGamebitA;
-    s32 gamebitBSet;
+    u32 activatedA;
+    s32 activatedB;
     s32 i;
 
-    objdata = (SeqDoor_Data*)self->data;
+    objData = (SeqDoor_Data*)self->data;
     setup = (SeqDoor_Setup*)self->setup;
 
+    //Change animated texture frames using a TextureAnimator (used by WCSlabDoor to light up the Moon/Sun icons on the door)
     if (self->def->numAnimatedFrames != 0) {
-        if (objdata->flags & SeqDoor_FLAG_1) {
+        //Light up moon icon (textureAnimator0)
+        if (objData->flags & SeqDoor_FLAG_1_Activated_A) {
             animator = objExprGetTexAnimator(self, 0, 0);
             if (animator != NULL) {
                 animator->frame = 0x100;
             }
         }
 
-        if (objdata->flags & SeqDoor_FLAG_2) {
+        //Light up sun icon (textureAnimator1)
+        if (objData->flags & SeqDoor_FLAG_2_Activated_B) {
             animator = objExprGetTexAnimator(self, 1, 0);
             if (animator != NULL) {
                 animator->frame = 0x100;
@@ -169,81 +182,98 @@ static int SeqDoor_animCallback(Object *self, Object *animObj, AnimObj_Data *ani
         }
     }
 
-    if (objdata->state == SeqDoor_STATE_0) {
-        valueGamebitA = mainGetBits(setup->gamebitA);
-        gamebitBSet = FALSE;
+    //State Machine (NOTE: only runs while the door is in a sequence!)
+    {
+        if (objData->state == SeqDoor_STATE_0_Initial) {
+            activatedA = mainGetBits(setup->gamebitOpenA);
+            activatedB = FALSE;
 
-        //Check if gamebitB is set (or it wasn't specified)
-        if ((setup->gamebitB == NO_GAMEBIT) || mainGetBits(setup->gamebitB)) {
-            gamebitBSet = TRUE;
-        }
-
-        if ((valueGamebitA != 0) && !(objdata->flags & SeqDoor_FLAG_1)) {
-            if (self->def->numAnimatedFrames != 0) {
-                dll_amSfx->Play(self, SOUND_9A3_Magic_Reverse_Cymbal, MAX_VOLUME, NULL, NULL, 0, NULL);
+            //Check if gamebitOpenB is set too (if gamebitOpenB wasn't specified, just ignore it and assume it's set)
+            if ((setup->gamebitOpenB == NO_GAMEBIT) || mainGetBits(setup->gamebitOpenB)) {
+                activatedB = TRUE;
             }
-            objdata->flags |= SeqDoor_FLAG_1;
-        }
 
-        if (gamebitBSet && !(objdata->flags & SeqDoor_FLAG_2)) {
-            if (self->def->numAnimatedFrames != 0) {
-                dll_amSfx->Play(self, SOUND_9A3_Magic_Reverse_Cymbal, MAX_VOLUME, NULL, NULL, 0, NULL);
+            //Flag that gamebitOpenA is set, and play a sound if this will queue textureAnimator0
+            if (activatedA && ((objData->flags & SeqDoor_FLAG_1_Activated_A) == FALSE)) {
+                if (self->def->numAnimatedFrames != 0) {
+                    dll_amSfx->Play(self, SOUND_9A3_Magic_Reverse_Cymbal, MAX_VOLUME, NULL, NULL, 0, NULL);
+                }
+                objData->flags |= SeqDoor_FLAG_1_Activated_A;
             }
-            objdata->flags |= SeqDoor_FLAG_2;
+
+            //Flag that gamebitOpenB is set, and play a sound if this will queue textureAnimator1
+            if (activatedB && ((objData->flags & SeqDoor_FLAG_2_Activated_B) == FALSE)) {
+                if (self->def->numAnimatedFrames != 0) {
+                    dll_amSfx->Play(self, SOUND_9A3_Magic_Reverse_Cymbal, MAX_VOLUME, NULL, NULL, 0, NULL);
+                }
+                objData->flags |= SeqDoor_FLAG_2_Activated_B;
+            }
+
+            //Advance state when gamebitOpenA and gamebitOpenB are set (or when just gamebitOpenA is set, if gamebitOpenB isn't specified)
+            if (objData->flags == (SeqDoor_FLAG_1_Activated_A | SeqDoor_FLAG_2_Activated_B)) {
+                SeqDoor_setCameraPositionGamebits(objData, setup);
+                objData->state = SeqDoor_STATE_2_Opening;
+            }
+        } else if ((objData->state == SeqDoor_STATE_1_Open) && (mainGetBits(setup->gamebitOpenA) == FALSE)) {
+            //Start closing if gamebitOpenA unsets while the door is open
+            objData->state = SeqDoor_STATE_3_Closing;
         }
 
-        if (objdata->flags == (SeqDoor_FLAG_1 | SeqDoor_FLAG_2)) {
-            SeqDoor_func_6E4(objdata, setup);
-            objdata->state = SeqDoor_STATE_2;
-        }
-    } else if ((objdata->state == SeqDoor_STATE_1) && (mainGetBits(setup->gamebitA) == FALSE)) {
-        objdata->state = SeqDoor_STATE_3;
-    }
-
-    if (objdata->state == SeqDoor_STATE_2) {
-        for (i = 0; i < animData->messageCount; i++) {
-            if (animData->messages[i] == 2) {
-                objdata->state = SeqDoor_STATE_1;
-                if (setup->gamebitRestoreState != NO_GAMEBIT) {
-                    mainSetBits(setup->gamebitRestoreState, 1);
+        //Advance states from opening->open and closing->closed, based on objSeq messages
+        if (objData->state == SeqDoor_STATE_2_Opening) {
+            for (i = 0; i < animData->messageCount; i++) {
+                if (animData->messages[i] == SeqDoor_SEQCMD_2_Finished_Opening) {
+                    objData->state = SeqDoor_STATE_1_Open;
+                    if (setup->gamebitRestoreState != NO_GAMEBIT) {
+                        mainSetBits(setup->gamebitRestoreState, SeqDoor_STATE_1_Open);
+                    }
+                }
+            }
+        } else if (objData->state == SeqDoor_STATE_3_Closing) {
+            for (i = 0; i < animData->messageCount; i++) {
+                if (animData->messages[i] == SeqDoor_SEQCMD_1_Finished_Closing) {
+                    SeqDoor_setCameraPositionGamebits(objData, setup);
+                    objData->state = SeqDoor_STATE_0_Initial;
+                    objData->flags = 0;
+                    if (setup->gamebitRestoreState != NO_GAMEBIT) {
+                        mainSetBits(setup->gamebitRestoreState, SeqDoor_STATE_0_Initial);
+                    }
                 }
             }
         }
-    } else if (objdata->state == SeqDoor_STATE_3) {
-        for (i = 0; i < animData->messageCount; i++) {
-            if (animData->messages[i] == 1) {
-                SeqDoor_func_6E4(objdata, setup);
-                objdata->state = SeqDoor_STATE_0;
-                objdata->flags = 0;
-                if (setup->gamebitRestoreState != NO_GAMEBIT) {
-                    mainSetBits(setup->gamebitRestoreState, 0);
-                }
-            }
-        }
     }
 
-    return !(objdata->state == SeqDoor_STATE_2) && !(objdata->state == SeqDoor_STATE_3);
+    return !(objData->state == SeqDoor_STATE_2_Opening) && !(objData->state == SeqDoor_STATE_3_Closing);
 }
 
 // offset: 0x6E4 | func: 8
-static void SeqDoor_func_6E4(SeqDoor_Data *objdata, SeqDoor_Setup *setup) {
+static void SeqDoor_setCameraPositionGamebits(SeqDoor_Data *objData, SeqDoor_Setup *objSetup) {
     Camera *camera;
-    f32 temp;
+    f32 distance;
     u8 value;
 
     camera = camGetMain();
-    temp = (objdata->sinYaw * camera->srt.transl.x) + (objdata->cosYaw * camera->srt.transl.z) + objdata->unk8;
-    if (temp < 0.0f) {
-        if (setup->gamebitC != NO_GAMEBIT) {
-            value = mainGetBits(setup->gamebitC);
-            value ^= setup->flipBitsGamebitC;
-            mainSetBits(setup->gamebitC, value);
+
+    //Get the camera's distance from the door along the door's local objectSpace Z-axis
+    //(projects the camera's XZ coords onto the door's own Z-axis, then subtracts the world origin's projected distance on door's own Z-axis)
+    distance = (objData->sinYaw * camera->srt.transl.x) + (objData->cosYaw * camera->srt.transl.z) + objData->worldOriginObjectSpaceZ;
+
+    //Check whether the camera is in front of/behind the door
+    if (distance < 0.0f) {
+        //Camera is behind the door
+        if (objSetup->gamebitCameraBack != NO_GAMEBIT) {
+            //Flip a section of the behind gamebit's value
+            value = mainGetBits(objSetup->gamebitCameraBack);
+            value ^= objSetup->flipBitsCameraBack;
+            mainSetBits(objSetup->gamebitCameraBack, value);
         }
     } else {
-        if (setup->gamebitD != NO_GAMEBIT) {
-            value = mainGetBits(setup->gamebitD);
-            value ^= setup->flipBitsGamebitD;
-            mainSetBits(setup->gamebitD, value);
+        //Camera is in front of the door
+        if (objSetup->gamebitCameraFront != NO_GAMEBIT) {
+            //Flip a section of the front gamebit's value
+            value = mainGetBits(objSetup->gamebitCameraFront);
+            value ^= objSetup->flipBitsCameraFront;
+            mainSetBits(objSetup->gamebitCameraFront, value);
         }
     }
 }
