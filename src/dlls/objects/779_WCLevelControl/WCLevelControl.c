@@ -472,12 +472,12 @@ static int WCLevelControl_anim_callback(Object *self, Object *overrideObj, AnimO
     if (objdata->previousState == STATE_1) {
         objdata->timer -= gUpdateRateF;
         if (objdata->timer <= 0.0f) {
-            mainSetBits(BIT_7F7, 1);
+            mainSetBits(BIT_WC_SlabDoor_Sun_Symbol_Lit, TRUE);
         }
     } else if (objdata->previousState == STATE_2) {
         objdata->timer -= gUpdateRateF;
         if (objdata->timer <= 0.0f) {
-            mainSetBits(BIT_802, 1);
+            mainSetBits(BIT_WC_SlabDoor_Moon_Symbol_Lit, TRUE);
         }
     }
     for (i = 0; i < animData->messageCount; i++) {
