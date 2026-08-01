@@ -119,6 +119,7 @@ void WCBeacon_obj_Control(Object *self) {
         gDLL_17_partfx->vtbl->spawn(self, PARTICLE_73A, NULL, PARTFXFLAG_2, -1, NULL);
         mainSetBits(setup->gamebitLit, TRUE);
 
+        //Keep texture animator on lit frame
         texAnim = objExprGetTexAnimator(self, 0, 0);
         if (texAnim != NULL) {
             texAnim->frame = MAX_FRAME;
