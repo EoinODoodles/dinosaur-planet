@@ -37,8 +37,7 @@ typedef enum {
     SeqDoor_STATE_0_Closed,
     SeqDoor_STATE_1_Open,
     SeqDoor_STATE_2_Opening,
-    SeqDoor_STATE_3_Closing,
-    SeqDoor_STATE_4
+    SeqDoor_STATE_3_Closing
 } SeqDoor_States;
 
 typedef enum {
