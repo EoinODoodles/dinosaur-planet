@@ -399,6 +399,7 @@
 649 = objects/649_DFP_PerchSwitch
 652 = objects/652_DFP_SpellPlace
 654 = objects/654_textblock
+655 = objects/655_DFP_Platform1
 658 = objects/658_DBPointMum
 659 = objects/659_DBTrigger
 660 = objects/660_DBSpike

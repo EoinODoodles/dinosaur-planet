@@ -1,0 +1,12 @@
+.text = 0x0:
+DFP_Platform1_ctor = 0x0;
+DFP_Platform1_dtor = 0xC;
+DFP_Platform1_obj_Setup = 0x18;
+DFP_Platform1_obj_Control = 0xF4;
+DFP_Platform1_obj_Update = 0x208;
+DFP_Platform1_obj_Print = 0x214;
+DFP_Platform1_obj_Free = 0x268;
+DFP_Platform1_obj_GetModelFlags = 0x2B0;
+DFP_Platform1_obj_GetDataSize = 0x2C0;
+
+.rodata = 0x31C:
