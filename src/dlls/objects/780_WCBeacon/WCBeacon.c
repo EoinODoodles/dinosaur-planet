@@ -6,132 +6,148 @@
 #include "dll.h"
 
 typedef struct {
-/*0*/ f32 unk0;
+/*0*/ f32 timer;
 /*4*/ u8 state;
 } WCBeacon_Data;
 
 typedef struct {
 /*00*/ ObjSetup base;
-/*19*/ s8 unk18;
+/*19*/ s8 yaw;
 /*19*/ s8 modelIndex;
 /*1A*/ u8 _unk1A[0x1E - 0x1A];
-/*1E*/ s16 unk1E;
-/*20*/ s16 unk20;
+/*1E*/ s16 gamebitLit;
+/*20*/ s16 gamebitRise;
 } WCBeacon_Setup;
 
 enum WCBeaconState {
-    WCBEACON_STATE_0 = 0,
-    WCBEACON_STATE_1 = 1,
-    WCBEACON_STATE_2 = 2,
-    WCBEACON_STATE_3 = 3
+    WCBEACON_STATE_0_Underground = 0,
+    WCBEACON_STATE_1_Unlit = 1,
+    WCBEACON_STATE_2_Lighting_Up = 2,
+    WCBEACON_STATE_3_Lit = 3
 };
 
 #define MAX_FRAME 0x100
 
 // offset: 0x0 | ctor
-void dll_780_ctor(void *dll) { }
+void WCBeacon_ctor(void *dll) { }
 
 // offset: 0xC | dtor
-void dll_780_dtor(void *dll) { }
+void WCBeacon_dtor(void *dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void dll_780_setup(Object *self, WCBeacon_Setup *setup, s32 arg2) {
+void WCBeacon_obj_Setup(Object *self, WCBeacon_Setup *setup, s32 reset) {
     WCBeacon_Data *objdata = self->data;
     TextureAnimator *animatedTexture;
     
-    self->srt.yaw = setup->unk18 << 8;
+    self->srt.yaw = setup->yaw << 8;
+    
+    //Set model
     self->modelInstIdx = setup->modelIndex;
-
     if (self->modelInstIdx >= self->def->numModels) {
         self->modelInstIdx = 0;
     }
 
-    if (mainGetBits(setup->unk20) != 0) {
-        if (mainGetBits(setup->unk1E) != 0) {
-            objdata->state = WCBEACON_STATE_3;
+    //Restore state
+    if (mainGetBits(setup->gamebitRise)) {
+        if (mainGetBits(setup->gamebitLit)) {
+            objdata->state = WCBEACON_STATE_3_Lit;
         } else {
-            objdata->state = WCBEACON_STATE_1;
+            objdata->state = WCBEACON_STATE_1_Unlit;
         }
     }
 
+    //Restore texture frame
     animatedTexture = objExprGetTexAnimator(self, 0, 0);
-    if ((animatedTexture != NULL) && (objdata->state == WCBEACON_STATE_3)) {
+    if ((animatedTexture != NULL) && (objdata->state == WCBEACON_STATE_3_Lit)) {
         animatedTexture->frame = MAX_FRAME;
     }
 }
 
 // offset: 0x11C | func: 1 | export: 1
-void dll_780_control(Object *self) {
+void WCBeacon_obj_Control(Object *self) {
     WCBeacon_Setup *setup;
     WCBeacon_Data *objdata;
-    TextureAnimator *temp_v0_2;
-    s16 var_v1;
+    TextureAnimator *texAnim;
+    s16 frameBlend;
 
     objdata = (WCBeacon_Data*)self->data;
     setup = (WCBeacon_Setup*)self->setup;
     
-    if (objdata->state == WCBEACON_STATE_1) {
-        if (mainGetBits(setup->unk20) == 0) {
+    if (objdata->state == WCBEACON_STATE_1_Unlit) {
+        //Descend if the pressure switch gamebit unsets (player didn't light beacon in time)
+        if (mainGetBits(setup->gamebitRise) == FALSE) {
             gDLL_3_Animation->vtbl->start_obj_sequence(1, self, -1);
-            objdata->state = WCBEACON_STATE_0;
+            objdata->state = WCBEACON_STATE_0_Underground;
         }
-        if (func_80025F40(self, NULL, NULL, NULL) != 0) {
-            // Hit
+
+        //Become lit when hit by any source of damage (@bug: not just flames!)
+        if (func_80025F40(self, NULL, NULL, NULL)) {
             dll_amSfx->Play(self, SOUND_50a_Fire_Burning_Low_Loop, MAX_VOLUME, NULL, NULL, 0, NULL);
             dll_amSfx->Play(self, SOUND_50b_Fire_Burning_High_Loop, MAX_VOLUME, NULL, NULL, 0, NULL);
-            objdata->state = WCBEACON_STATE_2;
-            objdata->unk0 = 0.0f;
+            objdata->state = WCBEACON_STATE_2_Lighting_Up;
+            objdata->timer = 0.0f;
         }
-    } else if (objdata->state == WCBEACON_STATE_0) {
-        if (mainGetBits(setup->unk20) != 0) {
+    } else if (objdata->state == WCBEACON_STATE_0_Underground) {
+        //Rise up when the beacon's corresponding pressure switch is activated
+        if (mainGetBits(setup->gamebitRise)) {
             gDLL_3_Animation->vtbl->start_obj_sequence(0, self, -1);
-            objdata->state = WCBEACON_STATE_1;
+            objdata->state = WCBEACON_STATE_1_Unlit;
         }
-    } else if (objdata->state == WCBEACON_STATE_2) {
+    } else if (objdata->state == WCBEACON_STATE_2_Lighting_Up) {
         gDLL_17_partfx->vtbl->spawn(self, PARTICLE_73A, NULL, PARTFXFLAG_2, -1, NULL);
         gDLL_17_partfx->vtbl->spawn(self, PARTICLE_73B, NULL, PARTFXFLAG_2, -1, NULL);
-        objdata->unk0 += gUpdateRateF;
-        if (objdata->unk0 >= 90.0f) {
-            objdata->state = WCBEACON_STATE_3;
+
+        //Count up until advancing state
+        objdata->timer += gUpdateRateF;
+        if (objdata->timer >= 90.0f) {
+            objdata->state = WCBEACON_STATE_3_Lit;
         }
-        var_v1 = (objdata->unk0 / 45.0f) * 256.0f;
-        if (var_v1 > MAX_FRAME) {
-            var_v1 = MAX_FRAME;
+
+        //Fade in the lit texture frame
+        {
+            frameBlend = (objdata->timer / 45.0f) * MAX_FRAME;
+            if (frameBlend > MAX_FRAME) {
+                frameBlend = MAX_FRAME;
+            }
+
+            texAnim = objExprGetTexAnimator(self, 0, 0);
+            if (texAnim != NULL) {
+                texAnim->frame = frameBlend;
+            }
         }
-        temp_v0_2 = objExprGetTexAnimator(self, 0, 0);
-        if (temp_v0_2 != NULL) {
-            temp_v0_2->frame = var_v1;
-        }
-    } else if (objdata->state == WCBEACON_STATE_3) {
+    } else if (objdata->state == WCBEACON_STATE_3_Lit) {
         gDLL_17_partfx->vtbl->spawn(self, PARTICLE_73A, NULL, PARTFXFLAG_2, -1, NULL);
-        mainSetBits(setup->unk1E, 1);
-        temp_v0_2 = objExprGetTexAnimator(self, 0, 0);
-        if (temp_v0_2 != NULL) {
-            temp_v0_2->frame = MAX_FRAME;
+        mainSetBits(setup->gamebitLit, TRUE);
+
+        texAnim = objExprGetTexAnimator(self, 0, 0);
+        if (texAnim != NULL) {
+            texAnim->frame = MAX_FRAME;
         }
+
         if (self->unkDC == 0) {
-            gDLL_3_Animation->vtbl->preempt_sequence_time(self, 0x69);
+            gDLL_3_Animation->vtbl->preempt_sequence_time(self, 105);
             gDLL_3_Animation->vtbl->start_obj_sequence(0, self, 1);
         }
     }
+
     self->unkDC = 1;
 }
 
 // offset: 0x4E8 | func: 2 | export: 2
-void dll_780_update(Object *self) { }
+void WCBeacon_obj_Update(Object *self) { }
 
 // offset: 0x4F4 | func: 3 | export: 3
-void dll_780_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
-    if (visibility != 0) {
+void WCBeacon_obj_Print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
+    if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x548 | func: 4 | export: 4
-void dll_780_free(Object *self, s32 a1) { }
+void WCBeacon_obj_Free(Object *self, s32 onlySelf) { }
 
 // offset: 0x558 | func: 5 | export: 5
-u32 dll_780_get_model_flags(Object *self) {
+u32 WCBeacon_obj_GetModelFlags(Object *self) {
     WCBeacon_Setup *setup = (WCBeacon_Setup*)self->setup;
     s8 modelIdx;
 
@@ -143,6 +159,6 @@ u32 dll_780_get_model_flags(Object *self) {
 }
 
 // offset: 0x58C | func: 6 | export: 6
-u32 dll_780_get_data_size(Object *self, u32 a1) {
+u32 WCBeacon_obj_GetDataSize(Object *self, u32 offsetAddr) {
     return sizeof(WCBeacon_Data);
 }

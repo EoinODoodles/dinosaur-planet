@@ -4,14 +4,14 @@
 _exports:
 
 # ctor/dtor
-.dword dll_780_ctor
-.dword dll_780_dtor
+.dword WCBeacon_ctor
+.dword WCBeacon_dtor
 
 # export table
-/*0*/ .dword dll_780_setup
-/*1*/ .dword dll_780_control
-/*2*/ .dword dll_780_update
-/*3*/ .dword dll_780_print
-/*4*/ .dword dll_780_free
-/*5*/ .dword dll_780_get_model_flags
-/*6*/ .dword dll_780_get_data_size
+/*0*/ .dword WCBeacon_obj_Setup
+/*1*/ .dword WCBeacon_obj_Control
+/*2*/ .dword WCBeacon_obj_Update
+/*3*/ .dword WCBeacon_obj_Print
+/*4*/ .dword WCBeacon_obj_Free
+/*5*/ .dword WCBeacon_obj_GetModelFlags
+/*6*/ .dword WCBeacon_obj_GetDataSize
