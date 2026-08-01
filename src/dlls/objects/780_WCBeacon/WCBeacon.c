@@ -29,15 +29,15 @@ enum WCBeaconState {
 #define MAX_FRAME 0x100
 
 // offset: 0x0 | ctor
-void WCBeacon_ctor(void *dll) { }
+void WCBeacon_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void WCBeacon_dtor(void *dll) { }
+void WCBeacon_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void WCBeacon_obj_Setup(Object *self, WCBeacon_Setup *setup, s32 reset) {
-    WCBeacon_Data *objdata = self->data;
-    TextureAnimator *animatedTexture;
+void WCBeacon_obj_Setup(Object* self, WCBeacon_Setup* setup, s32 reset) {
+    WCBeacon_Data* objdata = self->data;
+    TextureAnimator* animatedTexture;
     
     self->srt.yaw = setup->yaw << 8;
     
@@ -64,10 +64,10 @@ void WCBeacon_obj_Setup(Object *self, WCBeacon_Setup *setup, s32 reset) {
 }
 
 // offset: 0x11C | func: 1 | export: 1
-void WCBeacon_obj_Control(Object *self) {
-    WCBeacon_Setup *setup;
-    WCBeacon_Data *objdata;
-    TextureAnimator *texAnim;
+void WCBeacon_obj_Control(Object* self) {
+    WCBeacon_Setup* setup;
+    WCBeacon_Data* objdata;
+    TextureAnimator* texAnim;
     s16 frameBlend;
 
     objdata = (WCBeacon_Data*)self->data;
@@ -135,21 +135,21 @@ void WCBeacon_obj_Control(Object *self) {
 }
 
 // offset: 0x4E8 | func: 2 | export: 2
-void WCBeacon_obj_Update(Object *self) { }
+void WCBeacon_obj_Update(Object* self) { }
 
 // offset: 0x4F4 | func: 3 | export: 3
-void WCBeacon_obj_Print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
+void WCBeacon_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x548 | func: 4 | export: 4
-void WCBeacon_obj_Free(Object *self, s32 onlySelf) { }
+void WCBeacon_obj_Free(Object* self, s32 onlySelf) { }
 
 // offset: 0x558 | func: 5 | export: 5
-u32 WCBeacon_obj_GetModelFlags(Object *self) {
-    WCBeacon_Setup *setup = (WCBeacon_Setup*)self->setup;
+u32 WCBeacon_obj_GetModelFlags(Object* self) {
+    WCBeacon_Setup* setup = (WCBeacon_Setup*)self->setup;
     s8 modelIdx;
 
     modelIdx = setup->modelIndex;
@@ -160,6 +160,6 @@ u32 WCBeacon_obj_GetModelFlags(Object *self) {
 }
 
 // offset: 0x58C | func: 6 | export: 6
-u32 WCBeacon_obj_GetDataSize(Object *self, u32 offsetAddr) {
+u32 WCBeacon_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(WCBeacon_Data);
 }
