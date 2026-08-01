@@ -1,0 +1,13 @@
+.text = 0x0:
+DIM2Conveyor_ctor = 0x0;
+DIM2Conveyor_dtor = 0xC;
+DIM2Conveyor_obj_Setup = 0x18;
+DIM2Conveyor_obj_Control = 0xEC;
+DIM2Conveyor_obj_Update = 0x158;
+DIM2Conveyor_obj_Print = 0x164;
+DIM2Conveyor_obj_Free = 0x1B8;
+DIM2Conveyor_obj_GetModelFlags = 0x230;
+DIM2Conveyor_obj_GetDataSize = 0x240;
+DIM2Conveyor_Move = 0x254;
+
+.rodata = 0x31C:

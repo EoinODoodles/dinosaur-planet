@@ -341,6 +341,7 @@
 550 = objects/550_WGbouncyVine
 552 = objects/552_WGboulder
 553 = objects/553_WGmutant
+554 = objects/554_DIM2Conveyor
 562 = objects/562_DIM2Icicle
 566 = objects/566_DIM_BossGut
 569 = objects/569_MAGICMaker

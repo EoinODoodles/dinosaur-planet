@@ -442,6 +442,8 @@ enum SoundID {
     SOUND_388_Wood_Smash = 0x388, //DIMWoodDoor
     SOUND_389_Explosion = 0x389, //DIMExplosion
 
+    SOUND_3C4_Conveyor_Loop = 0x3C4, //DIM2Conveyor
+
     SOUND_3D6 = 0x3D6, // used in SHroot (DLL 510)
     SOUND_3D7_Whoosh = 0x3D7, //used in SHroot (DLL 510), DIM2Icicle (DLL 562) 
     SOUND_3D8_Water_Splash = 0x3D8, // used in pushpull (DLL 274), SHroot (DLL 510), DIM2Icicle (DLL 562)
