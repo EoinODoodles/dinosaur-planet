@@ -606,8 +606,8 @@ typedef enum {
     BIT_257 = 0x257, // len:1 group:1
     BIT_258 = 0x258, // len:1 group:1
     BIT_259 = 0x259, // len:1 group:1
-    BIT_25A = 0x25A, // len:1 group:1
-    BIT_25B = 0x25B, // len:1 group:1
+    BIT_WC_Placed_Gold_RedEye_Tooth = 0x25A, // len:1 group:1
+    BIT_WC_Played_Silver_RedEye_Tooth = 0x25B, // len:1 group:1
     BIT_25C = 0x25C, // len:1 group:1
     BIT_25D = 0x25D, // len:1 group:1
     BIT_25E = 0x25E, // len:1 group:0
@@ -2042,8 +2042,8 @@ typedef enum {
     BIT_7F4 = 0x7F4, // len:1 group:1
     BIT_7F5 = 0x7F5, // len:1 group:1
     BIT_7F6 = 0x7F6, // len:1 group:1
-    BIT_7F7 = 0x7F7, // len:1 group:1
-    BIT_7F8 = 0x7F8, // len:1 group:1
+    BIT_WC_SlabDoor_Sun_Symbol_Lit = 0x7F7, // len:1 group:1 (BIT_WC_SlabDoor_Moon_Symbol_Lit must be set too to open door)
+    BIT_WC_SlabDoor_Opened = 0x7F8, // len:1 group:1 (SeqDoor's gamebitRestoreState)
     BIT_7F9 = 0x7F9, // len:1 group:1
     BIT_7FA = 0x7FA, // len:1 group:1
     BIT_WC_Met_King_EarthWalker = 0x7FB, // len:1 group:1
@@ -2053,7 +2053,7 @@ typedef enum {
     BIT_GP_PillarDoor_Open_1 = 0x7FF, // len:1 group:0
     BIT_GP_PillarDoor_Open_2 = 0x800, // len:1 group:0
     BIT_GP_PillarDoor_Open_3 = 0x801, // len:1 group:0
-    BIT_802 = 0x802, // len:1 group:1
+    BIT_WC_SlabDoor_Moon_Symbol_Lit = 0x802, // len:1 group:1  (BIT_WC_SlabDoor_Sun_Symbol_Lit must be set too to open door)
     BIT_803 = 0x803, // len:1 group:0
     BIT_804 = 0x804, // len:1 group:2
     BIT_805 = 0x805, // len:1 group:0
