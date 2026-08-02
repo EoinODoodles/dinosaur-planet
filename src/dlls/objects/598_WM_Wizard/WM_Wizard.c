@@ -73,19 +73,19 @@ void WMWizard_control(Object* self) {
     //Handle setup-specific behaviour
     switch (gDLL_29_Gplay->vtbl->get_act(self->mapID)) {
     case 0:
-    case WM_Setup3_Spirit2_Sabre_DB:
-    case WM_Setup5_Spirit4_Sabre_WC:
+    case WM_ACT3_Spirit2_Sabre_DB:
+    case WM_ACT5_Spirit4_Sabre_WC:
         break;
-    case WM_Setup1_Krystal_Meeting_Randorn:
+    case WM_ACT1_Krystal_Meeting_Randorn:
         WMWizard_handle_visit_1_first_meeting(self);
         break;
-    case WM_Setup2_Spirit1_Krystal_DF:
+    case WM_ACT2_Spirit1_Krystal_DF:
         WMWizard_handle_visit_2_spirit_df(self);
         break;
-    case WM_Setup4_Spirit3_Krystal_MMP:
+    case WM_ACT4_Spirit3_Krystal_MMP:
         WMWizard_handle_visit_3_spirit_mmp(self);
         break;
-    case WM_Setup6_Spirit5_6_Krystal_CC_Sabre_WG:
+    case WM_ACT6_Spirit5_6_Krystal_CC_Sabre_WG:
         WMWizard_handle_visit_4_spirit_cc(self);
         break;
     }
@@ -97,7 +97,7 @@ void WMWizard_update(Object *self) { }
 // offset: 0x244 | func: 3 | export: 3
 void WMWizard_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
-        if (gDLL_29_Gplay->vtbl->get_act(self->mapID) == WM_Setup4_Spirit3_Krystal_MMP) {
+        if (gDLL_29_Gplay->vtbl->get_act(self->mapID) == WM_ACT4_Spirit3_Krystal_MMP) {
             if (mainGetBits(BIT_WM_Setup4_Show_Randorn)) {
                 objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
             }
@@ -125,19 +125,19 @@ int WMWizard_anim_callback(Object* self, Object* overrideObj, AnimObj_Data* anim
     //Setup-specific anim callback behaviours
     switch (gDLL_29_Gplay->vtbl->get_act(self->mapID)) {
     case 0:
-    case WM_Setup3_Spirit2_Sabre_DB:
-    case WM_Setup5_Spirit4_Sabre_WC:
+    case WM_ACT3_Spirit2_Sabre_DB:
+    case WM_ACT5_Spirit4_Sabre_WC:
         break;
-    case WM_Setup1_Krystal_Meeting_Randorn:
+    case WM_ACT1_Krystal_Meeting_Randorn:
         WMWizard_anim_visit_1_first_meeting(self, overrideObj, animData, arg3);
         break;
-    case WM_Setup2_Spirit1_Krystal_DF:
+    case WM_ACT2_Spirit1_Krystal_DF:
         WMWizard_anim_visit_2_spirit_df(self, overrideObj, animData, arg3);
         break;
-    case WM_Setup4_Spirit3_Krystal_MMP:
+    case WM_ACT4_Spirit3_Krystal_MMP:
         WMWizard_anim_visit_3_spirit_mmp(self, overrideObj, animData, arg3);
         break;
-    case WM_Setup6_Spirit5_6_Krystal_CC_Sabre_WG:
+    case WM_ACT6_Spirit5_6_Krystal_CC_Sabre_WG:
         WMWizard_anim_visit_3_spirit_cc(self, overrideObj, animData, arg3);
         break;
     } 

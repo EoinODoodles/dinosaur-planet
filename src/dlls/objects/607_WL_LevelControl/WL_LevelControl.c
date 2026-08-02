@@ -23,22 +23,22 @@
 
 #include "dlls/objects/607_WL_LevelControl.h"
 
-static void WL_LevelControl_setup1_tick(Object* self);
-static void WL_LevelControl_setup2_tick(Object* self);
-static void WL_LevelControl_setup3_tick(Object* self);
-static void WL_LevelControl_setup4_tick(Object* self);
-static void WL_LevelControl_setup5_tick(Object* self);
-static void WL_LevelControl_setup6_tick(Object* self);
-static void WL_LevelControl_setup7_tick(Object* self);
+static void WL_LevelControl_handleAct1(Object* self);
+static void WL_LevelControl_handleAct2(Object* self);
+static void WL_LevelControl_handleAct3(Object* self);
+static void WL_LevelControl_handleAct4(Object* self);
+static void WL_LevelControl_handleAct5(Object* self);
+static void WL_LevelControl_handleAct6(Object* self);
+static void WL_LevelControl_handleAct7(Object* self);
 
 // offset: 0x0 | ctor
-void WL_LevelControl_ctor(void *dll) { }
+void WL_LevelControl_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void WL_LevelControl_dtor(void *dll) { }
+void WL_LevelControl_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void WL_LevelControl_setup(Object* self, ObjSetup* setup, s32 arg2) {
+void WL_LevelControl_obj_Setup(Object* self, ObjSetup* setup, s32 reset) {
     WL_LevelControl_Data* objData;
 
     objAddObjectType(self, OBJTYPE_LevelControl);
@@ -50,29 +50,29 @@ void WL_LevelControl_setup(Object* self, ObjSetup* setup, s32 arg2) {
     switch (gDLL_29_Gplay->vtbl->get_act(self->mapID)) {
     case 0:
         break;
-    case WM_Setup1_Krystal_Meeting_Randorn:
+    case WM_ACT1_Krystal_Meeting_Randorn:
         gDLL_29_Gplay->vtbl->set_act(MAP_SWAPSTONE_CIRCLE, SC_Act1_Meeting_Rubble_Autoswap);
         gDLL_29_Gplay->vtbl->set_obj_group_status(MAP_SWAPSTONE_CIRCLE, SC_ObjGroup0_Main_SwapStone_Area, 1);
         break;
-    case WM_Setup2_Spirit1_Krystal_DF:
+    case WM_ACT2_Spirit1_Krystal_DF:
         break;
-    case WM_Setup3_Spirit2_Sabre_DB:
+    case WM_ACT3_Spirit2_Sabre_DB:
         break;
-    case WM_Setup4_Spirit3_Krystal_MMP:
+    case WM_ACT4_Spirit3_Krystal_MMP:
         envfxAction(self, self, 0xA5, 0);
         envfxAction(self, self, 0xA6, 0);
         objData->enemiesDefeated = -1;
         break;
-    case WM_Setup5_Spirit4_Sabre_WC:
+    case WM_ACT5_Spirit4_Sabre_WC:
         envfxAction(self, self, 0xE4, 0);
         envfxAction(self, self, 0xE5, 0);
         break;
-    case WM_Setup6_Spirit5_6_Krystal_CC_Sabre_WG:
+    case WM_ACT6_Spirit5_6_Krystal_CC_Sabre_WG:
         envfxAction(self, self, 0xA5, 0);
         envfxAction(self, self, 0xA6, 0);
         mainSetBits(BIT_Krystal_Foodbag_M, 1);
         break;
-    case WM_Setup7_Spirit7_8_Krystal_GP_Sabre_SW:
+    case WM_ACT7_Spirit7_8_Krystal_GP_Sabre_SW:
         envfxAction(self, self, 0xE4, 0);
         envfxAction(self, self, 0xE5, 0);
         objData->intervalBehaviourTimer = 700;
@@ -85,57 +85,57 @@ void WL_LevelControl_setup(Object* self, ObjSetup* setup, s32 arg2) {
 }
 
 // offset: 0x25C | func: 1 | export: 1
-void WL_LevelControl_control(Object* self) {
+void WL_LevelControl_obj_Control(Object* self) {
     switch (gDLL_29_Gplay->vtbl->get_act(self->mapID)) {
     case 0:
         break;
-    case WM_Setup1_Krystal_Meeting_Randorn:
-        WL_LevelControl_setup1_tick(self);
+    case WM_ACT1_Krystal_Meeting_Randorn:
+        WL_LevelControl_handleAct1(self);
         break;
-    case WM_Setup2_Spirit1_Krystal_DF:
-        WL_LevelControl_setup2_tick(self);
+    case WM_ACT2_Spirit1_Krystal_DF:
+        WL_LevelControl_handleAct2(self);
         break;
-    case WM_Setup3_Spirit2_Sabre_DB:
-        WL_LevelControl_setup3_tick(self);
+    case WM_ACT3_Spirit2_Sabre_DB:
+        WL_LevelControl_handleAct3(self);
         break;
-    case WM_Setup4_Spirit3_Krystal_MMP:
-        WL_LevelControl_setup4_tick(self);
+    case WM_ACT4_Spirit3_Krystal_MMP:
+        WL_LevelControl_handleAct4(self);
         break;
-    case WM_Setup5_Spirit4_Sabre_WC:
-        WL_LevelControl_setup5_tick(self);
+    case WM_ACT5_Spirit4_Sabre_WC:
+        WL_LevelControl_handleAct5(self);
         break;
-    case WM_Setup6_Spirit5_6_Krystal_CC_Sabre_WG:
-        WL_LevelControl_setup6_tick(self);
+    case WM_ACT6_Spirit5_6_Krystal_CC_Sabre_WG:
+        WL_LevelControl_handleAct6(self);
         break;
-    case WM_Setup7_Spirit7_8_Krystal_GP_Sabre_SW:
-        WL_LevelControl_setup7_tick(self);
+    case WM_ACT7_Spirit7_8_Krystal_GP_Sabre_SW:
+        WL_LevelControl_handleAct7(self);
         break;
     }
 }
 
 // offset: 0x394 | func: 2 | export: 2
-void WL_LevelControl_update(Object *self) { }
+void WL_LevelControl_obj_Update(Object* self) { }
 
 // offset: 0x3A0 | func: 3 | export: 3
-void WL_LevelControl_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
+void WL_LevelControl_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x3F4 | func: 4 | export: 4
-void WL_LevelControl_free(Object *self, s32 a1) {
+void WL_LevelControl_obj_Free(Object* self, s32 onlySelf) {
     objFreeObjectType(self, OBJTYPE_LevelControl);
     if (self){} // @fake
 }
 
 // offset: 0x43C | func: 5 | export: 5
-u32 WL_LevelControl_get_model_flags(Object* self) {
+u32 WL_LevelControl_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x44C | func: 6 | export: 6
-u32 WL_LevelControl_get_data_size(Object *self, u32 a1) {
+u32 WL_LevelControl_obj_GetDataSize(Object* self, u32 a1) {
     return sizeof(WL_LevelControl_Data);
 }
 
@@ -208,7 +208,7 @@ static void WL_LevelControl_unload_galleon_if_needed(Object* self, WL_LevelContr
 /** 
   * For Krystal's 1st visit, meeting Randorn for the first time etc.
   */
-static void WL_LevelControl_setup1_tick(Object* self) {
+static void WL_LevelControl_handleAct1(Object* self) {
     /*0x0*/ static u8 dSetup1KrystalSwitchesHit = 0;
 
     WL_LevelControl_Data* objData;
@@ -229,17 +229,17 @@ static void WL_LevelControl_setup1_tick(Object* self) {
     //Handle the Galleon
     switch (objData->galleonIsLoaded) {
         case TRUE:
-            if (objData->act == WM_Setup1_Krystal_Meeting_Randorn) {
+            if (objData->act == WM_ACT1_Krystal_Meeting_Randorn) {
                 WL_LevelControl_unload_galleon_if_needed(self, objData);
             }
             break;
         case FALSE:
             objData->act = gDLL_29_Gplay->vtbl->get_act(self->mapID);
             switch (objData->act) {
-            case WM_Setup1_Krystal_Meeting_Randorn:
+            case WM_ACT1_Krystal_Meeting_Randorn:
                 WL_LevelControl_load_galleon_if_needed(self, objData);
                 break;
-            case WM_Setup2_Spirit1_Krystal_DF:
+            case WM_ACT2_Spirit1_Krystal_DF:
                 break;
             }
             break;
@@ -250,7 +250,7 @@ static void WL_LevelControl_setup1_tick(Object* self) {
 /** 
   * For Krystal's 2nd visit, depositing Spirit 1 (Discovery Falls)
   */
-static void WL_LevelControl_setup2_tick(Object* self) {
+static void WL_LevelControl_handleAct2(Object* self) {
     static u8 dInitSpirit1Visit = TRUE;
     
     Object* player;
@@ -302,7 +302,7 @@ static void WL_LevelControl_setup2_tick(Object* self) {
 /** 
   * For Sabre's 1st visit, depositing Spirit 2 (Diamond Bay)
   */
-static void WL_LevelControl_setup3_tick(Object* self) {
+static void WL_LevelControl_handleAct3(Object* self) {
     static u8 dInitSpirit2Visit = TRUE;
     
     Object* player;
@@ -338,7 +338,7 @@ static void WL_LevelControl_setup3_tick(Object* self) {
 /** 
   * For Krystal's 3rd visit, depositing Spirit 3 (Moon Mountain Pass)
   */
-static void WL_LevelControl_setup4_tick(Object* self) {
+static void WL_LevelControl_handleAct4(Object* self) {
     /*0xC*/ static u8 dInitSpirit3Visit = TRUE;
     /*0x10*/ static s32 dUseGradualEnvFx = -1;
 
@@ -404,7 +404,7 @@ static void WL_LevelControl_setup4_tick(Object* self) {
 /** 
   * For Sabre's 2nd visit, depositing Spirit 4 (Walled City)
   */
-static void WL_LevelControl_setup5_tick(Object* self) {
+static void WL_LevelControl_handleAct5(Object* self) {
     /*0x14*/ static u8 dInitSpirit4Visit = TRUE;
 
     WL_LevelControl_Data* objData;
@@ -414,7 +414,7 @@ static void WL_LevelControl_setup5_tick(Object* self) {
     s32 count;
     s16 i;
     s16 lastUsedSpell;
-    ObjSetup *someObjsetup;
+    ObjSetup* someObjsetup;
     Object* player;
     
     count = 0;
@@ -514,7 +514,7 @@ static void WL_LevelControl_setup5_tick(Object* self) {
   * Given that setup7 seems to be the final setup (handling Spirits 7 and 8), 
   * maybe setup6 is also meant to handle two visits: Spirits 5 and 6.
   */
-static void WL_LevelControl_setup6_tick(Object* self) {
+static void WL_LevelControl_handleAct6(Object* self) {
     /*0x18*/ static u8 dInitSpirit6Visit = TRUE;
 
     Object* player;
@@ -557,7 +557,7 @@ static void WL_LevelControl_setup6_tick(Object* self) {
   *
   * May also be for Sabre's 4th visit, depositing Spirit 8 (Test of Sacrifice)
   */
-static void WL_LevelControl_setup7_tick(Object* self) {
+static void WL_LevelControl_handleAct7(Object* self) {
     /*0x1C*/ static u8 dInitSpirit7Visit = TRUE;
 
     WL_LevelControl_Data* objData;

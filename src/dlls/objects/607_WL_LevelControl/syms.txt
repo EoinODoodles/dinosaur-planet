@@ -1,22 +1,22 @@
 .text = 0x0:
 WL_LevelControl_ctor = 0x0;
 WL_LevelControl_dtor = 0xC;
-WL_LevelControl_setup = 0x18;
-WL_LevelControl_control = 0x25C;
-WL_LevelControl_update = 0x394;
-WL_LevelControl_print = 0x3A0;
-WL_LevelControl_free = 0x3F4;
-WL_LevelControl_get_model_flags = 0x43C;
-WL_LevelControl_get_data_size = 0x44C;
+WL_LevelControl_obj_Setup = 0x18;
+WL_LevelControl_obj_Control = 0x25C;
+WL_LevelControl_obj_Update = 0x394;
+WL_LevelControl_obj_Print = 0x3A0;
+WL_LevelControl_obj_Free = 0x3F4;
+WL_LevelControl_obj_GetModelFlags = 0x43C;
+WL_LevelControl_obj_GetDataSize = 0x44C;
 WL_LevelControl_load_galleon_if_needed = 0x460;
 WL_LevelControl_unload_galleon_if_needed = 0x648;
-WL_LevelControl_setup1_tick = 0x7A4;
-WL_LevelControl_setup2_tick = 0x940;
-WL_LevelControl_setup3_tick = 0xC50;
-WL_LevelControl_setup4_tick = 0xE34;
-WL_LevelControl_setup5_tick = 0x1118;
-WL_LevelControl_setup6_tick = 0x14FC;
-WL_LevelControl_setup7_tick = 0x1788;
+WL_LevelControl_handleAct1 = 0x7A4;
+WL_LevelControl_handleAct2 = 0x940;
+WL_LevelControl_handleAct3 = 0xC50;
+WL_LevelControl_handleAct4 = 0xE34;
+WL_LevelControl_handleAct5 = 0x1118;
+WL_LevelControl_handleAct6 = 0x14FC;
+WL_LevelControl_handleAct7 = 0x1788;
 
 .rodata = 0x1A74:
 

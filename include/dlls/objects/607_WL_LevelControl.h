@@ -21,14 +21,14 @@ typedef enum {
 } WL_LevelControl_Flags;
 
 typedef enum {
-    WM_Setup1_Krystal_Meeting_Randorn = 1,
-    WM_Setup2_Spirit1_Krystal_DF = 2,
-    WM_Setup3_Spirit2_Sabre_DB = 3,
-    WM_Setup4_Spirit3_Krystal_MMP = 4,
-    WM_Setup5_Spirit4_Sabre_WC = 5,
-    WM_Setup6_Spirit5_6_Krystal_CC_Sabre_WG = 6,
-    WM_Setup7_Spirit7_8_Krystal_GP_Sabre_SW = 7
-} WM_Setups;
+    WM_ACT1_Krystal_Meeting_Randorn = 1,
+    WM_ACT2_Spirit1_Krystal_DF = 2,
+    WM_ACT3_Spirit2_Sabre_DB = 3,
+    WM_ACT4_Spirit3_Krystal_MMP = 4,
+    WM_ACT5_Spirit4_Sabre_WC = 5,
+    WM_ACT6_Spirit5_6_Krystal_CC_Sabre_WG = 6,
+    WM_ACT7_Spirit7_8_Krystal_GP_Sabre_SW = 7
+} WM_Acts;
 
 typedef enum {
     WM_ObjGroup0_EMPTY = 0,
