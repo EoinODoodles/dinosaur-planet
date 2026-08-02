@@ -185,22 +185,29 @@ void func_80026160(Object* obj) {
     }
 }
 
-void func_80026184(Object* obj, Object* arg1) {
+/* objhitsAddObjectCollision? */
+void func_80026184(Object* currentObj, Object* hitObj) {
     ObjectPolyhits* polyhits;
     s32 i;
 
-    polyhits = obj->polyhits;
-    if (polyhits->unk10F < 3) {
-        for (i = 0; i < polyhits->unk10F; i++) {
-            if (arg1 == polyhits->unk100[i]) {
-                return;
-            }
-        }
-        
-        polyhits->unk100[polyhits->unk10F] = arg1;
-        polyhits = obj->polyhits;
-        polyhits->unk10F += 1;
+    polyhits = currentObj->polyhits;
+
+    //Return early if currentObj's colliding objects array is already full
+    if (polyhits->unk10F >= 3) {
+        return;
     }
+
+    //Return early if hitObj is already in the current object's list of colliding objects
+    for (i = 0; i < polyhits->unk10F; i++) {
+        if (hitObj == polyhits->unk100[i]) {
+            return;
+        }
+    }
+    
+    //Otherwise, store hitObj in currentObj's list of colliding objects
+    polyhits->unk100[polyhits->unk10F] = hitObj;
+    polyhits = currentObj->polyhits;
+    polyhits->unk10F++;
 }
 
 s32 func_800261E8(Object* obj, Object* hitBy, s8 hitType, s8 damage, s8 arg4, f32 hitX, f32 hitY, f32 hitZ) {
