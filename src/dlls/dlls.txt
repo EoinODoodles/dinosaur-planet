@@ -158,7 +158,7 @@
 284 = objects/284_LevelName
 285 = objects/285_ProjectileSwitch
 286 = objects/286_BlownUpTarget
-287 = objects/287_pressureswitch
+287 = objects/287_PressureSwitch
 289 = objects/289_CClogpush
 290 = objects/290_MagicPlant
 291 = objects/291_MagicDust
@@ -365,7 +365,7 @@
 590 = objects/590_WL_Galleon
 593 = objects/593_WL_DeadDino
 595 = objects/595_WL_LaserTarget
-596 = objects/596_WLpressureswitch
+596 = objects/596_WLPressureSwitch
 597 = objects/597_WL_Column
 598 = objects/598_WM_Wizard
 602 = objects/602_WLTorch
@@ -463,7 +463,7 @@
 778 = objects/778_WCSabreChase
 779 = objects/779_WCLevelControl
 780 = objects/780_WCBeacon
-781 = objects/781_WCpressureswitch
+781 = objects/781_WCPressureSwitch
 782 = objects/782_WCpushblock
 783 = objects/783_WCTile
 786 = objects/786_WCTempleLift

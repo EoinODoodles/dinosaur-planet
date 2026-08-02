@@ -2,55 +2,50 @@
 #include "sys/objtype.h"
 
 typedef struct {
-f32 x;
-f32 z;
-} CoordXZ;
-
-typedef struct {
-/*00*/ u32 soundHandle;
-/*04*/ s8 pressed;
-/*05*/ s8 state;
-/*08*/ Object* objectsOnSwitch[10];
-/*30*/ CoordXZ objCoords[10];
-} PressureSwitch_Data;
-
-typedef struct {
 /*00*/ ObjSetup base;
 /*18*/ u8 yaw;
 /*19*/ u8 modelIdx;
-/*1A*/ s16 gameBitPressed;             //flag to set when switch is pressed down
-/*1C*/ u8 yOffsetAnimation;            //how far down the switch should move when pressed
-/*1D*/ u8 yThreshold;                  //threshold for other objects pressing switch
-/*1E*/ u8 distanceSidekickBehaviour;   //player distance at which special sidekick behaviour is activated
-/*20*/ s16 gameBitActivated;            //flag to check if switch is deactivated
+/*1A*/ s16 gameBitPressed;             //Gamebit to set when the switch is pressed down
+/*1C*/ u8 yOffsetAnimation;            //How far down the switch should move when pressed
+/*1D*/ u8 yThreshold;                  //Threshold for other objects pressing switch
+/*1E*/ u8 distanceGuardCommand;        //Player distance at which Guard sidekick command is selectable (only used by some implementations)
+/*20*/ s16 gamebitActivated;           //Gamebit to check if switch is deactivated
 } PressureSwitch_Setup;
 
+typedef struct {
+/*00*/ u32 soundHandle;
+/*04*/ s8 pressedTimer;
+/*05*/ s8 state;
+/*08*/ Object* objectsOnSwitch[10];
+/*30*/ Vec2f objCoords[10];
+} PressureSwitch_Data;
+
 enum WCPressureSwitchStates {
-    STATE_0_UP = 0,
-    STATE_1_MOVING_UP = 1,
-    STATE_2_DOWN = 2,
-    STATE_3_MOVING_DOWN = 3
+    STATE_0_UP,
+    STATE_1_MOVING_UP,
+    STATE_2_DOWN,
+    STATE_3_MOVING_DOWN
 };
 
-static void WCpressureswitch_add_object(Object* self, Object* objectOnSwitch);
-static s32 WCpressureswitch_is_object_on_switch(Object* self);
-static int WCpressureswitch_anim_callback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 arg3);
+static void WCPressureSwitch_addObject(Object* self, Object* objectOnSwitch);
+static s32 WCPressureSwitch_isObjectOnSwitch(Object* self);
+static int WCPressureSwitch_animCallback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 arg3);
 
 // offset: 0x0 | ctor
-void WCpressureswitch_ctor(void* dll){ }
+void WCPressureSwitch_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void WCpressureswitch_dtor(void* dll){ }
+void WCPressureSwitch_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void WCpressureswitch_setup(Object* self, PressureSwitch_Setup* setup, s32 arg2) {
-    PressureSwitch_Data* objdata;
+void WCPressureSwitch_obj_Setup(Object* self, PressureSwitch_Setup* setup, s32 reset) {
+    PressureSwitch_Data* objData;
     s32 index;
 
     self->srt.yaw = setup->yaw << 8;
     self->stateFlags |= (OBJSTATE_UPDATE_DISABLED | OBJSTATE_PRINT_DISABLED);
 
-    objdata = self->data;
+    objData = self->data;
     self->modelInstIdx = setup->modelIdx;
     if (self->modelInstIdx >= self->def->numModels) {
         self->modelInstIdx = 0;
@@ -59,19 +54,19 @@ void WCpressureswitch_setup(Object* self, PressureSwitch_Setup* setup, s32 arg2)
 
     if (mainGetBits(setup->gameBitPressed)) {
         self->srt.transl.y = setup->base.y - setup->yOffsetAnimation;
-        objdata->pressed = 30;
-        objdata->state = 2;
+        objData->pressedTimer = 30;
+        objData->state = STATE_2_DOWN;
     }
 
     objAddObjectType(self, OBJTYPE_TrickyTarget);
 
-    for (index = 0; index < 10; index++) { objdata->objectsOnSwitch[index] = 0; }
+    for (index = 0; index < 10; index++) { objData->objectsOnSwitch[index] = 0; }
 
-    self->animCallback = WCpressureswitch_anim_callback;
+    self->animCallback = WCPressureSwitch_animCallback;
 }
 
 // offset: 0x150 | func: 1 | export: 1
-void WCpressureswitch_control(Object* self) {
+void WCPressureSwitch_obj_Control(Object* self) {
     PressureSwitch_Setup* setup;
     f32 deltaY;
     Object* listedObject;
@@ -83,39 +78,39 @@ void WCpressureswitch_control(Object* self) {
     objdata = self->data;
 
     //Bail if switch deactivated
-    if (setup->gameBitActivated > 0 && !mainGetBits(setup->gameBitActivated)) {
-        diPrintf(" Avitvate %i ", setup->gameBitActivated);
+    if (setup->gamebitActivated > 0 && !mainGetBits(setup->gamebitActivated)) {
+        diPrintf(" Avitvate %i ", setup->gamebitActivated);
         return;
     }
 
     //Decrement timer until not considered pressed (fps-dependent)
-    objdata->pressed--;
-    if (objdata->pressed < 0) {
-        objdata->pressed = 0;
+    objdata->pressedTimer--;
+    if (objdata->pressedTimer < 0) {
+        objdata->pressedTimer = 0;
     }
 
     //Handle adding objects to switch
     if (self->polyhits->unk10F > 0) {
-        for (index = 0; index < self->polyhits->unk10F; index++){
+        for (index = 0; index < self->polyhits->unk10F; index++) {
             listedObject = (Object*)self->polyhits->unk100[index];
             deltaY = listedObject->srt.transl.y - self->srt.transl.y;
             if (deltaY > setup->yThreshold) {
-                WCpressureswitch_add_object(self, listedObject);
+                WCPressureSwitch_addObject(self, listedObject);
             }
         }
     }
 
     //Check if object on switch
-    if (WCpressureswitch_is_object_on_switch(self)) {
-        objdata->pressed = 5;
+    if (WCPressureSwitch_isObjectOnSwitch(self)) {
+        objdata->pressedTimer = 5;
     }
 
     //Main state machine
     deltaY = setup->base.y - setup->yOffsetAnimation;
     switch (objdata->state) {
         case STATE_0_UP:
-            if (objdata->pressed && deltaY <= self->srt.transl.y) {
-                dll_amSfx->Play(self, SOUND_99A_Mechanical_Ratcheting, 0x7F, NULL, 0, 0, 0);
+            if ((objdata->pressedTimer != 0) && (deltaY <= self->srt.transl.y)) {
+                dll_amSfx->Play(self, SOUND_99A_Mechanical_Ratcheting, MAX_VOLUME, NULL, 0, 0, 0);
                 objdata->state = STATE_3_MOVING_DOWN;
             }
             break;
@@ -131,13 +126,13 @@ void WCpressureswitch_control(Object* self) {
             /* Subtly different behaviour to other pressure switches,
              * waits for flag to unset before depressing the switch (for WC's timed challenges) */
             if (!mainGetBits(setup->gameBitPressed)) {
-                dll_amSfx->Play(self, SOUND_99A_Mechanical_Ratcheting, 0x7F, NULL, 0, 0, 0);
+                dll_amSfx->Play(self, SOUND_99A_Mechanical_Ratcheting, MAX_VOLUME, NULL, 0, 0, 0);
                 objdata->state = STATE_1_MOVING_UP;
             }
             break;
         case STATE_1_MOVING_UP:
             self->srt.transl.y += 0.05f * gUpdateRateF;
-            if (setup->base.y < self->srt.transl.y) {
+            if (self->srt.transl.y > setup->base.y) {
                 self->srt.transl.y = setup->base.y;
                 objdata->state = STATE_0_UP;
             }
@@ -147,7 +142,7 @@ void WCpressureswitch_control(Object* self) {
     //Change texture frame (sun/moon glowing)
     animTexture = objExprGetTexAnimator(self, 0, 0);
     if (animTexture != NULL) {
-        if (objdata->state == 2) {
+        if (objdata->state == STATE_2_DOWN) {
             animTexture->frame = 1;
         } else {
             animTexture->frame = 0;
@@ -157,17 +152,17 @@ void WCpressureswitch_control(Object* self) {
 }
 
 // offset: 0x4B4 | func: 2 | export: 2
-void WCpressureswitch_update(Object* self){ }
+void WCPressureSwitch_obj_Update(Object* self) { }
 
 // offset: 0x4C0 | func: 3 | export: 3
-void WCpressureswitch_print(Object* self, Gfx** gfx, Mtx** mtx, Vertex** vtx, Triangle** pols, s8 visibility) {
+void WCPressureSwitch_obj_Print(Object* self, Gfx** gfx, Mtx** mtx, Vertex** vtx, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gfx, mtx, vtx, pols, 1.0f);
     }
 }
 
 // offset: 0x514 | func: 4 | export: 4
-void WCpressureswitch_free(Object* self, s32 arg1) {
+void WCPressureSwitch_obj_Free(Object* self, s32 onlySelf) {
     PressureSwitch_Data* objdata = self->data;
 
     if (objdata->soundHandle) {
@@ -177,7 +172,7 @@ void WCpressureswitch_free(Object* self, s32 arg1) {
 }
 
 // offset: 0x594 | func: 5 | export: 5
-u32 WCpressureswitch_get_model_flags(Object* self) {
+u32 WCPressureSwitch_obj_GetModelFlags(Object* self) {
     PressureSwitch_Setup* setup = (PressureSwitch_Setup*)self->setup;
     s32 modelIndex;
 
@@ -185,17 +180,18 @@ u32 WCpressureswitch_get_model_flags(Object* self) {
     if (modelIndex >= self->def->numModels) {
         modelIndex = 0;
     }
+    
     return MODFLAGS_MODEL_INDEX(modelIndex) | MODFLAGS_LOAD_SINGLE_MODEL;
 }
 
 // offset: 0x5C8 | func: 6 | export: 6
-u32 WCpressureswitch_get_data_size(Object* self, s32 arg1){
+u32 WCPressureSwitch_obj_GetDataSize(Object* self, s32 offsetAddr) {
     return sizeof(PressureSwitch_Data);
 }
 
 // offset: 0x5DC | func: 7
-void WCpressureswitch_add_object(Object* self, Object* objectOnSwitch) {
-    PressureSwitch_Data *objdata = self->data;
+void WCPressureSwitch_addObject(Object* self, Object* objectOnSwitch) {
+    PressureSwitch_Data* objdata = self->data;
     u8 objectIndex;
 
     //@bug: should be && and "objectIndex != 9" (crashes game once objectsOnSwitch array overflows)
@@ -203,25 +199,27 @@ void WCpressureswitch_add_object(Object* self, Object* objectOnSwitch) {
 
     objdata->objectsOnSwitch[objectIndex] = objectOnSwitch;    
     objdata->objCoords[objectIndex].x = objectOnSwitch->srt.transl.x;
-    objdata->objCoords[objectIndex].z = objectOnSwitch->srt.transl.z;
+    objdata->objCoords[objectIndex].y = objectOnSwitch->srt.transl.z;
 }
 
 // offset: 0x648 | func: 8
-s32 WCpressureswitch_is_object_on_switch(Object* self) {
+s32 WCPressureSwitch_isObjectOnSwitch(Object* self) {
     PressureSwitch_Data* objdata;
-    CoordXZ* coord;
+    Vec2f* coord;
     u8 index;
     u8 returnVal;
 
     objdata = self->data;
 
-    for (returnVal = FALSE, index = 0; index < 10; index++){
+    returnVal = FALSE;
+
+    for (index = 0; index < 10; index++) {
         if (!objdata->objectsOnSwitch[index])
             continue;
 
         coord = &objdata->objCoords[index];
         if (objdata->objectsOnSwitch[index]->srt.transl.x == coord->x && 
-            objdata->objectsOnSwitch[index]->srt.transl.z == coord->z) {
+            objdata->objectsOnSwitch[index]->srt.transl.z == coord->y) {
             returnVal = TRUE;
         } else {
             objdata->objectsOnSwitch[index] = NULL;
@@ -232,7 +230,7 @@ s32 WCpressureswitch_is_object_on_switch(Object* self) {
 }
 
 // offset: 0x6CC | func: 9
-static int WCpressureswitch_anim_callback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 arg3) {
+static int WCPressureSwitch_animCallback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 prevCallbackValue) {
     PressureSwitch_Data* objdata;
     PressureSwitch_Setup* setup;
     u8 index;
@@ -241,10 +239,10 @@ static int WCpressureswitch_anim_callback(Object* self, Object* animObj, AnimObj
     setup = (PressureSwitch_Setup*)self->setup;
 
     if (animObjData->lastMessage == 1) {
-        for (index = 0; index < 10; index++){
+        for (index = 0; index < 10; index++) {
             if (objdata->objectsOnSwitch[index]) {
                 objdata->objCoords[index].x = objdata->objectsOnSwitch[index]->srt.transl.x;
-                objdata->objCoords[index].z = objdata->objectsOnSwitch[index]->srt.transl.z;
+                objdata->objCoords[index].y = objdata->objectsOnSwitch[index]->srt.transl.z;
             }
         }
         animObjData->lastMessage = 0;

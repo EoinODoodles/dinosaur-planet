@@ -4,14 +4,14 @@
 _exports:
 
 # ctor/dtor
-.dword WLpressureswitch_ctor
-.dword WLpressureswitch_dtor
+.dword WLPressureSwitch_ctor
+.dword WLPressureSwitch_dtor
 
 # export table
-.dword WLpressureswitch_setup
-.dword WLpressureswitch_control
-.dword WLpressureswitch_update
-.dword WLpressureswitch_print
-.dword WLpressureswitch_free
-.dword WLpressureswitch_get_model_flags
-.dword WLpressureswitch_get_data_size
+.dword WLPressureSwitch_obj_Setup
+.dword WLPressureSwitch_obj_Control
+.dword WLPressureSwitch_obj_Update
+.dword WLPressureSwitch_obj_Print
+.dword WLPressureSwitch_obj_Free
+.dword WLPressureSwitch_obj_GetModelFlags
+.dword WLPressureSwitch_obj_GetDataSize

@@ -1,0 +1,16 @@
+.text = 0x0:
+PressureSwitch_ctor = 0x0;
+PressureSwitch_dtor = 0xC;
+PressureSwitch_obj_Setup = 0x18;
+PressureSwitch_obj_Control = 0x148;
+PressureSwitch_obj_Update = 0x524;
+PressureSwitch_obj_Print = 0x530;
+PressureSwitch_obj_Free = 0x584;
+PressureSwitch_obj_GetModelFlags = 0x604;
+PressureSwitch_obj_GetDataSize = 0x614;
+PressureSwitch_addObject = 0x628;
+PressureSwitch_isObjectOnSwitch = 0x694;
+PressureSwitch_animCallback = 0x718;
+
+.rodata = 0x878:
+str_0 = 0x0; // absolute:0x878

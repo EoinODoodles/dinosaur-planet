@@ -1,0 +1,16 @@
+.text = 0x0:
+WCPressureSwitch_ctor = 0x0;
+WCPressureSwitch_dtor = 0xC;
+WCPressureSwitch_obj_Setup = 0x18;
+WCPressureSwitch_obj_Control = 0x150;
+WCPressureSwitch_obj_Update = 0x4B4;
+WCPressureSwitch_obj_Print = 0x4C0;
+WCPressureSwitch_obj_Free = 0x514;
+WCPressureSwitch_obj_GetModelFlags = 0x594;
+WCPressureSwitch_obj_GetDataSize = 0x5C8;
+WCPressureSwitch_addObject = 0x5DC;
+WCPressureSwitch_isObjectOnSwitch = 0x648;
+WCPressureSwitch_animCallback = 0x6CC;
+
+.rodata = 0x824:
+str_0 = 0x0; // absolute:0x824
