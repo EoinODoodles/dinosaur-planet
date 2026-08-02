@@ -11,15 +11,38 @@
 
 #include "dlls/objects/598_WM_Wizard.h"
 
-static int WMWizard_anim_callback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 arg3);
-static int WMWizard_anim_visit_1_first_meeting(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 arg3);
-static int WMWizard_anim_visit_2_spirit_df(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 arg3);
-static int WMWizard_anim_visit_3_spirit_mmp(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 arg3);
-static int WMWizard_anim_visit_3_spirit_cc(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 arg3);
-static void WMWizard_handle_visit_1_first_meeting(Object* self);
-static void WMWizard_handle_visit_2_spirit_df(Object* self);
-static void WMWizard_handle_visit_3_spirit_mmp(Object* self);
-static void WMWizard_handle_visit_4_spirit_cc(Object* self);
+/*0x0*/ static Unk80026DF4 dObjHitsData[] = {
+    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
+    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
+    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
+    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
+    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
+    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
+    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0},
+    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
+    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
+    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
+    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}
+};
+
+/*0xDC*/ static f32 dRandomWalkData[] = {
+    0,      0,    Randorn_MODANIM_0_Standing_Thoughtfully_LOOP,  Randorn_MODANIM_0_Standing_Thoughtfully_LOOP,    0.02,   //middle of Krazoa floor mural
+    79,     152,  Randorn_MODANIM_20_Standing_Idle_L_LOOP,       Randorn_MODANIM_20_Standing_Idle_L_LOOP,         0.01,   //near top-right pillar (furthest from antechamber door, on right when facing podium)
+    138,   -6,  Randorn_MODANIM_20_Standing_Idle_L_LOOP,      Randorn_MODANIM_20_Standing_Idle_L_LOOP,        0.02,  //near podium
+    -73,   -48, Randorn_MODANIM_20_Standing_Idle_L_LOOP,      Randorn_MODANIM_20_Standing_Idle_L_LOOP,        0.02,  //near middle of Krazoa floor mural, closer to orrery door
+    -248,  -7,  Randorn_MODANIM_0_Standing_Thoughtfully_LOOP, Randorn_MODANIM_0_Standing_Thoughtfully_LOOP,   0.02,  //beside orrery door
+    0,     0,   Randorn_MODANIM_0_Standing_Thoughtfully_LOOP, Randorn_MODANIM_0_Standing_Thoughtfully_LOOP,   0.02
+};
+
+static int WMWizard_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static int WMWizard_animVisit1FirstMeeting(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static int WMWizard_animVisit2SpiritDF(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static int WMWizard_animVisit3SpiritMMP(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static int WMWizard_animVisit3SpiritCC(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static void WMWizard_handleVisit1FirstMeeting(Object* self);
+static void WMWizard_handleVisit2SpiritDF(Object* self);
+static void WMWizard_handleVisit3SpiritMMP(Object* self);
+static void WMWizard_handleVisit3SpiritCC(Object* self);
 
 // offset: 0x0 | ctor
 void WMWizard_ctor(void *dll) { }
@@ -28,13 +51,12 @@ void WMWizard_ctor(void *dll) { }
 void WMWizard_dtor(void *dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void WMWizard_setup(Object* self, WMWizard_Setup* objSetup, s32 arg2) {
-    WMWizard_Data* objData;
+void WMWizard_obj_Setup(Object* self, WMWizard_Setup* objSetup, s32 reset) {
+    WMWizard_Data* objData = self->data;
 
     self->unkDC = 0;
-    objData = self->data;
     self->srt.yaw = objSetup->yaw << 8;
-    self->animCallback = WMWizard_anim_callback;
+    self->animCallback = WMWizard_animCallback;
     
     objData->objectID = objSetup->base.objId;
     objData->unk1C = 0;
@@ -46,59 +68,59 @@ void WMWizard_setup(Object* self, WMWizard_Setup* objSetup, s32 arg2) {
 
     objData->hasMetKrystal = mainGetBits(BIT_WM_Played_Randorn_First_Meeting);
     objData->timesFed = 0;
-    objData->walkIndexFlags = 1; //In setup2, always walk towards pillar first
-    objData->prevWalkIndex = WALK_STOPPING;
+    objData->walkState = WMWizard_WALKGOAL_1; //In act 2, always walk towards pillar first
+    objData->prevWalkState = WALK_STOPPING;
     objData->walkWaitTimer = 300;
     objData->animSpeed = 0.0f;
     objData->unk14 = 1.0f;
 }
 
 // offset: 0xE4 | func: 1 | export: 1
-void WMWizard_control(Object* self) {
+void WMWizard_obj_Control(Object* self) {
     WMWizard_Data* objdata = self->data;
     
     //Objhits
     if (func_80026DF4(
         self, 
         dObjHitsData, 
-        11,
-        (objdata->walkIndexFlags & WMWizard_FLAG_80) ? TRUE : FALSE,
-        &objdata->objHitsValue
+        ARRAYCOUNT(dObjHitsData),
+        (objdata->walkState & WMWizard_FLAG_80_Flinching) ? TRUE : FALSE,
+        &objdata->animSpeedFlinch
     )) {
-        objdata->walkIndexFlags |= WMWizard_FLAG_80;
+        objdata->walkState |= WMWizard_FLAG_80_Flinching;
         return;
     }
-    objdata->walkIndexFlags &= ~WMWizard_FLAG_80;
+    objdata->walkState &= ~WMWizard_FLAG_80_Flinching;
     
-    //Handle setup-specific behaviour
+    //Handle act-specific behaviour
     switch (gDLL_29_Gplay->vtbl->get_act(self->mapID)) {
     case 0:
     case WM_ACT3_Spirit2_Sabre_DB:
     case WM_ACT5_Spirit4_Sabre_WC:
         break;
     case WM_ACT1_Krystal_Meeting_Randorn:
-        WMWizard_handle_visit_1_first_meeting(self);
+        WMWizard_handleVisit1FirstMeeting(self);
         break;
     case WM_ACT2_Spirit1_Krystal_DF:
-        WMWizard_handle_visit_2_spirit_df(self);
+        WMWizard_handleVisit2SpiritDF(self);
         break;
     case WM_ACT4_Spirit3_Krystal_MMP:
-        WMWizard_handle_visit_3_spirit_mmp(self);
+        WMWizard_handleVisit3SpiritMMP(self);
         break;
     case WM_ACT6_Spirit5_6_Krystal_CC_Sabre_WG:
-        WMWizard_handle_visit_4_spirit_cc(self);
+        WMWizard_handleVisit3SpiritCC(self);
         break;
     }
 }
 
 // offset: 0x238 | func: 2 | export: 2
-void WMWizard_update(Object *self) { }
+void WMWizard_obj_Update(Object *self) { }
 
 // offset: 0x244 | func: 3 | export: 3
-void WMWizard_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+void WMWizard_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         if (gDLL_29_Gplay->vtbl->get_act(self->mapID) == WM_ACT4_Spirit3_Krystal_MMP) {
-            if (mainGetBits(BIT_WM_Setup4_Show_Randorn)) {
+            if (mainGetBits(BIT_WM_Act4_Show_Randorn)) {
                 objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
             }
         } else {
@@ -108,44 +130,44 @@ void WMWizard_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle
 }
 
 // offset: 0x330 | func: 4 | export: 4
-void WMWizard_free(Object *self, s32 a1) { }
+void WMWizard_obj_Free(Object *self, s32 onlySelf) { }
 
 // offset: 0x340 | func: 5 | export: 5
-u32 WMWizard_get_model_flags(Object* self) {
+u32 WMWizard_obj_GetModelFlags(Object* self) {
     return MODFLAGS_1;
 }
 
 // offset: 0x350 | func: 6 | export: 6
-u32 WMWizard_get_data_size(Object *self, u32 a1) {
+u32 WMWizard_obj_GetDataSize(Object *self, u32 offsetAddr) {
     return sizeof(WMWizard_Data);
 }
 
 // offset: 0x364 | func: 7
-int WMWizard_anim_callback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 arg3) {
-    //Setup-specific anim callback behaviours
+int WMWizard_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
+    //Act-specific anim callback behaviours
     switch (gDLL_29_Gplay->vtbl->get_act(self->mapID)) {
     case 0:
     case WM_ACT3_Spirit2_Sabre_DB:
     case WM_ACT5_Spirit4_Sabre_WC:
         break;
     case WM_ACT1_Krystal_Meeting_Randorn:
-        WMWizard_anim_visit_1_first_meeting(self, overrideObj, animData, arg3);
+        WMWizard_animVisit1FirstMeeting(self, animObj, animData, prevCallbackValue);
         break;
     case WM_ACT2_Spirit1_Krystal_DF:
-        WMWizard_anim_visit_2_spirit_df(self, overrideObj, animData, arg3);
+        WMWizard_animVisit2SpiritDF(self, animObj, animData, prevCallbackValue);
         break;
     case WM_ACT4_Spirit3_Krystal_MMP:
-        WMWizard_anim_visit_3_spirit_mmp(self, overrideObj, animData, arg3);
+        WMWizard_animVisit3SpiritMMP(self, animObj, animData, prevCallbackValue);
         break;
     case WM_ACT6_Spirit5_6_Krystal_CC_Sabre_WG:
-        WMWizard_anim_visit_3_spirit_cc(self, overrideObj, animData, arg3);
+        WMWizard_animVisit3SpiritCC(self, animObj, animData, prevCallbackValue);
         break;
     } 
     return 0;
 }
 
 // offset: 0x470 | func: 8
-int WMWizard_anim_visit_1_first_meeting(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 arg3) {
+int WMWizard_animVisit1FirstMeeting(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
     WMWizard_Data* objData;
     Object* player;
     s32 i;
@@ -188,18 +210,18 @@ int WMWizard_anim_visit_1_first_meeting(Object* self, Object* overrideObj, AnimO
 }
 
 // offset: 0x610 | func: 9
-int WMWizard_anim_visit_2_spirit_df(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 arg3) {
+int WMWizard_animVisit2SpiritDF(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
     return 0;
 }
 
 // offset: 0x62C | func: 10
-int WMWizard_anim_visit_3_spirit_mmp(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 arg3) {
+int WMWizard_animVisit3SpiritMMP(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
     self->unkAF |= ARROW_FLAG_8_No_Targetting;
     return 0;
 }
 
 // offset: 0x650 | func: 11
-int WMWizard_anim_visit_3_spirit_cc(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 arg3) {
+int WMWizard_animVisit3SpiritCC(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
     WMWizard_Data* objData;
     s32 i;
 
@@ -223,7 +245,7 @@ int WMWizard_anim_visit_3_spirit_cc(Object* self, Object* overrideObj, AnimObj_D
 }
 
 // offset: 0x72C | func: 12
-void WMWizard_handle_visit_1_first_meeting(Object* self) {
+void WMWizard_handleVisit1FirstMeeting(Object* self) {
     WMWizard_Data* objData;
     Object* player;
 
@@ -288,7 +310,7 @@ void WMWizard_handle_visit_1_first_meeting(Object* self) {
 }
 
 // offset: 0xA20 | func: 13
-void WMWizard_handle_visit_2_spirit_df(Object* self) {
+void WMWizard_handleVisit2SpiritDF(Object* self) {
     WMWizard_Data* objData = self->data;
     Object* player = objGetPlayer();
     Object* foodbag;
@@ -335,30 +357,30 @@ void WMWizard_handle_visit_2_spirit_df(Object* self) {
 
     //Pick next walk destination
     if (objData->walkWaitTimer <= 0) {
-        switch (mathRnd(1, 4)) {
-        case 1:
-            objData->prevWalkIndex = objData->walkIndexFlags;
-            objData->walkIndexFlags = 1;
+        switch (mathRnd(WMWizard_WALKGOAL_1, WMWizard_WALKGOAL_4)) {
+        case WMWizard_WALKGOAL_1:
+            objData->prevWalkState = objData->walkState;
+            objData->walkState = WMWizard_WALKGOAL_1;
             objData->walkWaitTimer = 400;
             break;
-        case 2:
-            objData->prevWalkIndex = objData->walkIndexFlags;
-            objData->walkIndexFlags = 2;
+        case WMWizard_WALKGOAL_2:
+            objData->prevWalkState = objData->walkState;
+            objData->walkState = WMWizard_WALKGOAL_2;
             objData->walkWaitTimer = 400;
             break;
-        case 3:
-            objData->prevWalkIndex = objData->walkIndexFlags;
-            objData->walkIndexFlags = 3;
+        case WMWizard_WALKGOAL_3:
+            objData->prevWalkState = objData->walkState;
+            objData->walkState = WMWizard_WALKGOAL_3;
             objData->walkWaitTimer = 400;
             break;
-        case 4:
-            objData->prevWalkIndex = objData->walkIndexFlags;
-            objData->walkIndexFlags = 4;
+        case WMWizard_WALKGOAL_4:
+            objData->prevWalkState = objData->walkState;
+            objData->walkState = WMWizard_WALKGOAL_4;
             objData->walkWaitTimer = 400;
             break;
-        case 5: //unreachable?
-            objData->prevWalkIndex = objData->walkIndexFlags;
-            objData->walkIndexFlags = 5;
+        case WMWizard_WALKGOAL_5: //unreachable?
+            objData->prevWalkState = objData->walkState;
+            objData->walkState = WMWizard_WALKGOAL_5;
             objData->walkWaitTimer = 400;
             break;
         }
@@ -366,9 +388,9 @@ void WMWizard_handle_visit_2_spirit_df(Object* self) {
     }
 
     //Handle random walk movement
-    if (objData->walkIndexFlags == WALK_STOPPING) {
+    if (objData->walkState == WALK_STOPPING) {
         //Stopping: Rotate until facing away from centre of mural
-        walkData = (RandomWalkData*)&dRandomWalkData[objData->prevWalkIndex * 5];
+        walkData = (RandomWalkData*)&dRandomWalkData[objData->prevWalkState * 5];
         dYaw = ((u16)mathAtan2f(walkData->x, walkData->z) & 0xFFFF) - self->srt.yaw;
         diPrintf("diff %d\n", dYaw);
 
@@ -380,18 +402,18 @@ void WMWizard_handle_visit_2_spirit_df(Object* self) {
             }
         } else {
             //Done rotating outwards: start the walk point's intro idle animation and go to stopped state
-            objAnimSet(self, dRandomWalkData[(objData->prevWalkIndex * 5) + 2], 0.0f, 0);
-            objData->animSpeed = dRandomWalkData[(objData->prevWalkIndex * 5) + 4];
-            objData->walkIndexFlags = WALK_STOPPED;
+            objAnimSet(self, dRandomWalkData[(objData->prevWalkState * 5) + 2], 0.0f, 0);
+            objData->animSpeed = dRandomWalkData[(objData->prevWalkState * 5) + 4];
+            objData->walkState = WALK_STOPPED;
         }
-    } else if (objData->walkIndexFlags == WALK_STOPPED) {
+    } else if (objData->walkState == WALK_STOPPED) {
         //Stopped: wait for the intro idle animation to finish
         if (objAnimAdvance(self, objData->animSpeed, gUpdateRateF, &sp30)) {
             //Start the walk point's secondary idle loop animation
-            walkData = (RandomWalkData*)&dRandomWalkData[objData->prevWalkIndex * 5];
+            walkData = (RandomWalkData*)&dRandomWalkData[objData->prevWalkState * 5];
             if (walkData->modAnimIDIdleIntro == self->curModAnimId) {
                 objAnimSet(self, walkData->modAnimIDIdleLoop, 0.0f, 0);
-                objData->animSpeed = dRandomWalkData[(objData->prevWalkIndex * 5) + 4];
+                objData->animSpeed = dRandomWalkData[(objData->prevWalkState * 5) + 4];
             }
         }
         
@@ -402,7 +424,7 @@ void WMWizard_handle_visit_2_spirit_df(Object* self) {
         }
     } else {
         //Go to next walk point
-        walkData = (RandomWalkData*)&dRandomWalkData[objData->walkIndexFlags * 5];
+        walkData = (RandomWalkData*)&dRandomWalkData[objData->walkState * 5];
         dx = walkData->x - (self->srt.transl.x - objData->home.x);
         dz = walkData->z - (self->srt.transl.z - objData->home.z);
         distance = sqrtf(SQ(dx) + SQ(dz));
@@ -434,8 +456,8 @@ void WMWizard_handle_visit_2_spirit_df(Object* self) {
         
         //Arrive at destination
         if (distance < 4.0f) {
-            objData->prevWalkIndex = objData->walkIndexFlags;
-            objData->walkIndexFlags = WALK_STOPPING;
+            objData->prevWalkState = objData->walkState;
+            objData->walkState = WALK_STOPPING;
             self->velocity.x = 0.0f;
             self->velocity.z = 0.0f;
         }
@@ -448,7 +470,7 @@ void WMWizard_handle_visit_2_spirit_df(Object* self) {
 }
 
 // offset: 0x1124 | func: 14
-void WMWizard_handle_visit_3_spirit_mmp(Object* self) {
+void WMWizard_handleVisit3SpiritMMP(Object* self) {
     self->unkAF |= ARROW_FLAG_8_No_Targetting;
 
     //Handle animation
@@ -459,7 +481,7 @@ void WMWizard_handle_visit_3_spirit_mmp(Object* self) {
 }
 
 // offset: 0x11C8 | func: 15
-void WMWizard_handle_visit_4_spirit_cc(Object* self) {
+void WMWizard_handleVisit3SpiritCC(Object* self) {
     WMWizard_Data* objdata = self->data;
     Object* player = objGetPlayer();
     s32 foodGamebit;
@@ -475,7 +497,7 @@ void WMWizard_handle_visit_4_spirit_cc(Object* self) {
     }
 
     //Handle animations 
-    if (mainGetBits(BIT_WM_Setup6_Randorn_Sitting_Up) == FALSE) {
+    if (mainGetBits(BIT_WM_Act6_Randorn_Sitting_Up) == FALSE) {
         //Randorn initially slumped to the side
         if (self->curModAnimId != Randorn_MODANIM_7_Sitting_Attempt_to_Stand_Collapse) {
             objAnimSet(self, Randorn_MODANIM_7_Sitting_Attempt_to_Stand_Collapse, 0.0f, 0);
@@ -492,8 +514,8 @@ void WMWizard_handle_visit_4_spirit_cc(Object* self) {
     }
 
     //Check if player talks to Randorn while he's collapsed
-    if ((self->unkAF & ARROW_FLAG_1_Interacted) && (mainGetBits(BIT_WM_Setup6_Randorn_Sitting_Up) == FALSE)) {
-        mainSetBits(BIT_WM_Setup6_Randorn_Sitting_Up, 1);
+    if ((self->unkAF & ARROW_FLAG_1_Interacted) && (mainGetBits(BIT_WM_Act6_Randorn_Sitting_Up) == FALSE)) {
+        mainSetBits(BIT_WM_Act6_Randorn_Sitting_Up, 1);
         objdata->timesFed = 0;
         joyDisableButtons(0, A_BUTTON);
     

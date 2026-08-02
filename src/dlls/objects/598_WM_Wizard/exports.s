@@ -8,10 +8,10 @@ _exports:
 .dword WMWizard_dtor
 
 # export table
-/*0*/ .dword WMWizard_setup
-/*1*/ .dword WMWizard_control
-/*2*/ .dword WMWizard_update
-/*3*/ .dword WMWizard_print
-/*4*/ .dword WMWizard_free
-/*5*/ .dword WMWizard_get_model_flags
-/*6*/ .dword WMWizard_get_data_size
+/*0*/ .dword WMWizard_obj_Setup
+/*1*/ .dword WMWizard_obj_Control
+/*2*/ .dword WMWizard_obj_Update
+/*3*/ .dword WMWizard_obj_Print
+/*4*/ .dword WMWizard_obj_Free
+/*5*/ .dword WMWizard_obj_GetModelFlags
+/*6*/ .dword WMWizard_obj_GetDataSize

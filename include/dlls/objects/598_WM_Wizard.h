@@ -14,15 +14,15 @@ typedef struct {
 typedef struct {
     Vec3f home;             //Initial position
     f32 animSpeed;          //Animation delta when Randorn is walking around the hall at random
-    f32 objHitsValue;       //ObjHits-related
+    f32 animSpeedFlinch;    //Animation delta when Randorn is reacting to being hit
     f32 unk14;
     s16 unk18;
     s16 unk1A;
     s32 unk1C;
     s16 walkWaitTimer;      //Pause before moving to next random walk destination
     s16 talkTimer;          //Randomised delay when calling out to Krystal
-    u8 walkIndexFlags;      //Random walk destination index, and objHits flag (upper half-byte)
-    u8 prevWalkIndex;       //Previous random walk destination index
+    u8 walkState;           //Random walk destination index, and objHits flags (upper half-byte)
+    u8 prevWalkState;       //Previous random walk destination index
     u8 hasMetKrystal;       //Boolean: whether you've seen Krystal's 1st cutscene with Randorn
     u8 activeSeqIndex;      //Used by animCallback funcs to tell which sequence is playing
     u8 objectID;
@@ -30,8 +30,7 @@ typedef struct {
 } WMWizard_Data;
 
 typedef enum {
-    WMWizard_FLAG_None = 0,
-    WMWizard_FLAG_80 = 0x80
+    WMWizard_FLAG_80_Flinching = 0x80
 } WMWizard_Flags;
 
 typedef enum {
@@ -43,6 +42,15 @@ typedef enum {
 
 #define WALK_STOPPING 12
 #define WALK_STOPPED 13
+
+typedef enum {
+    WMWizard_WALKGOAL_0, //Middle of Krazoa floor mural
+    WMWizard_WALKGOAL_1, //Near top-right pillar (furthest from antechamber door, on right when facing podium)
+    WMWizard_WALKGOAL_2, //Near podium
+    WMWizard_WALKGOAL_3, //Near middle of Krazoa floor mural, closer to orrery door
+    WMWizard_WALKGOAL_4, //Beside orrery door
+    WMWizard_WALKGOAL_5  //Middle of room
+} WMWizard_WalkDestinations;
 
 typedef struct {
     union {
@@ -123,28 +131,5 @@ typedef enum {
     Randorn_MODANIM_62_Limp_Turn = 62, //Swivelling in place while limping (one-shot)
     Randorn_MODANIM_63_Sitting_Offer_Object = 63 //With left hand resting on podium, right hand reaches to pick up something small on left, then presents it to Krystal (different to offering SpellBook/Magic) (one-shot) 
 } WMWizard_ModAnim;
-
-/*0x0*/ static Unk80026DF4 dObjHitsData[] = {
-    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
-    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
-    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
-    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
-    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
-    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
-    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0},
-    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
-    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
-    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}, 
-    {SOUND_377_Metal_Smack, NO_SOUND, -1, -1, 0, 0, 0}
-};
-
-/*0xDC*/ static f32 dRandomWalkData[] = {
-    0,      0,    Randorn_MODANIM_0_Standing_Thoughtfully_LOOP,  Randorn_MODANIM_0_Standing_Thoughtfully_LOOP,    0.02,   //middle of Krazoa floor mural
-    79,     152,  Randorn_MODANIM_20_Standing_Idle_L_LOOP,      Randorn_MODANIM_20_Standing_Idle_L_LOOP,        0.01,   //near top-right pillar (furthest from antechamber door, on right when facing podium)
-    138,   -6,  Randorn_MODANIM_20_Standing_Idle_L_LOOP,     Randorn_MODANIM_20_Standing_Idle_L_LOOP,       0.02,  //near podium
-    -73,   -48, Randorn_MODANIM_20_Standing_Idle_L_LOOP,     Randorn_MODANIM_20_Standing_Idle_L_LOOP,       0.02,  //near middle of Krazoa floor mural, closer to orrery door
-    -248,  -7,  Randorn_MODANIM_0_Standing_Thoughtfully_LOOP, Randorn_MODANIM_0_Standing_Thoughtfully_LOOP,   0.02,  //beside orrery door
-    0,     0,   Randorn_MODANIM_0_Standing_Thoughtfully_LOOP, Randorn_MODANIM_0_Standing_Thoughtfully_LOOP,   0.02
-};
 
 #endif // _DLLS_598_H
