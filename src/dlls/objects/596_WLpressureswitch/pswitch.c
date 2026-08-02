@@ -2,6 +2,7 @@
 #include "PR/ultratypes.h"
 #include "dll.h"
 #include "dlls/engine/6_amsfx.h"
+#include "dlls/objects/607_WL_LevelControl.h"
 #include "game/gamebits.h"
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
@@ -31,18 +32,6 @@ typedef enum {
     STATE_0_UP,
     STATE_1_DOWN
 } WLPressureSwitchStates;
-
-typedef enum {
-    WM_ACT_1_Krystal_Meets_With_Randorn = 1,
-    WM_ACT_2_Spirit_1_Krystal_DF = 2,
-    WM_ACT_3_Spirit_2_Sabre_DB = 3,
-    WM_ACT_4_Spirit_3_Krystal_MMP = 4,
-    WM_ACT_5_Spirit_4_Sabre_WC = 5,
-    WM_ACT_6_Spirit_5_Krystal_CC = 6,
-    WM_ACT_7_Spirit_6_Sabre_WG = 7,
-    WM_ACT_8_Spirit_7_Krystal_GP = 8,
-    WM_ACT_9_Spirit_8_Sabre_SW = 9
-} WarlockMountain_Acts;
 
 static int WLPressureSwitch_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
 
@@ -112,7 +101,7 @@ void WLPressureSwitch_obj_Control(Object* self) {
             }
         }
     //Handle Tricky's behaviour during Sabre's first visit
-    } else if (gDLL_29_Gplay->vtbl->get_act(self->mapID) == WM_ACT_3_Spirit_2_Sabre_DB) {
+    } else if (gDLL_29_Gplay->vtbl->get_act(self->mapID) == WM_ACT3_Spirit2_Sabre_DB) {
         sidekick = objGetSidekick();
         if (sidekick && vec3Distance(&self->globalPosition, &sidekick->globalPosition) < 50.0f) {
             objdata->pressedTimer = 5;
@@ -120,11 +109,10 @@ void WLPressureSwitch_obj_Control(Object* self) {
     }
 
     //Handle the column piece puzzle during Krystal's first visit
-    if (gDLL_29_Gplay->vtbl->get_act(self->mapID) == WM_ACT_1_Krystal_Meets_With_Randorn
-             && !playerIsFarAway) {
+    if ((gDLL_29_Gplay->vtbl->get_act(self->mapID) == WM_ACT1_Krystal_Meeting_Randorn) && !playerIsFarAway) {
         if (objdata->pressedTimer) {
             deltaY = setup->base.y - self->srt.transl.y;
-            // Trigger seq for pointing the camera at the door to Randorn's room partway through descending
+            // Set a gamebit partway through descending, playing a sequence of Randorn's hall door opening
             if (2.5f < deltaY && deltaY < 5.0f) {
                 mainSetBits(BIT_WM_Seq_446_LookAt_Randorn_Hall_Door, TRUE);
             } else if (mainGetBits(BIT_WM_Seq_446_LookAt_Randorn_Hall_Door)) {
