@@ -365,7 +365,7 @@
 590 = objects/590_WL_Galleon
 593 = objects/593_WL_DeadDino
 595 = objects/595_WL_LaserTarget
-596 = objects/596_WLPressureSwitch
+596 = objects/596_WL_PressureSwitch
 597 = objects/597_WL_Column
 598 = objects/598_WM_Wizard
 602 = objects/602_WLTorch
