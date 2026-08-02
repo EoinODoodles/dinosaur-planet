@@ -8,10 +8,10 @@ _exports:
 .dword DIM_BossSpit_dtor
 
 # export table
-/*0*/ .dword DIM_BossSpit_setup
-/*1*/ .dword DIM_BossSpit_control
-/*2*/ .dword DIM_BossSpit_update
-/*3*/ .dword DIM_BossSpit_print
-/*4*/ .dword DIM_BossSpit_free
-/*5*/ .dword DIM_BossSpit_get_model_flags
-/*6*/ .dword DIM_BossSpit_get_data_size
+/*0*/ .dword DIM_BossSpit_obj_Setup
+/*1*/ .dword DIM_BossSpit_obj_Control
+/*2*/ .dword DIM_BossSpit_obj_Update
+/*3*/ .dword DIM_BossSpit_obj_Print
+/*4*/ .dword DIM_BossSpit_obj_Free
+/*5*/ .dword DIM_BossSpit_obj_GetModelFlags
+/*6*/ .dword DIM_BossSpit_obj_GetDataSize

@@ -1,6 +1,7 @@
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
 #include "dll.h"
+#include "sys/math.h"
 #include "sys/objects.h"
 #include "sys/objprint.h"
 #include "sys/main.h"
@@ -9,26 +10,26 @@
 typedef struct {
     s16 unk0;
     s16 unk2;
-    Object *lfxEmitter;
+    Object* lfxEmitter;
 } DIM_BossSpit_Data;
 
-static void DIM_BossSpit_func_2AC(Object *self);
-static void DIM_BossSpit_func_360(Object *self);
-static void DIM_BossSpit_func_53C(Object *self);
+static void DIM_BossSpit_createLfxEmitter(Object* self);
+static void DIM_BossSpit_func_360(Object* self);
+static void DIM_BossSpit_func_53C(Object* self);
 
 // offset: 0x0 | ctor
-void DIM_BossSpit_ctor(void *dll) { }
+void DIM_BossSpit_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void DIM_BossSpit_dtor(void *dll) { }
+void DIM_BossSpit_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void DIM_BossSpit_setup(Object *self, ObjSetup *setup, s32 arg2) {
-    DIM_BossSpit_Data *objdata;
+void DIM_BossSpit_obj_Setup(Object* self, ObjSetup* setup, s32 reset) {
+    DIM_BossSpit_Data* objdata;
 
     objdata = self->data;
-    DIM_BossSpit_func_2AC(self);
-    self->unkDC = 0xB4;
+    DIM_BossSpit_createLfxEmitter(self);
+    self->unkDC = 180;
     func_80026128(self, 0, 0, 0);
     func_80026940(self, 0);
     objdata->unk0 = 0;
@@ -37,8 +38,8 @@ void DIM_BossSpit_setup(Object *self, ObjSetup *setup, s32 arg2) {
 }
 
 // offset: 0xCC | func: 1 | export: 1
-void DIM_BossSpit_control(Object *self) {
-    DIM_BossSpit_Data *objdata;
+void DIM_BossSpit_obj_Control(Object* self) {
+    DIM_BossSpit_Data* objdata;
 
     objdata = self->data;
     if (objdata->unk0 == 0) {
@@ -60,42 +61,42 @@ void DIM_BossSpit_control(Object *self) {
 }
 
 // offset: 0x1A8 | func: 2 | export: 2
-void DIM_BossSpit_update(Object *self) { }
+void DIM_BossSpit_obj_Update(Object* self) { }
 
 // offset: 0x1B4 | func: 3 | export: 3
-void DIM_BossSpit_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
+void DIM_BossSpit_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x208 | func: 4 | export: 4
-void DIM_BossSpit_free(Object *self, s32 a1) {
-    DIM_BossSpit_Data *objdata;
-    Object *lfxEmitter;
+void DIM_BossSpit_obj_Free(Object* self, s32 onlySelf) {
+    DIM_BossSpit_Data* objdata;
+    Object* lfxEmitter;
 
     objdata = self->data;
     lfxEmitter = objdata->lfxEmitter;
-    if (lfxEmitter && a1 == 0) {
+    if (lfxEmitter && onlySelf == FALSE) {
         objFreeObject(lfxEmitter);
     }
     gDLL_13_Expgfx->vtbl->func5(self);
 }
 
 // offset: 0x288 | func: 5 | export: 5
-u32 DIM_BossSpit_get_model_flags(Object *self) {
+u32 DIM_BossSpit_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x298 | func: 6 | export: 6
-u32 DIM_BossSpit_get_data_size(Object *self, u32 a1) {
+u32 DIM_BossSpit_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(DIM_BossSpit_Data);
 }
 
 // offset: 0x2AC | func: 7
-void DIM_BossSpit_func_2AC(Object *self) {
-    DIM_BossSpit_Data *objdata;
-    LFXEmitter_Setup *lfxemitterSetup;
+void DIM_BossSpit_createLfxEmitter(Object* self) {
+    DIM_BossSpit_Data* objdata;
+    LFXEmitter_Setup* lfxemitterSetup;
 
     objdata = self->data;
     lfxemitterSetup = objAllocSetup(sizeof(LFXEmitter_Setup), OBJ_LFXEmitter);
@@ -112,9 +113,9 @@ void DIM_BossSpit_func_2AC(Object *self) {
 }
 
 // offset: 0x360 | func: 8
-void DIM_BossSpit_func_360(Object *self) {
+void DIM_BossSpit_func_360(Object* self) {
     s32 i;
-    DIM_BossSpit_Data *objdata;
+    DIM_BossSpit_Data* objdata;
 
     objdata = self->data;
     func_80026128(self, 5, 4, 0);
@@ -124,15 +125,17 @@ void DIM_BossSpit_func_360(Object *self) {
     self->prevLocalPosition.z = self->srt.transl.z;
     self->velocity.y -= 0.07f * gUpdateRateF;
     self->velocity.y *= 0.97f;
-    self->srt.yaw += 0xAAA;
-    self->srt.roll += 0x38E;
-    self->srt.pitch += 0x38E;
+    self->srt.yaw += M_15_DEGREES;
+    self->srt.roll += M_5_DEGREES;
+    self->srt.pitch += M_5_DEGREES;
     objMove(self, self->velocity.x * gUpdateRateF, self->velocity.y * gUpdateRateF, self->velocity.z * gUpdateRateF);
+    
     if (objdata->lfxEmitter != NULL) {
         objdata->lfxEmitter->srt.transl.x = self->srt.transl.x;
         objdata->lfxEmitter->srt.transl.y = self->srt.transl.y;
         objdata->lfxEmitter->srt.transl.z = self->srt.transl.z;
     }
+
     gDLL_17_partfx->vtbl->spawn(self, PARTICLE_4B5, NULL, PARTFXFLAG_1, -1, NULL);
     for (i = 0; i != 4; i++) {
         gDLL_17_partfx->vtbl->spawn(self, PARTICLE_4BA, NULL, PARTFXFLAG_1, -1, NULL);
@@ -140,18 +143,19 @@ void DIM_BossSpit_func_360(Object *self) {
 }
 
 // offset: 0x53C | func: 9
-void DIM_BossSpit_func_53C(Object *self) {
+void DIM_BossSpit_func_53C(Object* self) {
     /*0x0*/ static s32 _bss_0;
     s32 i;
-    Object *lfxEmitter;
-    LFXEmitter_Data *lfxEmitterData;
-    DIM_BossSpit_Data *objdata;
+    Object* lfxEmitter;
+    LFXEmitter_Data* lfxEmitterData;
+    DIM_BossSpit_Data* objdata;
 
     objdata = self->data;
     self->srt.scale += 0.1f;
-    self->srt.yaw += 0xAAA;
-    self->srt.roll += 0x38E;
-    self->srt.pitch += 0x38E;
+    self->srt.yaw += M_15_DEGREES;
+    self->srt.roll += M_5_DEGREES;
+    self->srt.pitch += M_5_DEGREES;
+
     if (objdata->unk0 == 1) {
         for (i = 0; i != 18; i++) {
             gDLL_17_partfx->vtbl->spawn(self, PARTICLE_340, NULL, PARTFXFLAG_1, -1, NULL);
@@ -161,10 +165,12 @@ void DIM_BossSpit_func_53C(Object *self) {
         dll_amSfx->Play(self, SOUND_386_Squelched_Impact, MAX_VOLUME, NULL, NULL, 0, NULL);
         camSetShakeOffset(3.0f);
     }
+
     objdata->unk0 += gUpdateRate;
     if (objdata->unk0 > 512) {
         objFreeObject(self);
     }
+    
     i = 0xFF - (s32) (((f32)objdata->unk0 / 64) * 255.0f);
     _bss_0 = 0x94 - (objdata->unk0 >> 2);
     if (i >= 0) {
@@ -182,11 +188,13 @@ void DIM_BossSpit_func_53C(Object *self) {
             objFreeObject(lfxEmitter);
             objdata->lfxEmitter = NULL;
         }
+        
         self->opacity = 0;
         if (((_bss_0 - 0x40) >> 1) > 10.0f) {
             func_80026128(self, 9, 1, 0);
             func_80026940(self, (_bss_0 - 0x40) >> 1);
         }
     }
+
     gDLL_17_partfx->vtbl->spawn(self, PARTICLE_4BC, NULL, PARTFXFLAG_1, -1, &_bss_0);
 }
