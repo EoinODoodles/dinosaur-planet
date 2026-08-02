@@ -546,6 +546,8 @@ enum SoundID {
     SOUND_64D_Wooden_Rattle = 0x64D, // used by MediumCrate, SmallBasket
 
     SOUND_669_Insect_Scurry_Loop = 0x669, // Scarab
+    
+    SOUND_66B = 0x66B,
 
     SOUND_66E_Ting = 0x66E, // MagicDust
 

@@ -18,11 +18,11 @@
 
 typedef struct {
     s8 unk0;
-} DLL255_DataActual;
+} SabreBaddie_DataActual;
 
 typedef struct {
-    Baddie unk0;
-} DLL255_Data;
+    Baddie baddie;
+} SabreBaddie_Data;
 
 typedef struct {
     s16 unk0;
@@ -40,9 +40,37 @@ typedef struct {
     f32 unk30;
     f32 unk34;
     f32 unk38;
-} DLL225_Data0_Unk; //0x3C
+} SabreBaddie_Data0_Unk; //0x3C
 
-/*0x0*/ static DLL225_Data0_Unk _data_0[6] = {
+typedef enum {
+    SabreBaddie_ASTATE_0,
+    SabreBaddie_ASTATE_1,
+    SabreBaddie_ASTATE_2,
+    SabreBaddie_ASTATE_3,
+    SabreBaddie_ASTATE_4,
+    SabreBaddie_ASTATE_5,
+    SabreBaddie_ASTATE_6,
+    SabreBaddie_ASTATE_7,
+    SabreBaddie_ASTATE_8,
+    SabreBaddie_ASTATE_9,
+    SabreBaddie_ASTATE_10,
+    SabreBaddie_ASTATE_11,
+    SabreBaddie_ASTATE_12,
+    SabreBaddie_ASTATE_13
+} SabreBaddie_AnimStates;
+
+typedef enum {
+    SabreBaddie_LSTATE_0,
+    SabreBaddie_LSTATE_1,
+    SabreBaddie_LSTATE_2,
+    SabreBaddie_LSTATE_3,
+    SabreBaddie_LSTATE_4,
+    SabreBaddie_LSTATE_5,
+    SabreBaddie_LSTATE_6,
+    SabreBaddie_LSTATE_7
+} SabreBaddie_LogicStates;
+
+/*0x0*/ static SabreBaddie_Data0_Unk _data_0[6] = {
     {0x0099, 0x0000000b, 0x01ff, 0.018, 
     -1, -1, -1, 0.2, 
     0.5, 0.3, 0.35, 0x0661, 
@@ -95,76 +123,76 @@ typedef struct {
     0x067a, 0x067b, 0x067c
 };
 
-/*0x0*/ static ObjFSA_StateCallback _bss_0[14];
-/*0x38*/ static ObjFSA_StateCallback _bss_38[10];
+/*0x0*/ static ObjFSA_StateCallback sAnimStateCallbacks[14];
+/*0x38*/ static ObjFSA_StateCallback sLogicStateCallbacks[10];
 
-static int dll_225_func_5C8(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
-static void dll_225_func_864(Object* self, Baddie* baddie, ObjFSA_Data* fsa);
-static void dll_225_func_A84(Object* self, AnimObj_Data* animData, Baddie* baddie, ObjFSA_Data* fsa);
-static void dll_225_func_C10(Object* self, Baddie* baddie, ObjFSA_Data* fsa);
+static int SabreBaddie_func_5C8(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static void SabreBaddie_func_864(Object* self, Baddie* baddie, ObjFSA_Data* fsa);
+static void SabreBaddie_func_A84(Object* self, AnimObj_Data* animData, Baddie* baddie, ObjFSA_Data* fsa);
+static void SabreBaddie_func_C10(Object* self, Baddie* baddie, ObjFSA_Data* fsa);
 
-static s32 dll_225_func_D08(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_DB4(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_F38(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_10EC(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_11A4(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_1264(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_134C(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_1434(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_151C(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_1604(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_1878(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_1AEC(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_1D60(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_1E60(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState0(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState1(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState2(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState3(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState4(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState5(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState6(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState7(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState8(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState9(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState10(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState11(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState12(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_animState13(Object* self, ObjFSA_Data* fsa, f32 updateRate);
 
-static s32 dll_225_func_1F20(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_1F38(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_2010(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_2028(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_209C(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_2190(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_21F8(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 dll_225_func_2404(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_logicState0(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_logicState1(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_logicState2(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_logicState3(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_logicState4(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_logicState5(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_logicState6(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 SabreBaddie_logicState7(Object* self, ObjFSA_Data* fsa, f32 updateRate);
 
 // offset: 0x0 | func: 0
-static void dll_225_func_0(void) {
-    _bss_0[0] = dll_225_func_D08;
-    _bss_0[1] = dll_225_func_DB4;
-    _bss_0[2] = dll_225_func_F38;
-    _bss_0[3] = dll_225_func_10EC;
-    _bss_0[4] = dll_225_func_11A4;
-    _bss_0[5] = dll_225_func_1264;
-    _bss_0[6] = dll_225_func_134C;
-    _bss_0[7] = dll_225_func_1434;
-    _bss_0[8] = dll_225_func_151C;
-    _bss_0[9] = dll_225_func_1604;
-    _bss_0[10] = dll_225_func_1878;
-    _bss_0[11] = dll_225_func_1AEC;
-    _bss_0[12] = dll_225_func_1D60;
-    _bss_0[13] = dll_225_func_1E60;
+static void SabreBaddie_initFSACallbacks(void) {
+    sAnimStateCallbacks[SabreBaddie_ASTATE_0] = SabreBaddie_animState0;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_1] = SabreBaddie_animState1;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_2] = SabreBaddie_animState2;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_3] = SabreBaddie_animState3;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_4] = SabreBaddie_animState4;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_5] = SabreBaddie_animState5;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_6] = SabreBaddie_animState6;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_7] = SabreBaddie_animState7;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_8] = SabreBaddie_animState8;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_9] = SabreBaddie_animState9;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_10] = SabreBaddie_animState10;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_11] = SabreBaddie_animState11;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_12] = SabreBaddie_animState12;
+    sAnimStateCallbacks[SabreBaddie_ASTATE_13] = SabreBaddie_animState13;
     
-    _bss_38[0] = dll_225_func_1F20;
-    _bss_38[1] = dll_225_func_1F38;
-    _bss_38[2] = dll_225_func_2010;
-    _bss_38[3] = dll_225_func_2028;
-    _bss_38[4] = dll_225_func_209C;
-    _bss_38[5] = dll_225_func_2190;
-    _bss_38[6] = dll_225_func_21F8;
-    _bss_38[7] = dll_225_func_2404;
+    sLogicStateCallbacks[SabreBaddie_LSTATE_0] = SabreBaddie_logicState0;
+    sLogicStateCallbacks[SabreBaddie_LSTATE_1] = SabreBaddie_logicState1;
+    sLogicStateCallbacks[SabreBaddie_LSTATE_2] = SabreBaddie_logicState2;
+    sLogicStateCallbacks[SabreBaddie_LSTATE_3] = SabreBaddie_logicState3;
+    sLogicStateCallbacks[SabreBaddie_LSTATE_4] = SabreBaddie_logicState4;
+    sLogicStateCallbacks[SabreBaddie_LSTATE_5] = SabreBaddie_logicState5;
+    sLogicStateCallbacks[SabreBaddie_LSTATE_6] = SabreBaddie_logicState6;
+    sLogicStateCallbacks[SabreBaddie_LSTATE_7] = SabreBaddie_logicState7;
 }
 
 // offset: 0x12C | ctor
-void dll_225_ctor(void *dll) {
-    dll_225_func_0();
+void SabreBaddie_ctor(void* dll) {
+    SabreBaddie_initFSACallbacks();
 }
 
 // offset: 0x16C | dtor
-void dll_225_dtor(void *dll) { }
+void SabreBaddie_dtor(void* dll) { }
 
 // offset: 0x178 | func: 1 | export: 0
-void dll_225_setup(Object* self, Baddie_Setup* objSetup, s32 reset) {
-    DLL255_DataActual* objData;
+void SabreBaddie_obj_Setup(Object* self, Baddie_Setup* objSetup, s32 reset) {
+    SabreBaddie_DataActual* objData;
     Baddie* baddie;
     u8 flags;
 
@@ -179,16 +207,16 @@ void dll_225_setup(Object* self, Baddie_Setup* objSetup, s32 reset) {
     }
     gDLL_33_BaddieControl->vtbl->setup(self, objSetup, baddie, 0xE, 8, 0x102, flags, 20.0f);
     
-    self->animCallback = dll_225_func_5C8;
+    self->animCallback = SabreBaddie_func_5C8;
     
     gDLL_18_objfsa->vtbl->set_anim_state(self, &baddie->fsa, 0);
     
-    baddie->fsa.logicState = 0;
+    baddie->fsa.logicState = SabreBaddie_LSTATE_0;
     baddie->fsa.flags |= 0x20000;
     
     objData = baddie->objdata;
     if (objData == NULL) {
-        baddie->objdata = mmAlloc(sizeof(DLL255_DataActual), ALLOC_TAG_TEST_COL, NULL);
+        baddie->objdata = mmAlloc(sizeof(SabreBaddie_DataActual), ALLOC_TAG_TEST_COL, NULL);
         objData = baddie->objdata;
     }
     objData->unk0 = 0;
@@ -197,7 +225,7 @@ void dll_225_setup(Object* self, Baddie_Setup* objSetup, s32 reset) {
 }
 
 // offset: 0x2A8 | func: 2 | export: 1
-void dll_225_control(Object* self) {
+void SabreBaddie_obj_Control(Object* self) {
     Baddie* baddie;
     Baddie_Setup* objSetup;
 
@@ -207,8 +235,8 @@ void dll_225_control(Object* self) {
     if (self->unkDC == 0) {
         if (self->unkE0 == 0) {
             self->srt.transl.x = objSetup->base.x;
-            self->srt.transl.f[1] = objSetup->base.y;
-            self->srt.transl.f[2] = objSetup->base.z;
+            self->srt.transl.y = objSetup->base.y;
+            self->srt.transl.z = objSetup->base.z;
             gDLL_3_Animation->vtbl->start_obj_sequence(objSetup->unk2E, self, -1);
             self->unkE0 = 1;
             return;
@@ -216,34 +244,34 @@ void dll_225_control(Object* self) {
         
         if (baddie->unk3B2 & 2) {
             gDLL_33_BaddieControl->vtbl->func9(self, &baddie->fsa, &baddie->unk34C, baddie->unk39E, &baddie->unk3B4, 0, 0, 0, 1);
-            baddie->unk3B2 &= 0xFFFD;
+            baddie->unk3B2 &= ~2;
         }
         
-        if (gDLL_33_BaddieControl->vtbl->func11(self, baddie, 1) != 0) {
-            dll_225_func_864(self, baddie, &baddie->fsa);
+        if (gDLL_33_BaddieControl->vtbl->func11(self, baddie, 1)) {
+            SabreBaddie_func_864(self, baddie, &baddie->fsa);
             if ((baddie->fsa.target != NULL) || (baddie->fsa.hitpoints == 0)) {
-                dll_225_func_A84(self, 0, baddie, &baddie->fsa);
+                SabreBaddie_func_A84(self, 0, baddie, &baddie->fsa);
             } else {
-                dll_225_func_C10(self, baddie, &baddie->fsa);
+                SabreBaddie_func_C10(self, baddie, &baddie->fsa);
             }
         }
     }
 }
 
 // offset: 0x450 | func: 3 | export: 2
-void dll_225_update(Object* self) {
-    gDLL_18_objfsa->vtbl->func2(self, self->data, _bss_0);
+void SabreBaddie_obj_Update(Object* self) {
+    gDLL_18_objfsa->vtbl->func2(self, self->data, sAnimStateCallbacks);
 }
 
 // offset: 0x4A0 | func: 4 | export: 3
-void dll_225_print(Object* arg0, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
-    if (visibility && (arg0->unkDC == 0)) {
-        objprintDrawModel(arg0, gdl, mtxs, vtxs, pols, 1.0f);
+void SabreBaddie_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+    if (visibility && (self->unkDC == 0)) {
+        objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x500 | func: 5 | export: 4
-void dll_225_free(Object* self, s32 onlySelf) {
+void SabreBaddie_obj_Free(Object* self, s32 onlySelf) {
     Baddie* baddie = self->data;
     
     objFreeObjectType(self, OBJTYPE_Baddie);
@@ -257,17 +285,17 @@ void dll_225_free(Object* self, s32 onlySelf) {
 }
 
 // offset: 0x5A4 | func: 6 | export: 5
-u32 dll_225_get_model_flags(Object *self) {
+u32 SabreBaddie_obj_GetModelFlags(Object* self) {
     return MODFLAGS_1 | MODFLAGS_SHADOW | MODFLAGS_8 | MODFLAGS_EVENTS | MODFLAGS_100;
 }
 
 // offset: 0x5B4 | func: 7 | export: 6
-u32 dll_225_get_data_size(Object *self, u32 offsetAddr) {
-    return sizeof(DLL255_Data);
+u32 SabreBaddie_obj_GetDataSize(Object* self, u32 offsetAddr) {
+    return sizeof(SabreBaddie_Data);
 }
 
 // offset: 0x5C8 | func: 8
-int dll_225_func_5C8(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
+int SabreBaddie_func_5C8(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
     Baddie_Setup* objSetup;
     Baddie* baddie;
 
@@ -283,7 +311,7 @@ int dll_225_func_5C8(Object* self, Object* animObj, AnimObj_Data* animData, s8 p
             return 1;
         }
         
-        dll_225_func_864(self, baddie, &baddie->fsa);
+        SabreBaddie_func_864(self, baddie, &baddie->fsa);
         
         if ((baddie->unk3A0 != NO_GAMEBIT) && mainGetBits(baddie->unk3A0)) {
             gDLL_3_Animation->vtbl->func21(animData, objSetup->unk2C);
@@ -293,15 +321,15 @@ int dll_225_func_5C8(Object* self, Object* animObj, AnimObj_Data* animData, s8 p
         switch (baddie->unk3B4) {
         case 2:
             animData->unk7A = 0;
-            dll_225_func_A84(self, animData, baddie, &baddie->fsa);
+            SabreBaddie_func_A84(self, animData, baddie, &baddie->fsa);
             if (baddie->unk3B4 == 1) {
-                baddie->fsa.logicState = 6;
-                gDLL_18_objfsa->vtbl->tick(self, &baddie->fsa, 1.0f, 1.0f, _bss_0, _bss_38);
+                baddie->fsa.logicState = SabreBaddie_LSTATE_6;
+                gDLL_18_objfsa->vtbl->tick(self, &baddie->fsa, 1.0f, 1.0f, sAnimStateCallbacks, sLogicStateCallbacks);
                 animData->unk62 = 0;
             }
             break;
         case 1:
-            if (gDLL_33_BaddieControl->vtbl->func12(self, animData, baddie, _bss_0, _bss_38, 0)) {
+            if (gDLL_33_BaddieControl->vtbl->func12(self, animData, baddie, sAnimStateCallbacks, sLogicStateCallbacks, 0)) {
                 gDLL_33_BaddieControl->vtbl->func10(self, &baddie->fsa, 0.17f, 1);
             }
             break;
@@ -309,7 +337,7 @@ int dll_225_func_5C8(Object* self, Object* animObj, AnimObj_Data* animData, s8 p
         default:
             animData->unk7A = -1;
             animData->unk7A &= ~0x40;
-            dll_225_func_C10(self, baddie, &baddie->fsa);
+            SabreBaddie_func_C10(self, baddie, &baddie->fsa);
             break;
         }
     }
@@ -323,7 +351,7 @@ int dll_225_func_5C8(Object* self, Object* animObj, AnimObj_Data* animData, s8 p
 }
 
 // offset: 0x864 | func: 9
-void dll_225_func_864(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
+void SabreBaddie_func_864(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
     Vec3f d;
     Unk80009024* sp44;
 
@@ -354,7 +382,7 @@ void dll_225_func_864(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
 }
 
 // offset: 0xA84 | func: 10
-void dll_225_func_A84(Object* self, AnimObj_Data* animData, Baddie* baddie, ObjFSA_Data* fsa) {
+void SabreBaddie_func_A84(Object* self, AnimObj_Data* animData, Baddie* baddie, ObjFSA_Data* fsa) {
     Baddie_Setup* objSetup;
     
     objSetup = (Baddie_Setup*)self->setup;
@@ -376,12 +404,12 @@ void dll_225_func_A84(Object* self, AnimObj_Data* animData, Baddie* baddie, ObjF
     gDLL_33_BaddieControl->vtbl->func10(self, fsa, 0.17f, 1);
     baddie->unk3AC = self->animObj;
     self->animObj = NULL;
-    gDLL_18_objfsa->vtbl->tick(self, fsa, gUpdateRateF, gUpdateRateF, _bss_0, _bss_38);
+    gDLL_18_objfsa->vtbl->tick(self, fsa, gUpdateRateF, gUpdateRateF, sAnimStateCallbacks, sLogicStateCallbacks);
     self->animObj = baddie->unk3AC;
 }
 
 // offset: 0xC10 | func: 11
-void dll_225_func_C10(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
+void SabreBaddie_func_C10(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
     Object* target;
 
     if (baddie->unk3B0 & 2) {
@@ -390,14 +418,14 @@ void dll_225_func_C10(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
     
     target = gDLL_33_BaddieControl->vtbl->func17(self, fsa, baddie->unk3E2, M_180_DEGREES);
     if (target) {
-        gDLL_33_BaddieControl->vtbl->func9(self, fsa, &baddie->unk34C, baddie->unk39E, &baddie->unk3B4, 0, 0, 0, 1);
+        gDLL_33_BaddieControl->vtbl->func9(self, fsa, &baddie->unk34C, baddie->unk39E, (s8*)&baddie->unk3B4, 0, 0, 0, 1);
         fsa->unk33D = 0;
         fsa->target = target;
     }
 }
 
 // offset: 0xD08 | func: 12
-s32 dll_225_func_D08(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState0(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     fsa->unk278 = 0.0f;
     fsa->unk27C = 0.0f;
     
@@ -414,7 +442,7 @@ s32 dll_225_func_D08(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0xDB4 | func: 13
-s32 dll_225_func_DB4(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState1(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     s32 idx;
     f32 animProgress;
     s32 animChanged;
@@ -435,7 +463,7 @@ s32 dll_225_func_DB4(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     if (fsa->speed < thresholds[0]) {
         animChanged = TRUE;
         if (idx == 1) {
-            return 1;
+            return FSA_NEXTSTATE_SYNC(SabreBaddie_ASTATE_0);
         }
         idx--;
     } else if (thresholds[1] <= fsa->speed) {
@@ -455,7 +483,7 @@ s32 dll_225_func_DB4(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0xF38 | func: 14
-s32 dll_225_func_F38(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState2(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     Vec3f d;
 
     if (fsa->enteredAnimState) {
@@ -473,7 +501,7 @@ s32 dll_225_func_F38(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
         d.f[2] = fsa->target->globalPosition.f[2] - self->globalPosition.f[2];
         if (sqrtf(SQ(d.f[0]) + SQ(d.f[1]) + SQ(d.f[2])) < 26.0f) {
             fsa->unk33A = 1;
-            gDLL_18_objfsa->vtbl->tick(self, fsa, 1.0f, 1.0f, _bss_0, _bss_38);
+            gDLL_18_objfsa->vtbl->tick(self, fsa, 1.0f, 1.0f, sAnimStateCallbacks, sLogicStateCallbacks);
         }
     }
     
@@ -484,7 +512,7 @@ s32 dll_225_func_F38(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x10EC | func: 15
-s32 dll_225_func_10EC(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState3(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     if (fsa->enteredAnimState) {
         objAnimSet(self, 0x90, 0.0f, 0);
         fsa->unk33A = 0;
@@ -499,7 +527,7 @@ s32 dll_225_func_10EC(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x11A4 | func: 16
-s32 dll_225_func_11A4(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState4(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     if (fsa->enteredAnimState) {
         objAnimSet(self, 0x91, 0.0f, 0);
         fsa->unk33A = 0;
@@ -515,7 +543,7 @@ s32 dll_225_func_11A4(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x1264 | func: 17
-s32 dll_225_func_1264(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState5(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     if (fsa->enteredAnimState) {
         objAnimSet(self, 0x92, 0.0f, 0);
         fsa->unk33A = 0;
@@ -533,7 +561,7 @@ s32 dll_225_func_1264(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x134C | func: 18
-s32 dll_225_func_134C(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState6(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     if (fsa->enteredAnimState) {
         objAnimSet(self, 0x93, 0.0f, 0);
         fsa->unk33A = 0;
@@ -551,7 +579,7 @@ s32 dll_225_func_134C(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x1434 | func: 19
-s32 dll_225_func_1434(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState7(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     if (fsa->enteredAnimState) {
         objAnimSet(self, 0x8F, 0.0f, 0);
         fsa->unk33A = 0;
@@ -569,7 +597,7 @@ s32 dll_225_func_1434(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x151C | func: 20
-s32 dll_225_func_151C(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState8(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     if (fsa->enteredAnimState) {
         objAnimSet(self, 0x8E, 0.0f, 0);
         fsa->unk33A = 0;
@@ -587,7 +615,7 @@ s32 dll_225_func_151C(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x1604 | func: 21
-s32 dll_225_func_1604(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState9(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     u8 idx;
 
     self->objhitInfo->unk5F = 0xB;
@@ -626,7 +654,7 @@ s32 dll_225_func_1604(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x1878 | func: 22
-s32 dll_225_func_1878(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState10(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     u8 idx;
 
     self->objhitInfo->unk5F = 0xB;
@@ -648,6 +676,7 @@ s32 dll_225_func_1878(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
                 fsa->unk34A |= 1;
             }
         }
+
         if (!(fsa->unk34A & 2) && (_data_0[idx].unk28 < self->animProgress)) {
             dll_amSfx->Play(self, _data_20C[mathRnd(0, 2)], MAX_VOLUME, NULL, NULL, 0, NULL);
             fsa->unk34A |= 2;
@@ -664,7 +693,7 @@ s32 dll_225_func_1878(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x1AEC | func: 23
-s32 dll_225_func_1AEC(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState11(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     u8 idx;
 
     self->objhitInfo->unk5F = 0xB;
@@ -703,14 +732,14 @@ s32 dll_225_func_1AEC(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x1D60 | func: 24
-s32 dll_225_func_1D60(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState12(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     if (fsa->enteredAnimState) {
         objAnimSet(self, 0xA2, 0.0f, 0);
         fsa->unk33A = 0;
     }
     
     if (fsa->enteredAnimState) {
-        dll_amSfx->Play(self, 0x66B, MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(self, SOUND_66B, MAX_VOLUME, NULL, NULL, 0, NULL);
     }
     
     fsa->unk341 = 3;
@@ -723,7 +752,7 @@ s32 dll_225_func_1D60(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x1E60 | func: 25
-s32 dll_225_func_1E60(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_animState13(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     Baddie* baddie = self->data;
     
     fsa->unk341 = 3;
@@ -743,30 +772,30 @@ s32 dll_225_func_1E60(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x1F20 | func: 26
-s32 dll_225_func_1F20(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
-    return 7;
+s32 SabreBaddie_logicState0(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+    return FSA_NEXTSTATE_SYNC(SabreBaddie_LSTATE_6);
 }
 
 // offset: 0x1F38 | func: 27
-s32 dll_225_func_1F38(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_logicState1(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     Baddie* baddie = self->data;
     
     if (fsa->hitpoints <= 0) {
-        return 5;
+        return FSA_NEXTSTATE_SYNC(SabreBaddie_LSTATE_4);
     }
     
     if (fsa->hitpoints < 5) {
         mainSetBits(BIT_391, 1);
         fsa->hitpoints = 1;
-        return 3;
+        return FSA_NEXTSTATE_SYNC(SabreBaddie_LSTATE_2);
     }
     
     if (fsa->unk33A != 0) {
         if (fsa->hitpoints < mathRnd(2, 4)) {
-            return 4;
+            return FSA_NEXTSTATE_SYNC(SabreBaddie_LSTATE_3);
         } else {
             baddie->unk3B6 = 300;
-            return 8;
+            return FSA_NEXTSTATE_SYNC(SabreBaddie_LSTATE_7);
         }
     }
     
@@ -774,25 +803,25 @@ s32 dll_225_func_1F38(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x2010 | func: 28
-s32 dll_225_func_2010(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_logicState2(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     return 0;
 }
 
 // offset: 0x2028 | func: 29
-s32 dll_225_func_2028(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_logicState3(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     if (fsa->enteredLogicState) {
-        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 4);
+        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_4);
     } else if (fsa->unk33A) {
-        return 8;
+        return FSA_NEXTSTATE_SYNC(SabreBaddie_LSTATE_7);
     }
     
     return 0;
 }
 
 // offset: 0x209C | func: 30
-s32 dll_225_func_209C(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_logicState4(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     if (fsa->enteredLogicState) {
-        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 0xD);
+        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_13);
         fsa->target = NULL;
         fsa->unk4.mode = 0;
         fsa->unk33D = 0;
@@ -800,14 +829,14 @@ s32 dll_225_func_209C(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
         self->unkAF |= 8;
     } else if ((gUpdateRate * 4) >= self->opacity) {
         objSendMesg(objGetPlayer(), 0xE0000, self, NULL);
-        return 6;
+        return FSA_NEXTSTATE_SYNC(SabreBaddie_LSTATE_5);
     }
 
     return 0;
 }
 
 // offset: 0x2190 | func: 31
-s32 dll_225_func_2190(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_logicState5(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     Baddie* baddie = self->data;
     
     if (fsa->enteredLogicState) {
@@ -818,7 +847,7 @@ s32 dll_225_func_2190(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x21F8 | func: 32
-s32 dll_225_func_21F8(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_logicState6(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     Baddie* baddie;
     Unk80009024* temp_s0;
 
@@ -826,7 +855,7 @@ s32 dll_225_func_21F8(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     temp_s0 = &baddie->unk34C;
     
     if (fsa->target != NULL) {
-        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 1);
+        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_1);
         fsa->xAnalogInput = 0.0f;
         fsa->yAnalogInput = 0.0f;
         bcopy(&self->srt.transl, temp_s0, sizeof(Vec3f));
@@ -834,7 +863,7 @@ s32 dll_225_func_21F8(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
         vox_func_80009024(temp_s0, &baddie->unk374);
 
         if ((fsa->targetDist < baddie->unk3E2) && (baddie->unk3B4 == 2)) {
-            return 8;
+            return FSA_NEXTSTATE_SYNC(SabreBaddie_LSTATE_7);
         }
         
         if (temp_s0->unk25 == 0) {
@@ -843,7 +872,7 @@ s32 dll_225_func_21F8(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
             gDLL_18_objfsa->vtbl->func6(self, fsa, temp_s0->unk18.x, temp_s0->unk18.f[2], 15.0f, 30.0f, 60.0f);
         }
     } else {
-        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 0);
+        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_0);
         fsa->unk33A = 0;
     }
     
@@ -851,9 +880,9 @@ s32 dll_225_func_21F8(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x2404 | func: 33
-s32 dll_225_func_2404(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 SabreBaddie_logicState7(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     Baddie* baddie;
-    DLL255_DataActual* objData;
+    SabreBaddie_DataActual* objData;
     s32 var_v0;
     s32 pad;
     u16 sp3E;
@@ -881,32 +910,32 @@ s32 dll_225_func_2404(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
         sp39 = gDLL_33_BaddieControl->vtbl->func5(self, fsa, 75.0f);
         gDLL_33_BaddieControl->vtbl->func4(self, objGetPlayer(), 0x10, &sp3E, &sp3C, &sp3A);
 
-        if ((s32)sp3A >= (s32)(f32)baddie->unk3E2) { //?
-            return 7;
+        if (sp3A >= (s32)(f32)baddie->unk3E2) { //?
+            return FSA_NEXTSTATE_SYNC(SabreBaddie_LSTATE_6);
         }
 
-        if (baddie->unk3B6 > 0x14) {
-            baddie->unk3B6 -= 0x14;
+        if (baddie->unk3B6 > 20) {
+            baddie->unk3B6 -= 20;
         }
         
-        if ((sp3E < 2) || (sp3E >= 0xE)) {
+        if ((sp3E < 2) || (sp3E >= 14)) {
             if (sp39 & 1) {
-                if ((s32) sp3A >= 0x56) {
-                    gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 3);
-                } else if ((s32) sp3A >= 0x27) {
-                    gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 2);
-                } else if ((s32) sp3A < 0x14) {
-                    if ((sp3E >= 0xE) && (sp39 & 8)) {
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 5);
+                if (sp3A > 85) {
+                    gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_3);
+                } else if (sp3A > 38) {
+                    gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_2);
+                } else if (sp3A < 20) {
+                    if ((sp3E >= 14) && (sp39 & 8)) {
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_5);
                     } else if (sp39 & 2) {
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 6);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_6);
                     } else if (sp39 & 4) {
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 4);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_4);
                     } else {
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 0xA);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_10);
                     }
                 } else {
-                    if ((sp3E == 1) || (sp3E == 0xE)) {
+                    if ((sp3E == 1) || (sp3E == 14)) {
                         var_v0 = mathRnd(0, 1);
                     } else {
                         var_v0 = mathRnd(0, 2);
@@ -914,50 +943,50 @@ s32 dll_225_func_2404(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
                     
                     switch (var_v0) {
                     case 0:
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 9);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_9);
                         break;
                     case 1:
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 0xA);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_10);
                         break;
                     default:
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 0xB);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_11);
                         break;
                     }
                     
                     fsa->unk34A = 0;
-                    baddie->unk3B6 = 0x190;
+                    baddie->unk3B6 = 400;
                 }
             } else {
                 if (mathRnd(0, 1) != 0) {
                     if ((sp3E >= 0xE) && (sp39 & 8)) {
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 5);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_5);
                     } else if (sp39 & 2) {
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 6);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_6);
                     } else if (sp39 & 4) {
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 4);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_4);
                     } else {
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 0xA);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_10);
                     }
                 } else {
                     switch (mathRnd(0, 2)) {
                     case 0:
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 9);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_9);
                         break;
                     case 1:
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 0xA);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_10);
                         break;
                     default:
-                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 0xB);
+                        gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_11);
                         break;
                     }
                     fsa->unk34A = 0;
-                    baddie->unk3B6 = 0x190;
+                    baddie->unk3B6 = 400;
                 }
             }
         } else if ((sp3E >= 2) && (sp3E < 7)) {
-            gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 7);
+            gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_7);
         } else {
-            gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 8);
+            gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, SabreBaddie_ASTATE_8);
         }
         fsa->unk33A = 0;
     }

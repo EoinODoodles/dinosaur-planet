@@ -4,14 +4,14 @@
 _exports:
 
 # ctor/dtor
-.dword dll_225_ctor
-.dword dll_225_dtor
+.dword SabreBaddie_ctor
+.dword SabreBaddie_dtor
 
 # export table
-/*0*/ .dword dll_225_setup
-/*1*/ .dword dll_225_control
-/*2*/ .dword dll_225_update
-/*3*/ .dword dll_225_print
-/*4*/ .dword dll_225_free
-/*5*/ .dword dll_225_get_model_flags
-/*6*/ .dword dll_225_get_data_size
+/*0*/ .dword SabreBaddie_obj_Setup
+/*1*/ .dword SabreBaddie_obj_Control
+/*2*/ .dword SabreBaddie_obj_Update
+/*3*/ .dword SabreBaddie_obj_Print
+/*4*/ .dword SabreBaddie_obj_Free
+/*5*/ .dword SabreBaddie_obj_GetModelFlags
+/*6*/ .dword SabreBaddie_obj_GetDataSize
