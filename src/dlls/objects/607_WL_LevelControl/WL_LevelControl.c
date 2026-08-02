@@ -433,7 +433,7 @@ static void WL_LevelControl_handleAct5(Object* self) {
         ((DLL_210_Player*)player->dll)->vtbl->set_spirit_bits(player, PLAYER_SPIRIT_4, TRUE);
         ((DLL_210_Player*)player->dll)->vtbl->add_magic(player, 20);
 
-        mainSetBits(BIT_WM_Setup5_Sabre_Dock_Pushed_Crate_Onto_GuardClaw, 0);
+        mainSetBits(BIT_WM_Act5_Sabre_Dock_Pushed_Crate_Onto_GuardClaw, 0);
 
         dInitSpirit4Visit = FALSE;
     }
@@ -444,9 +444,9 @@ static void WL_LevelControl_handleAct5(Object* self) {
     }
 
     //Delete the dock's GuardClaw after dropping a crate from above
-    if (mainGetBits(BIT_WM_Setup5_Sabre_Dock_Pushed_Crate_Onto_GuardClaw)) {
+    if (mainGetBits(BIT_WM_Act5_Sabre_Dock_Pushed_Crate_Onto_GuardClaw)) {
         mainSetBits(BIT_CFExplodeTunnel_Trigger_31B6F, 1);
-        mainSetBits(BIT_WM_Setup5_Sabre_Dock_Pushed_Crate_Onto_GuardClaw, 0);
+        mainSetBits(BIT_WM_Act5_Sabre_Dock_Pushed_Crate_Onto_GuardClaw, 0);
 
         guardClaw = objGetNearestTypeTo(OBJTYPE_Baddie, self, &distance);
         if (guardClaw != NULL) {
@@ -458,7 +458,7 @@ static void WL_LevelControl_handleAct5(Object* self) {
     }
 
     //Search through the objects, and delete the hall's SharpClaw and GuardClaw
-    if (mainGetBits(BIT_WM_Setup5_Sabre_Hall_Delete_Claws)) {
+    if (mainGetBits(BIT_WM_Act5_Sabre_Hall_Delete_Claws)) {
         objects = objGetAllOfType(OBJTYPE_Baddie, &count);
         for (i = 0; i < count; i++) {
             someObjsetup = objects[i]->setup;
@@ -468,22 +468,22 @@ static void WL_LevelControl_handleAct5(Object* self) {
                 objFreeObject(objects[i]);
             }
         }
-        mainSetBits(BIT_WM_Setup5_Sabre_Hall_Delete_Claws, 0);
+        mainSetBits(BIT_WM_Act5_Sabre_Hall_Delete_Claws, 0);
     }
 
     //Handle Sabre entering the hall with the GuardClaw
-    if (mainGetBits(BIT_WM_Setup5_Sabre_Entered_GuardClaw_Hall)) {
+    if (mainGetBits(BIT_WM_Act5_Sabre_Entered_GuardClaw_Hall)) {
         lastUsedSpell = ((DLL_210_Player*)player->dll)->vtbl->func50(player);
 
         //Warp the player away if they're not using the Illusion or Forcefield Spells
         if ((lastUsedSpell != BIT_Spell_Illusion) && 
             (lastUsedSpell != BIT_Spell_Forcefield) && 
-            (mainGetBits(BIT_WM_Setup5_Sabre_Hall_Disable_GuardClaw_Warp) == FALSE)
+            (mainGetBits(BIT_WM_Act5_Sabre_Hall_Disable_GuardClaw_Warp) == FALSE)
         ) {
             mapWarpPlayer(WARP_WM_SABRE_KRAZOA_CORRIDOR, /*fadeToBlack=*/FALSE);
         }
 
-        mainSetBits(BIT_WM_Setup5_Sabre_Entered_GuardClaw_Hall, 0);
+        mainSetBits(BIT_WM_Act5_Sabre_Entered_GuardClaw_Hall, 0);
     }
 
     /* Handle removing the GuardClaw hall's warp-away behaviour (and deleting the SharpClaw)
@@ -491,16 +491,16 @@ static void WL_LevelControl_handleAct5(Object* self) {
        NOTE: BIT_2FA intended to be set upon depositing Spirit 4?
              Doesn't seem to get set in practice.
     */
-    if (mainGetBits(BIT_WM_Setup5_Sabre_Hall_GuardClaw_Gone)) {
-        if (mainGetBits(BIT_WM_Setup5_Sabre_Hall_Delete_Claws) == 0) {
-            mainSetBits(BIT_WM_Setup5_Sabre_Hall_Delete_Claws, 1);
+    if (mainGetBits(BIT_WM_Act5_Sabre_Hall_GuardClaw_Gone)) {
+        if (mainGetBits(BIT_WM_Act5_Sabre_Hall_Delete_Claws) == 0) {
+            mainSetBits(BIT_WM_Act5_Sabre_Hall_Delete_Claws, 1);
         }
 
         objData->timer -= (s16)gUpdateRate;
         if (objData->timer <= 0) {
             objData->timer = 0;
-            mainSetBits(BIT_WM_Setup5_Sabre_Hall_GuardClaw_Gone, 0);
-            mainSetBits(BIT_WM_Setup5_Sabre_Hall_Disable_GuardClaw_Warp, 1);
+            mainSetBits(BIT_WM_Act5_Sabre_Hall_GuardClaw_Gone, 0);
+            mainSetBits(BIT_WM_Act5_Sabre_Hall_Disable_GuardClaw_Warp, 1);
             objData->timer = 30;
         }
     }
@@ -588,7 +588,7 @@ static void WL_LevelControl_handleAct7(Object* self) {
         mainSetBits(BIT_221, 1);
     }
 
-    if (mainGetBits(BIT_WM_Setup5_Interval_Behaviour)) {
+    if (mainGetBits(BIT_WM_Act5_Interval_Behaviour)) {
         /* Over 11.666 seconds, set BIT_36D at rapid intervals:
            starting with period of 0.5s, and getting one frame more frequent each time.
 
