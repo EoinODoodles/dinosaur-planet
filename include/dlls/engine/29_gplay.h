@@ -292,4 +292,6 @@ DLL_INTERFACE(DLL_29_gplay) {
     /*48*/ void (*unlock_cinema)(u8 cinemaIdx);
 };
 
+#define dll_gPlay (gDLL_29_Gplay->vtbl)
+
 #endif //_DLLS_29_H
