@@ -254,6 +254,8 @@ enum ParticleID {
     PARTICLE_73B = 0x73B,
     PARTICLE_73D = 0x73D,
     PARTICLE_73E = 0x73E,
+    PARTICLE_73F = 0x73F,
+    PARTICLE_740 = 0x740,
     PARTICLE_741 = 0x741,
     PARTICLE_76B = 0x76B,
     /* --- DLL 50 END --- */

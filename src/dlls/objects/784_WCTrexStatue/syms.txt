@@ -1,0 +1,14 @@
+.text = 0x0:
+WCTrexStatue_ctor = 0x0;
+WCTrexStatue_dtor = 0xC;
+WCTrexStatue_obj_Setup = 0x18;
+WCTrexStatue_obj_Control = 0x114;
+WCTrexStatue_obj_Update = 0x120;
+WCTrexStatue_obj_Print = 0x1F4;
+WCTrexStatue_obj_Free = 0x248;
+WCTrexStatue_obj_GetModelFlags = 0x258;
+WCTrexStatue_obj_GetDataSize = 0x28C;
+WCTrexStatue_animCallback = 0x2A0;
+
+.rodata = 0x3B4:
+_oob_rodata_0 = 0x0; // absolute:0x3B4
