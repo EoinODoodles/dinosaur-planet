@@ -72,17 +72,17 @@ static void Pollen_create_fragments(Object* self) {
 // offset: 0x2A4 | func: 2 | export: 1
 void Pollen_control(Object* self) {
     Object* pollenCannon;
-    PollenCannon_Data *pollenCannonData;
+    Baddie *pollenCannonBaddie;
     Pollen_Data* objData;
     u32 index;
     s32 count;
-    PollenCannonUnk3F4* cannonUnk;
+    PollenCannonUnk3F4* cannonObjData;
 
     objData = self->data;
     
     pollenCannon = self->unkC4;
-    pollenCannonData = (PollenCannon_Data*)pollenCannon->data;
-    cannonUnk = pollenCannonData->unk3F4;
+    pollenCannonBaddie = pollenCannon->data;
+    cannonObjData = pollenCannonBaddie->objdata;
     
     if (objData->unk12 != 0) {
         objData->unk12--;
@@ -117,10 +117,10 @@ void Pollen_control(Object* self) {
     //Destroy self after colliding
     if (self->opacity == 0) {
         if (pollenCannon->id == OBJ_WG_PollenCannon) {
-            index = cannonUnk->unk6_0;
+            index = cannonObjData->unk6_0;
             while (index--) {
-                if (self == cannonUnk->unk8[index]) {
-                    cannonUnk->unk8[index] = cannonUnk->unk8[--cannonUnk->unk6_0];
+                if (self == cannonObjData->unk8[index]) {
+                    cannonObjData->unk8[index] = cannonObjData->unk8[--cannonObjData->unk6_0];
                 }
             } 
         }
