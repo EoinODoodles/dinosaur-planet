@@ -8,10 +8,10 @@ _exports:
 .dword CCgrub_dtor
 
 # export table
-/*0*/ .dword CCgrub_setup
-/*1*/ .dword CCgrub_control
-/*2*/ .dword CCgrub_update
-/*3*/ .dword CCgrub_print
-/*4*/ .dword CCgrub_free
-/*5*/ .dword CCgrub_get_model_flags
-/*6*/ .dword CCgrub_get_data_size
+/*0*/ .dword CCgrub_obj_Setup
+/*1*/ .dword CCgrub_obj_Control
+/*2*/ .dword CCgrub_obj_Update
+/*3*/ .dword CCgrub_obj_Print
+/*4*/ .dword CCgrub_obj_Free
+/*5*/ .dword CCgrub_obj_GetModelFlags
+/*6*/ .dword CCgrub_obj_GetDataSize
