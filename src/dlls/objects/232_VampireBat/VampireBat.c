@@ -208,7 +208,7 @@ void VampireBat_obj_Control(Object* self) {
     delta.z = objData->home.z - player->srt.transl.z;
     playerDistBase = sqrtf(SQ(delta.f[0]) + SQ(delta.f[1]) + SQ(delta.f[2]));
 
-    //Acquire the player a target if they're in range
+    //Acquire the player as a target if they're in range
     if (baddie->unk3B6 == 0) {
         if (playerDistBase < baddie->unk3E2) {
             baddie->fsa.target = player;
