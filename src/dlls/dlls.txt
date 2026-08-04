@@ -343,6 +343,7 @@
 553 = objects/553_WGmutant
 554 = objects/554_DIM2Conveyor
 562 = objects/562_DIM2Icicle
+565 = objects/565_DIM_Boss
 566 = objects/566_DIM_BossGut
 569 = objects/569_MAGICMaker
 570 = objects/570_DIM_BossSpit
