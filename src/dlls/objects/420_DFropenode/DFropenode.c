@@ -34,14 +34,13 @@ typedef struct DLL420_Grandchild_TypeA {
 } DLL420_Grandchild_TypeA; //0x34 (confirmed from dll_420_func_152C)
 
 typedef struct DLL420_Grandchild_TypeB { 
-    f32 unk0;
+    f32 unk0; //distance?
     DLL420_Grandchild_TypeA* unk4; //typeA for this node
     DLL420_Grandchild_TypeA* unk8; //typeA for next node?
-    u8 _unkC[0x14 - 0xC]; //unsure of here onwards in this struct
-    f32 unk14; 
-    f32 unk18; 
-    f32 unk1C;
-    f32 unk20;
+    f32 unkC;
+    f32 unk10; //unsure
+    f32 unk14; //unsure
+    Vec3f unk18; 
 } DLL420_Grandchild_TypeB; //0x24 (confirmed from dll_420_func_152C)
 
 typedef struct {
@@ -343,7 +342,7 @@ void dll_420_func_18FC(DLL420_Grandchild_TypeB* spanData, DLL420_Grandchild_Type
 #pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/420_DFropenode/dll_420_func_1994.s")
 #else
 
-static void dll_420_func_1A8C(DLL420_Child* rope);
+static void dll_420_func_1A8C(DLL420_Child* rope); //MATCHED
 static void dll_420_func_1C48(DLL420_Child* rope);
 static void dll_420_func_1EF0(DLL420_Child* rope); //MATCHED
 
@@ -371,7 +370,41 @@ void dll_420_func_1994(DLL420_Child* rope) { //MATCHED, but needs next three fun
 #endif
 
 // offset: 0x1A8C | func: 23
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/420_DFropenode/dll_420_func_1A8C.s")
+void dll_420_func_1A8C(DLL420_Child* rope) {
+    DLL420_Grandchild_TypeB* node;
+    Vec3f delta;
+    Vec3f deltaV;
+    f32 factor;
+    s32 i;
+
+    node = rope->unk4;
+    
+    for (i = 0; i < (rope->unk8 - 1); i++, node++) {
+        delta.f[0] = node->unk4->unk0.f[0] - node->unk8->unk0.f[0];
+        delta.f[1] = node->unk4->unk0.f[1] - node->unk8->unk0.f[1];
+        delta.f[2] = node->unk4->unk0.f[2] - node->unk8->unk0.f[2];
+        
+        deltaV.f[0] = node->unk4->unkC.f[0] - node->unk8->unkC.f[0];
+        deltaV.f[1] = node->unk4->unkC.f[1] - node->unk8->unkC.f[1];
+        deltaV.f[2] = node->unk4->unkC.f[2] - node->unk8->unkC.f[2];
+        
+        node->unk0 = sqrtf(SQ(delta.f[0]) + SQ(delta.f[1]) + SQ(delta.f[2]));
+        if (node->unk0 > node->unk14) {
+            node->unkC = 0.0f;
+        }
+        
+        if (node->unkC == 0.0f) {
+            node->unk18.f[2] = 0.0f;
+            node->unk18.f[1] = 0.0f;
+            node->unk18.f[0] = 0.0f;
+        } else {
+            factor = -node->unk10 * (node->unk0 - node->unkC);
+            node->unk18.f[0] = delta.f[0] * factor;
+            node->unk18.f[1] = delta.f[1] * factor;
+            node->unk18.f[2] = delta.f[2] * factor;
+        }
+    }
+}
 
 // offset: 0x1C48 | func: 24
 #pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/420_DFropenode/dll_420_func_1C48.s")
