@@ -2,6 +2,21 @@
 #include "sys/gfx/model.h"
 #include "sys/objtype.h"
 
+//TODO: move to header
+DLL_INTERFACE(DLL_420_DFRopeNode) {
+    /*:*/ DLL_INTERFACE_BASE(DLL_IObject);
+    /*07*/ void (*func7)(Object* self, f32* arg1); //arg1 might be Vec4f*
+    /*08*/ void (*func8)(Object* self, f32 arg1, f32* ox, f32* oy, f32* oz);
+    /*09*/ void (*func9)(Object* self, f32* arg1, f32 arg2);
+    /*10*/ s16 (*func10)(Object* self, f32 arg1, f32 arg2);
+    /*11*/ UnknownDLLFunc func11;
+    /*12*/ s16 (*func12)(Object* self);
+    /*13*/ void (*func13)(Object* self, u32 arg1); //Set connection state?
+    /*14*/ s16 (*func14)(Object* self); //Check if disconnected?
+    /*15*/ void (*func15)(Object* self, f32 arg1);
+    /*16*/ void (*func16)(Object* self); //clear pointer to other DFropenode object
+};
+
 typedef struct {
     ObjSetup base;
     u8 unk18;
@@ -69,7 +84,7 @@ typedef struct DLL420_Data {
     0x00000000, 0x00000000
 };
 
-static void dll_420_func_18BC(void* nodeData); //TODO: fix type
+static void dll_420_func_18BC(DLL420_Child* nodeData);
 
 // offset: 0x0 | ctor
 void dll_420_ctor(void* dll) { }
@@ -136,7 +151,7 @@ void dll_420_free(Object* self, s32 onlySelf) {
     objects = objGetAllOfType(OBJTYPE_RopeNode, &count);
     for (i = 0; i < count; i++) {
         if (otherObj == objects[i]) {
-            ((DLL_Unknown*)otherObj->dll)->vtbl->func[16].withOneArg(otherObj);
+            ((DLL_420_DFRopeNode*)otherObj->dll)->vtbl->func16(otherObj);
         }
     }
 }
@@ -259,7 +274,7 @@ f32 dll_420_func_135C(f32* arg0, f32* arg1, f32* arg2, f32 arg3, f32 arg4, f32 a
 // offset: 0x148C | func: 14 | export: 16
 void dll_420_func_148C(Object* self) {
     DLL420_Data* objData = self->data;
-    objData->unk0 = 0;
+    objData->unk0 = NULL;
 }
 
 // offset: 0x149C | func: 15 | export: 12
@@ -298,7 +313,7 @@ void dll_420_func_1514(Object* self, f32 arg1) {
 #pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/420_DFropenode/dll_420_func_152C.s")
 
 // offset: 0x18BC | func: 20
-void dll_420_func_18BC(void* nodeData) {
+void dll_420_func_18BC(DLL420_Child* nodeData) {
     if (nodeData != NULL) {
         mmFree(nodeData);
     }
