@@ -775,6 +775,12 @@ enum SoundID {
 
     SOUND_9C5_Vanish = 0x9C5,               //WCpushblock
     SOUND_9C6_Appear = 0x9C6,               //WCpushblock
+    
+    SOUND_9CD = 0x9CD,
+
+    SOUND_9D2_Fire_Roaring_Loop = 0x9D2,
+
+    SOUND_9F5_Steam_Hiss = 0x9F5,
 
     SOUND_A20_Electric_Surge_Quieter = 0xA20,       //DBdustgeezer
     SOUND_A21_Whoosh_Echoey = 0xA21,                //DBdustgeezer

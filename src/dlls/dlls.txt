@@ -451,6 +451,7 @@
 739 = objects/739_DR_SupGuardClaw
 740 = objects/740_DR_tube
 742 = objects/742_DR_ExplodeDoor
+751 = objects/751_DR_IceFire
 762 = objects/762_DRSpecialLoader
 764 = objects/764_DR_CloudPerch
 765 = objects/765_DR_EarthCallPad
