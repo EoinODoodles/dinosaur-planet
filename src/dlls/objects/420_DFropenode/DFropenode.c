@@ -25,12 +25,13 @@ typedef struct {
 typedef struct DLL420_Grandchild_TypeA {
     Vec3f unk0; //Position adjustment for the rope node
     Vec3f unkC; //Velocity for the rope node?
-    f32 unk18[3];
+    Vec3f unk18;
     u8 unk24; //count of valid pointers in unk28 (number of connections?)
     u8 unk25;
     u8 unk26;
     u8 unk27;
-    struct DLL420_Grandchild_TypeB* unk28[3]; //typeB for this node
+    struct DLL420_Grandchild_TypeB* unk28[2]; //typeB for this node
+    u8 unk30;
 } DLL420_Grandchild_TypeA; //0x34 (confirmed from dll_420_func_152C)
 
 typedef struct DLL420_Grandchild_TypeB { 
@@ -60,9 +61,14 @@ typedef struct {
     f32 unk30; 
     s8 unk34;
     s8 unk35;
+    s8 unk36;
+    s8 unk37;
+    f32 unk38;
+    f32 unk3C;
+    f32 unk40;
     DLL420_Grandchild_TypeA unk44[8]; //count could vary, but in practice seems to always be 8
-    DLL420_Grandchild_TypeB unk1E4[8];
-} DLL420_Child;  //Length: (count * 0x58) + 0x20     [(8 * 0x58) + 0x20 = 0x2E0]
+    DLL420_Grandchild_TypeB unk1E4[8]; //maybe 7? could be data for spans, and typeA is for points?
+} DLL420_Child;  //Length: (count * 0x58) + 0x20     [(8 * (0x34 + 0x24)) + (0x44 - 0x24) = 0x2E0]
 
 typedef struct DLL420_Data {
     Object* unk0; //Other paired DFropenode object
@@ -227,8 +233,8 @@ void dll_420_func_FDC(Object* self, f32 arg1, f32 arg2) {
     idx = arg1;
     arg1 -= idx;
     
-    objData->unk2C->unk0[idx].unk18[1] += arg2 * arg1;
-    objData->unk2C->unk0[idx].unk18[1] += arg2 * (1.0f - arg1);
+    objData->unk2C->unk0[idx].unk18.f[1] += arg2 * arg1;
+    objData->unk2C->unk0[idx].unk18.f[1] += arg2 * (1.0f - arg1);
 }
 
 // offset: 0x1098 | func: 12 | export: 11
@@ -317,23 +323,23 @@ void dll_420_func_18BC(DLL420_Child* nodeData) {
 }
 
 // offset: 0x18FC | func: 21
-void dll_420_func_18FC(DLL420_Grandchild_TypeB* spanData, DLL420_Grandchild_TypeA* nodeA, DLL420_Grandchild_TypeA* nodeB) {
+void dll_420_func_18FC(DLL420_Grandchild_TypeB* typeB, DLL420_Grandchild_TypeA* typeA1, DLL420_Grandchild_TypeA* typeA2) {
     s32 idx1 = 0;
     s32 idx2 = 0;
     
-    while (nodeA->unk28[idx1]) {
+    while (typeA1->unk28[idx1]) {
         idx1++;
     }
     
-    while (nodeB->unk28[idx2]) {
+    while (typeA2->unk28[idx2]) {
         idx2++;
     }
     
-    if ((idx1 <= nodeA->unk24) && (idx2 <= nodeB->unk24)) {
-        nodeA->unk28[idx1] = spanData;
-        nodeB->unk28[idx2] = spanData;
-        spanData->unk4 = nodeA;
-        spanData->unk8 = nodeB;
+    if ((idx1 <= typeA1->unk24) && (idx2 <= typeA2->unk24)) {
+        typeA1->unk28[idx1] = typeB;
+        typeA2->unk28[idx2] = typeB;
+        typeB->unk4 = typeA1;
+        typeB->unk8 = typeA2;
     }
 }
 
@@ -394,9 +400,7 @@ void dll_420_func_1A8C(DLL420_Child* rope) {
         }
         
         if (node->unkC == 0.0f) {
-            node->unk18.f[2] = 0.0f;
-            node->unk18.f[1] = 0.0f;
-            node->unk18.f[0] = 0.0f;
+            node->unk18.f[0] = node->unk18.f[1] = node->unk18.f[2] = 0.0f;
         } else {
             factor = -node->unk10 * (node->unk0 - node->unkC);
             node->unk18.f[0] = delta.f[0] * factor;
@@ -431,7 +435,7 @@ void dll_420_func_1EF0(DLL420_Child* rope) {
     }
 
     for (i = 1; i < (rope->unk8 - 1); i++) {
-        nodes[i].unk18[0] += 0.01f * rope->unk34;
+        nodes[i].unk18.f[0] += 0.01f * rope->unk34;
     }
 }
 
