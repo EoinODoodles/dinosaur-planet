@@ -25,9 +25,7 @@ typedef struct {
 typedef struct DLL420_Grandchild_TypeA {
     Vec3f unk0; //Position adjustment for the rope node
     Vec3f unkC; //Velocity for the rope node?
-    f32 unk18;
-    f32 unk1C;
-    f32 unk20;
+    f32 unk18[3];
     u8 unk24; //count of valid pointers in unk28 (number of connections?)
     u8 unk25;
     u8 unk26;
@@ -230,8 +228,8 @@ void dll_420_func_FDC(Object* self, f32 arg1, f32 arg2) {
     idx = arg1;
     arg1 -= idx;
     
-    objData->unk2C->unk0[idx].unk1C += arg2 * arg1;
-    objData->unk2C->unk0[idx].unk1C += arg2 * (1.0f - arg1);
+    objData->unk2C->unk0[idx].unk18[1] += arg2 * arg1;
+    objData->unk2C->unk0[idx].unk18[1] += arg2 * (1.0f - arg1);
 }
 
 // offset: 0x1098 | func: 12 | export: 11
@@ -341,7 +339,36 @@ void dll_420_func_18FC(DLL420_Grandchild_TypeB* spanData, DLL420_Grandchild_Type
 }
 
 // offset: 0x1994 | func: 22
+#if 1
 #pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/420_DFropenode/dll_420_func_1994.s")
+#else
+
+static void dll_420_func_1A8C(DLL420_Child* rope);
+static void dll_420_func_1C48(DLL420_Child* rope);
+static void dll_420_func_1EF0(DLL420_Child* rope); //MATCHED
+
+void dll_420_func_1994(DLL420_Child* rope) { //MATCHED, but needs next three functions static
+    DLL420_Grandchild_TypeA* node;
+    s32 i;
+    s32 j;
+
+    node = rope->unk0;
+    dll_420_func_1EF0(rope);
+    
+    for (i = 0; i < rope->unk28; i++) {
+        dll_420_func_1A8C(rope);
+        dll_420_func_1C48(rope);
+    }
+    
+    for (i = 0; i < rope->unk8; i++) {
+        j = 0;
+        while (j < 3) {
+            node->unk18[j++] = 0.0f;
+        }
+        node++;
+    }
+}
+#endif
 
 // offset: 0x1A8C | func: 23
 #pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/420_DFropenode/dll_420_func_1A8C.s")
@@ -350,7 +377,30 @@ void dll_420_func_18FC(DLL420_Grandchild_TypeB* spanData, DLL420_Grandchild_Type
 #pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/420_DFropenode/dll_420_func_1C48.s")
 
 // offset: 0x1EF0 | func: 25
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/420_DFropenode/dll_420_func_1EF0.s")
+void dll_420_func_1EF0(DLL420_Child* rope) {
+    DLL420_Grandchild_TypeA* nodes;
+    s32 i;
+    
+    nodes = rope->unk0;
+
+    if (rope->unk34 < -50) {
+        rope->unk35 = 1;
+    }
+
+    if (rope->unk34 > 50) {
+        rope->unk35 = 2;
+    }
+
+    if (rope->unk35 == 2) {
+        rope->unk34--;
+    } else {
+        rope->unk34++;
+    }
+
+    for (i = 1; i < (rope->unk8 - 1); i++) {
+        nodes[i].unk18[0] += 0.01f * rope->unk34;
+    }
+}
 
 /*0x0*/ static const u32 rodata_0[] = {
     0x00000103, 0x00000000, 0x00000000, 0x00000000, 0x00010403, 0x00000000, 0x00000000, 0x00000000, 
