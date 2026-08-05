@@ -156,11 +156,11 @@ void WCLevelControl_control(Object *self) {
 
     //Check if night-time
     if (gDLL_7_Newday->vtbl->func8(&time)) {
-        mainSetBits(BIT_7F3, 1);
-        mainSetBits(BIT_7F1, 0);
+        mainSetBits(BIT_WC_Is_Nighttime, TRUE);
+        mainSetBits(BIT_WC_Is_Daytime, FALSE);
     } else {
-        mainSetBits(BIT_7F3, 0);
-        mainSetBits(BIT_7F1, 1);
+        mainSetBits(BIT_WC_Is_Nighttime, FALSE);
+        mainSetBits(BIT_WC_Is_Daytime, TRUE);
     }
 }
 

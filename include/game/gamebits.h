@@ -2036,9 +2036,9 @@ typedef enum {
     BIT_WC_Moon_Pressure_Switch_Active = 0x7EE, // len:1 group:1
     BIT_WC_Sun_Beacon_Raised = 0x7EF, // len:1 group:1
     BIT_WC_Moon_Beacon_Raised = 0x7F0, // len:1 group:1
-    BIT_7F1 = 0x7F1, // len:1 group:1
+    BIT_WC_Is_Daytime = 0x7F1, // len:1 group:1
     BIT_7F2 = 0x7F2, // len:1 group:1
-    BIT_7F3 = 0x7F3, // len:1 group:1
+    BIT_WC_Is_Nighttime = 0x7F3, // len:1 group:1
     BIT_7F4 = 0x7F4, // len:1 group:1
     BIT_7F5 = 0x7F5, // len:1 group:1
     BIT_7F6 = 0x7F6, // len:1 group:1
