@@ -1,12 +1,12 @@
 .text = 0x0:
-dll_783_ctor = 0x0;
-dll_783_dtor = 0xC;
-dll_783_setup = 0x18;
-dll_783_control = 0x88;
-dll_783_update = 0x510;
-dll_783_print = 0x51C;
-dll_783_free = 0x570;
-dll_783_get_model_flags = 0x580;
-dll_783_get_data_size = 0x5B4;
+WCTile_ctor = 0x0;
+WCTile_dtor = 0xC;
+WCTile_obj_Setup = 0x18;
+WCTile_obj_Control = 0x88;
+WCTile_obj_Update = 0x510;
+WCTile_obj_Print = 0x51C;
+WCTile_obj_Free = 0x570;
+WCTile_obj_GetModelFlags = 0x580;
+WCTile_obj_GetDataSize = 0x5B4;
 
 .rodata = 0x610:

@@ -2067,8 +2067,8 @@ typedef enum {
     BIT_80D = 0x80D, // len:1 group:0
     BIT_80E = 0x80E, // len:1 group:0
     BIT_80F = 0x80F, // len:1 group:0
-    BIT_810 = 0x810, // len:3 group:1
-    BIT_811 = 0x811, // len:3 group:1
+    BIT_810 = 0x810, // len:3 group:1 //Related to WC Sun Puzzle (Hard)
+    BIT_811 = 0x811, // len:3 group:1 //Related to WC Moon Puzzle (Hard)
     BIT_WC_Sun_Aperture_Opened = 0x812, // len:1 group:1
     BIT_WC_Moon_Aperture_Opened = 0x813, // len:1 group:1
     BIT_814 = 0x814, // len:1 group:1

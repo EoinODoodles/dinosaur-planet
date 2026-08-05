@@ -22,4 +22,6 @@ DLL_INTERFACE(DLL_779_WCLevelControl) {
 /*20*/ s32 (*func20)(SRT *arg0, s16 arg1, s16 arg2, f32 *arg3, f32 *arg4, s32 arg5, s32 arg6);
 };
 
+#define dll_wcLevelControl(obj) (((DLL_779_WCLevelControl*)obj->dll)->vtbl)
+
 #endif // _DLLS_779_H

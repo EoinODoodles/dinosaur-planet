@@ -90,26 +90,27 @@ typedef enum {
 /*0x0*/ static u8 sSunPuzzleCells[8][8];
 /*0x40*/ static u8 sMoonPuzzleCells[8][8];
 
-static int WCLevelControl_anim_callback(Object *self, Object *overrideObj, AnimObj_Data *animData, s8 a3);
-static void WCLevelControl_handle_act1(Object *self, WCLevelControl_Data *objdata);
-static void WCLevelControl_handle_act2(Object *self, WCLevelControl_Data *objdata);
-static void WCLevelControl_sun_puzzle_init_hard(void);
-static void WCLevelControl_moon_puzzle_init_hard(void);
+static int WCLevelControl_animCallback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static void WCLevelControl_handleAct1(Object* self, WCLevelControl_Data* objdata);
+static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata);
+static void WCLevelControl_sunPuzzleInitHard(void);
+static void WCLevelControl_moonPuzzleInitHard(void);
 
 // offset: 0x0 | ctor
-void WCLevelControl_ctor(void *dll) { }
+void WCLevelControl_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void WCLevelControl_dtor(void *dll) { }
+void WCLevelControl_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void WCLevelControl_setup(Object *self, ObjSetup *setup, s32 arg2) {
-    WCLevelControl_Data *objdata;
+void WCLevelControl_obj_Setup(Object* self, ObjSetup* setup, s32 reset) {
+    WCLevelControl_Data* objdata;
 
     objdata = self->data;
-    self->animCallback = WCLevelControl_anim_callback;
-    WCLevelControl_sun_puzzle_init_hard();
-    WCLevelControl_moon_puzzle_init_hard();
+    self->animCallback = WCLevelControl_animCallback;
+
+    WCLevelControl_sunPuzzleInitHard();
+    WCLevelControl_moonPuzzleInitHard();
 
     if (mainGetBits(BIT_WC_Moon_Beacon_Lit)) {
         objdata->flags |= FLAG_8_Moon_Beacon_Lit;
@@ -126,7 +127,9 @@ void WCLevelControl_setup(Object *self, ObjSetup *setup, s32 arg2) {
     if (mainGetBits(BIT_2A5)) {
         objdata->flags |= FLAG_40;
     }
+
     objAddObjectType(self, OBJTYPE_LevelControl);
+
     mainSetBits(BIT_226, 1);
     mainSetBits(BIT_2A6, 1);
     mainSetBits(BIT_206, 1);
@@ -134,11 +137,12 @@ void WCLevelControl_setup(Object *self, ObjSetup *setup, s32 arg2) {
 }
 
 // offset: 0x1B4 | func: 1 | export: 1
-void WCLevelControl_control(Object *self) {
-    WCLevelControl_Data *objdata = self->data;
+void WCLevelControl_obj_Control(Object* self) {
+    WCLevelControl_Data* objdata = self->data;
     f32 time;
     u8 act;
 
+    //Set up environment/lighting effects
     if (self->unkDC == 0) {
         envfxAction(self, self, 0x1FB, 0);
         envfxAction(self, self, 0x1FC, 0);
@@ -147,11 +151,13 @@ void WCLevelControl_control(Object *self) {
         lfxAction(self, self, 0x24F, 0, 0, 0);
         self->unkDC = 1;
     }
+
+    //Handle acts
     act = gDLL_29_Gplay->vtbl->get_act(self->mapID);
     if ((act == 1) || (act != 2)) {
-        WCLevelControl_handle_act1(self, objdata);
+        WCLevelControl_handleAct1(self, objdata);
     } else {
-        WCLevelControl_handle_act2(self, objdata);
+        WCLevelControl_handleAct2(self, objdata);
     }
 
     //Check if night-time
@@ -165,42 +171,43 @@ void WCLevelControl_control(Object *self) {
 }
 
 // offset: 0x3A0 | func: 2 | export: 2
-void WCLevelControl_update(Object *self) { }
+void WCLevelControl_obj_Update(Object* self) { }
 
 // offset: 0x3AC | func: 3 | export: 3
-void WCLevelControl_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
+void WCLevelControl_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x400 | func: 4 | export: 4
-void WCLevelControl_free(Object *self, s32 a1) {
+void WCLevelControl_obj_Free(Object* self, s32 onlySelf) {
     objFreeObjectType(self, OBJTYPE_LevelControl);
 }
 
 // offset: 0x440 | func: 5 | export: 5
-u32 WCLevelControl_get_model_flags(Object *self) {
+u32 WCLevelControl_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x450 | func: 6 | export: 6
-u32 WCLevelControl_get_data_size(Object *self, u32 a1) {
+u32 WCLevelControl_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(WCLevelControl_Data);
 }
 
 // offset: 0x464 | func: 7 | export: 7
-void WCLevelControl_sun_puzzle_set_coords_from_grid_position(SRT *arg0, s16 puzzleGridX, s16 puzzleGridZ, f32 *x, f32 *z) {
+void WCLevelControl_SunPuzzleSetCoordsFromGridPosition(SRT* arg0, s16 puzzleGridX, s16 puzzleGridZ, f32* x, f32* z) {
     f32 blockX;
     f32 blockZ;
 
     mapWorldToBlockWorldCoords(arg0->transl.x, arg0->transl.y, arg0->transl.z, &blockX, &blockZ);
+
     *x = blockX + SUN_PUZZLE_ORIGIN_X + (puzzleGridX * PUZZLE_UNIT) + PUZZLE_UNIT/2;
     *z = blockZ + SUN_PUZZLE_ORIGIN_Z + (puzzleGridZ * PUZZLE_UNIT) + PUZZLE_UNIT/2;
 }
 
 // offset: 0x534 | func: 8 | export: 8
-void WCLevelControl_sun_puzzle_set_grid_position_from_coords(SRT *arg0, f32 x, f32 z, s16 *puzzleGridX, s16 *puzzleGridZ) {
+void WCLevelControl_SunPuzzleSetGridPositionFromCoords(SRT* arg0, f32 x, f32 z, s16* puzzleGridX, s16* puzzleGridZ) {
     f32 blockX;
     f32 blockZ;
 
@@ -210,7 +217,7 @@ void WCLevelControl_sun_puzzle_set_grid_position_from_coords(SRT *arg0, f32 x, f
 }
 
 // offset: 0x64C | func: 9 | export: 9
-void WCLevelControl_sun_puzzle_set_cell(s16 puzzleBlockID, s16 x, s16 z) {
+void WCLevelControl_SunPuzzleSetCell(s16 puzzleBlockID, s16 x, s16 z) {
     if ((x >= 0) && (x < 8) && (z >= 0) && (z < 8)) {
         sSunPuzzleCells[x][z] = puzzleBlockID;
     } else {
@@ -219,7 +226,7 @@ void WCLevelControl_sun_puzzle_set_cell(s16 puzzleBlockID, s16 x, s16 z) {
 }
 
 // offset: 0x6C0 | func: 10 | export: 10
-u8 WCLevelControl_sun_puzzle_get_cell(s16 x, s16 z) {
+u8 WCLevelControl_SunPuzzleGetCell(s16 x, s16 z) {
     if ((x < 0) || (x >= 8) || (z < 0) || (z >= 8)) {
         STUBBED_PRINTF("SUNBLOCK: invalid grid position\n");
         return 0;
@@ -228,7 +235,7 @@ u8 WCLevelControl_sun_puzzle_get_cell(s16 x, s16 z) {
 }
 
 // offset: 0x730 | func: 11 | export: 11
-void WCLevelControl_sun_puzzle_setup_position_hard(s16 puzzleBlockID, s16 *outX, s16 *outZ) {
+void WCLevelControl_SunPuzzleSetupPositionHard(s16 puzzleBlockID, s16* outX, s16* outZ) {
     s32 x;
     s32 z;
 
@@ -246,7 +253,7 @@ void WCLevelControl_sun_puzzle_setup_position_hard(s16 puzzleBlockID, s16 *outX,
 }
 
 // offset: 0x7FC | func: 12 | export: 12
-void WCLevelControl_sun_puzzle_setup_position_easy(s16 puzzleBlockID, s16 *outX, s16 *outZ) {
+void WCLevelControl_SunPuzzleSetupPositionEasy(s16 puzzleBlockID, s16* outX, s16* outZ) {
     s32 x;
     s32 z;
 
@@ -264,7 +271,7 @@ void WCLevelControl_sun_puzzle_setup_position_easy(s16 puzzleBlockID, s16 *outX,
 }
 
 // offset: 0x8C8 | func: 13 | export: 13
-s32 WCLevelControl_sun_puzzle_func_8C8(SRT *arg0, s16 arg1, s16 arg2, f32 *arg3, f32 *arg4, s32 arg5, s32 arg6) {
+s32 WCLevelControl_SunPuzzleFunc8C8(SRT* arg0, s16 arg1, s16 arg2, f32* arg3, f32* arg4, s32 arg5, s32 arg6) {
     s32 var_v0;
     s32 var_a1;
     s32 var_a1_2;
@@ -272,11 +279,11 @@ s32 WCLevelControl_sun_puzzle_func_8C8(SRT *arg0, s16 arg1, s16 arg2, f32 *arg3,
 
     if (arg5 != 0) {
         if (arg5 == -1) {
-            WCLevelControl_sun_puzzle_set_coords_from_grid_position(arg0, 7, arg2, arg3, arg4);
+            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, 7, arg2, arg3, arg4);
             arg1 += 1;
             var_a1 = 8;
         } else {
-            WCLevelControl_sun_puzzle_set_coords_from_grid_position(arg0, 0, arg2, arg3, arg4);
+            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, 0, arg2, arg3, arg4);
             arg1 -= 1;
             var_a1 = -1;
         }
@@ -286,10 +293,10 @@ s32 WCLevelControl_sun_puzzle_func_8C8(SRT *arg0, s16 arg1, s16 arg2, f32 *arg3,
             if (sSunPuzzleCells[var_v0][arg2] != 0) {
                 if (sSunPuzzleCells[var_v0][arg2] < 5) {
                     var_v0 += arg5;
-                    WCLevelControl_sun_puzzle_set_coords_from_grid_position(arg0, var_v0, arg2, arg3, &sp38);
+                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, var_v0, arg2, arg3, &sp38);
                     return 1;
                 } else {
-                    WCLevelControl_sun_puzzle_set_coords_from_grid_position(arg0, var_v0, arg2, arg3, &sp38);
+                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, var_v0, arg2, arg3, &sp38);
                     return 2;
                 }
             }
@@ -297,11 +304,11 @@ s32 WCLevelControl_sun_puzzle_func_8C8(SRT *arg0, s16 arg1, s16 arg2, f32 *arg3,
         }
     } else {
         if (arg6 == -1) {
-            WCLevelControl_sun_puzzle_set_coords_from_grid_position(arg0, arg1, 7, arg3, arg4);
+            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, arg1, 7, arg3, arg4);
             arg2 += 1;
             var_a1_2 = 8;
         } else {
-            WCLevelControl_sun_puzzle_set_coords_from_grid_position(arg0, arg1, 0, arg3, arg4);
+            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, arg1, 0, arg3, arg4);
             arg2 -= 1;
             var_a1_2 = -1;
         }
@@ -311,10 +318,10 @@ s32 WCLevelControl_sun_puzzle_func_8C8(SRT *arg0, s16 arg1, s16 arg2, f32 *arg3,
             if (sSunPuzzleCells[arg1][var_v0] != 0) {
                 if (sSunPuzzleCells[arg1][var_v0] < 5) {
                     var_v0 += arg6;
-                    WCLevelControl_sun_puzzle_set_coords_from_grid_position(arg0, arg1, var_v0, &sp38, arg4);
+                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, arg1, var_v0, &sp38, arg4);
                     return 1;
                 } else {
-                    WCLevelControl_sun_puzzle_set_coords_from_grid_position(arg0, arg1, var_v0, &sp38, arg4);
+                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, arg1, var_v0, &sp38, arg4);
                     return 2;
                 }
             }
@@ -326,7 +333,7 @@ s32 WCLevelControl_sun_puzzle_func_8C8(SRT *arg0, s16 arg1, s16 arg2, f32 *arg3,
 }
 
 // offset: 0xBA8 | func: 14 | export: 14
-void WCLevelControl_moon_puzzle_set_coords_from_grid_position(SRT *arg0, s16 puzzleGridX, s16 puzzleGridZ, f32* x, f32 *z) {
+void WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(SRT* arg0, s16 puzzleGridX, s16 puzzleGridZ, f32* x, f32* z) {
     f32 blockX;
     f32 blockZ;
 
@@ -336,7 +343,7 @@ void WCLevelControl_moon_puzzle_set_coords_from_grid_position(SRT *arg0, s16 puz
 }
 
 // offset: 0xC78 | func: 15 | export: 15
-void WCLevelControl_moon_puzzle_set_grid_position_from_coords(SRT *arg0, f32 x, f32 z, s16 *puzzleGridX, s16 *puzzleGridZ) {
+void WCLevelControl_MoonPuzzleSetGridPositionFromCoords(SRT* arg0, f32 x, f32 z, s16* puzzleGridX, s16* puzzleGridZ) {
     f32 blockX;
     f32 blockZ;
 
@@ -346,7 +353,7 @@ void WCLevelControl_moon_puzzle_set_grid_position_from_coords(SRT *arg0, f32 x, 
 }
 
 // offset: 0xD90 | func: 16 | export: 16
-void WCLevelControl_moon_puzzle_set_cell(s16 puzzleBlockID, s16 x, s16 z) {
+void WCLevelControl_MoonPuzzleSetCell(s16 puzzleBlockID, s16 x, s16 z) {
     if ((x >= 0) && (x < 8) && (z >= 0) && (z < 8)) {
         sMoonPuzzleCells[x][z] = puzzleBlockID;
     } else {
@@ -355,7 +362,7 @@ void WCLevelControl_moon_puzzle_set_cell(s16 puzzleBlockID, s16 x, s16 z) {
 }
 
 // offset: 0xE04 | func: 17 | export: 17
-u8 WCLevelControl_moon_puzzle_get_cell(s16 x, s16 z) {
+u8 WCLevelControl_MoonPuzzleGetCell(s16 x, s16 z) {
     if ((x < 0) || (x >= 8) || (z < 0) || (z >= 8)) {
         STUBBED_PRINTF("MOONBLOCK: invalid grid position\n");
         return 0;
@@ -364,7 +371,7 @@ u8 WCLevelControl_moon_puzzle_get_cell(s16 x, s16 z) {
 }
 
 // offset: 0xE74 | func: 18 | export: 18
-void WCLevelControl_moon_puzzle_setup_position_hard(s16 puzzleBlockID, s16 *outX, s16 *outZ) {
+void WCLevelControl_MoonPuzzleSetupPositionHard(s16 puzzleBlockID, s16* outX, s16* outZ) {
     s32 x;
     s32 z;
 
@@ -382,7 +389,7 @@ void WCLevelControl_moon_puzzle_setup_position_hard(s16 puzzleBlockID, s16 *outX
 }
 
 // offset: 0xF40 | func: 19 | export: 19
-void WCLevelControl_moon_puzzle_setup_position_easy(s16 puzzleBlockID, s16 *outX, s16 *outZ) {
+void WCLevelControl_MoonPuzzleSetupPositionEasy(s16 puzzleBlockID, s16* outX, s16* outZ) {
     s32 x;
     s32 z;
 
@@ -400,7 +407,7 @@ void WCLevelControl_moon_puzzle_setup_position_easy(s16 puzzleBlockID, s16 *outX
 }
 
 // offset: 0x100C | func: 20 | export: 20
-s32 WCLevelControl_moon_puzzle_func_100C(SRT *arg0, s16 puzzleGridX, s16 puzzleGridZ, f32 *x, f32 *z, s32 arg5, s32 arg6) {
+s32 WCLevelControl_MoonPuzzleFunc100C(SRT* arg0, s16 puzzleGridX, s16 puzzleGridZ, f32* x, f32* z, s32 arg5, s32 arg6) {
     s32 temp;
     s32 var_a1;
     s32 var_a1_2;
@@ -408,11 +415,11 @@ s32 WCLevelControl_moon_puzzle_func_100C(SRT *arg0, s16 puzzleGridX, s16 puzzleG
 
     if (arg5 != 0) {
         if (arg5 == -1) {
-            WCLevelControl_moon_puzzle_set_coords_from_grid_position(arg0, 7, puzzleGridZ, x, z);
+            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, 7, puzzleGridZ, x, z);
             puzzleGridX++;
             var_a1 = 8;
         } else {
-            WCLevelControl_moon_puzzle_set_coords_from_grid_position(arg0, 0, puzzleGridZ, x, z);
+            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, 0, puzzleGridZ, x, z);
             puzzleGridX--;
             var_a1 = -1;
         }
@@ -422,10 +429,10 @@ s32 WCLevelControl_moon_puzzle_func_100C(SRT *arg0, s16 puzzleGridX, s16 puzzleG
             if (sMoonPuzzleCells[temp][puzzleGridZ] != 0) {
                 if (sMoonPuzzleCells[temp][puzzleGridZ] < 5) {
                     temp += arg5;
-                    WCLevelControl_moon_puzzle_set_coords_from_grid_position(arg0, temp, puzzleGridZ, x, &sp38);
+                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, temp, puzzleGridZ, x, &sp38);
                     return 1;
                 } else {
-                    WCLevelControl_moon_puzzle_set_coords_from_grid_position(arg0, temp, puzzleGridZ, x, &sp38);
+                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, temp, puzzleGridZ, x, &sp38);
                     return 2;
                 }
             }
@@ -433,11 +440,11 @@ s32 WCLevelControl_moon_puzzle_func_100C(SRT *arg0, s16 puzzleGridX, s16 puzzleG
         }
     } else {
         if (arg6 == -1) {
-            WCLevelControl_moon_puzzle_set_coords_from_grid_position(arg0, puzzleGridX, 7, x, z);
+            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, puzzleGridX, 7, x, z);
             puzzleGridZ++;
             var_a1_2 = 8;
         } else {
-            WCLevelControl_moon_puzzle_set_coords_from_grid_position(arg0, puzzleGridX, 0, x, z);
+            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, puzzleGridX, 0, x, z);
             puzzleGridZ--;
             var_a1_2 = -1;
         }
@@ -447,10 +454,10 @@ s32 WCLevelControl_moon_puzzle_func_100C(SRT *arg0, s16 puzzleGridX, s16 puzzleG
             if (sMoonPuzzleCells[puzzleGridX][temp] != 0) {
                 if (sMoonPuzzleCells[puzzleGridX][temp] < 5) {
                     temp += arg6;
-                    WCLevelControl_moon_puzzle_set_coords_from_grid_position(arg0, puzzleGridX, temp, &sp38, z);
+                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, puzzleGridX, temp, &sp38, z);
                     return 1;
                 } else {
-                    WCLevelControl_moon_puzzle_set_coords_from_grid_position(arg0, puzzleGridX, temp, &sp38, z);
+                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, puzzleGridX, temp, &sp38, z);
                     return 2;
                 }
             }
@@ -462,7 +469,7 @@ s32 WCLevelControl_moon_puzzle_func_100C(SRT *arg0, s16 puzzleGridX, s16 puzzleG
 }
 
 // offset: 0x12EC | func: 21
-static int WCLevelControl_anim_callback(Object *self, Object *overrideObj, AnimObj_Data *animData, s8 a3) {
+static int WCLevelControl_animCallback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 prevCallbackValue) {
     WCLevelControl_Data* objdata = self->data;
     s32 i;
     
@@ -480,6 +487,7 @@ static int WCLevelControl_anim_callback(Object *self, Object *overrideObj, AnimO
             mainSetBits(BIT_WC_SlabDoor_Moon_Symbol_Lit, TRUE);
         }
     }
+
     for (i = 0; i < animData->messageCount; i++) {
         switch (animData->messages[i]) {
             case 1:
@@ -495,9 +503,9 @@ static int WCLevelControl_anim_callback(Object *self, Object *overrideObj, AnimO
 
 // offset: 0x1444 | func: 22
 /**
-  * Also used by any acts after Act 2.
+  * Runs if Walled City isn't currently in Act 2.
   */
-static void WCLevelControl_handle_act1(Object *self, WCLevelControl_Data *objdata) {
+static void WCLevelControl_handleAct1(Object* self, WCLevelControl_Data* objdata) {
     if (objdata->flags & FLAG_2_Pressure_Switch_Challenge_Active) {
         return;
     }
@@ -574,7 +582,7 @@ static void WCLevelControl_handle_act1(Object *self, WCLevelControl_Data *objdat
 }
 
 // offset: 0x1928 | func: 23
-static void WCLevelControl_handle_act2(Object *self, WCLevelControl_Data *objdata) {
+static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata) {
     u8 isNightTime;
     u8 temp;
     f32 time;
@@ -624,7 +632,7 @@ static void WCLevelControl_handle_act2(Object *self, WCLevelControl_Data *objdat
             mainSetBits(BIT_WC_Sun_Aperture_Opened, 1);
             objdata->flags |= FLAG_10_Sun_Aperture_Opened;
         } else if (isNightTime || mainGetBits(BIT_808)) {
-            WCLevelControl_sun_puzzle_init_hard();
+            WCLevelControl_sunPuzzleInitHard();
         }
     }
     if (!(objdata->flags & FLAG_20_Moon_Aperture_Opened)) {
@@ -633,20 +641,20 @@ static void WCLevelControl_handle_act2(Object *self, WCLevelControl_Data *objdat
             mainSetBits(BIT_WC_Moon_Aperture_Opened, 1);
             objdata->flags |= FLAG_20_Moon_Aperture_Opened;
         } else if (!isNightTime || mainGetBits(BIT_809)) {
-            WCLevelControl_moon_puzzle_init_hard();
+            WCLevelControl_moonPuzzleInitHard();
         }
     }
     objdata->flags &= ~FLAG_1_Entered_ObjSeq;
 }
 
 // offset: 0x1CF4 | func: 24
-static void WCLevelControl_sun_puzzle_init_hard(void) {
-    mainSetBits(BIT_810, 0);
+static void WCLevelControl_sunPuzzleInitHard(void) {
+    mainSetBits(BIT_810, FALSE);
     bcopy(dSunPuzzleHard, sSunPuzzleCells, sizeof(sSunPuzzleCells));
 }
 
 // offset: 0x1D54 | func: 25
-static void WCLevelControl_moon_puzzle_init_hard(void) {
-    mainSetBits(BIT_811, 0);
+static void WCLevelControl_moonPuzzleInitHard(void) {
+    mainSetBits(BIT_811, FALSE);
     bcopy(dMoonPuzzleHard, sMoonPuzzleCells, sizeof(sMoonPuzzleCells));
 }

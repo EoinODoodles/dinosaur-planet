@@ -4,14 +4,14 @@
 _exports:
 
 # ctor/dtor
-.dword dll_783_ctor
-.dword dll_783_dtor
+.dword WCTile_ctor
+.dword WCTile_dtor
 
 # export table
-/*0*/ .dword dll_783_setup
-/*1*/ .dword dll_783_control
-/*2*/ .dword dll_783_update
-/*3*/ .dword dll_783_print
-/*4*/ .dword dll_783_free
-/*5*/ .dword dll_783_get_model_flags
-/*6*/ .dword dll_783_get_data_size
+/*0*/ .dword WCTile_obj_Setup
+/*1*/ .dword WCTile_obj_Control
+/*2*/ .dword WCTile_obj_Update
+/*3*/ .dword WCTile_obj_Print
+/*4*/ .dword WCTile_obj_Free
+/*5*/ .dword WCTile_obj_GetModelFlags
+/*6*/ .dword WCTile_obj_GetDataSize
