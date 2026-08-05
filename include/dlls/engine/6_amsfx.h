@@ -447,6 +447,8 @@ enum SoundID {
     SOUND_406_Footstep_Ice = 0x406, //Creaky ice [FOOTSTEP FOLEY]
     SOUND_407_Footstep_Ice = 0x407, //Creaky ice [FOOTSTEP FOLEY]
 
+    SOUND_411_SharpClaw_Laughing = 0x411, //"Ehhh-hehehehehhh!"
+
     SOUND_43C_Target_Highlighted = 0x43C, // camera DLL [Interaction Arrow]
     SOUND_43D_Transporter_Fire = 0x43D,
     SOUND_43E_Stone_Block_Moving = 0x43e,
@@ -465,6 +467,9 @@ enum SoundID {
     
     SOUND_4BB = 0x4BB,
     SOUND_4BC_Tricky_Dig_EMPTY = 0x4BC, //NWtricky (empty)
+    
+    SOUND_4D0_SharpClaw_Grunt = 0x4D0, //"Hhhah!"
+    SOUND_4D1_SharpClaw_Growl = 0x4D1, //"Grrr..."
 
     SOUND_506_Chomping_Food = 0x506, //collectable
 
@@ -489,6 +494,8 @@ enum SoundID {
     SOUND_57C = 0x57C, //tesla.c
     SOUND_57D = 0x57D, //tesla.c
     SOUND_57E = 0x57E, //tesla.c
+
+    SOUND_5BC_SharpClaw_Laughing = 0x5BC, //"Rahhh-hehehehehhh!"
 
     SOUND_PICMENU_SELECT = 0x5D3,
     SOUND_PICMENU_BACK = 0x5D4, // Used in DLL 66
