@@ -1,13 +1,13 @@
 .text = 0x0:
-dll_782_ctor = 0x0;
-dll_782_dtor = 0xC;
-dll_782_setup = 0x18;
-dll_782_control = 0x58;
-dll_782_update = 0xF38;
-dll_782_print = 0xF44;
-dll_782_free = 0xF98;
-dll_782_get_model_flags = 0xFA8;
-dll_782_get_data_size = 0xFDC;
-dll_782_func_FF0 = 0xFF0;
+WCPushBlock_ctor = 0x0;
+WCPushBlock_dtor = 0xC;
+WCPushBlock_obj_Setup = 0x18;
+WCPushBlock_obj_Control = 0x58;
+WCPushBlock_obj_Update = 0xF38;
+WCPushBlock_obj_Print = 0xF44;
+WCPushBlock_obj_Free = 0xF98;
+WCPushBlock_obj_GetModelFlags = 0xFA8;
+WCPushBlock_obj_GetDataSize = 0xFDC;
+WCPushBlock_appearIfPlayerOutsideDestination = 0xFF0;
 
 .rodata = 0x1230:

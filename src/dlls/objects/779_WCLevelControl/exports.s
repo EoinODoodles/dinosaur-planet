@@ -21,11 +21,11 @@ _exports:
 /*10*/ .dword WCLevelControl_SunPuzzleGetCell
 /*11*/ .dword WCLevelControl_SunPuzzleSetupPositionHard
 /*12*/ .dword WCLevelControl_SunPuzzleSetupPositionEasy
-/*13*/ .dword WCLevelControl_SunPuzzleFunc8C8
+/*13*/ .dword WCLevelControl_SunPuzzleMove
 /*14*/ .dword WCLevelControl_MoonPuzzleSetCoordsFromGridPosition
 /*15*/ .dword WCLevelControl_MoonPuzzleSetGridPositionFromCoords
 /*16*/ .dword WCLevelControl_MoonPuzzleSetCell
 /*17*/ .dword WCLevelControl_MoonPuzzleGetCell
 /*18*/ .dword WCLevelControl_MoonPuzzleSetupPositionHard
 /*19*/ .dword WCLevelControl_MoonPuzzleSetupPositionEasy
-/*20*/ .dword WCLevelControl_MoonPuzzleFunc100C
+/*20*/ .dword WCLevelControl_MoonPuzzleMove

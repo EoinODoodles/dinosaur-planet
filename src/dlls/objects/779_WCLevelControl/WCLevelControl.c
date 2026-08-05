@@ -1,4 +1,5 @@
 #include "macros.h"
+#include "dlls/objects/779_WCLevelControl.h"
 #include "game/gamebits.h"
 #include "sys/gfx/animseq.h"
 #include "sys/main.h"
@@ -196,22 +197,22 @@ u32 WCLevelControl_obj_GetDataSize(Object* self, u32 offsetAddr) {
 }
 
 // offset: 0x464 | func: 7 | export: 7
-void WCLevelControl_SunPuzzleSetCoordsFromGridPosition(SRT* arg0, s16 puzzleGridX, s16 puzzleGridZ, f32* x, f32* z) {
+void WCLevelControl_SunPuzzleSetCoordsFromGridPosition(Object* obj, s16 puzzleGridX, s16 puzzleGridZ, f32* x, f32* z) {
     f32 blockX;
     f32 blockZ;
 
-    mapWorldToBlockWorldCoords(arg0->transl.x, arg0->transl.y, arg0->transl.z, &blockX, &blockZ);
+    mapWorldToBlockWorldCoords(obj->srt.transl.x, obj->srt.transl.y, obj->srt.transl.z, &blockX, &blockZ);
 
     *x = blockX + SUN_PUZZLE_ORIGIN_X + (puzzleGridX * PUZZLE_UNIT) + PUZZLE_UNIT/2;
     *z = blockZ + SUN_PUZZLE_ORIGIN_Z + (puzzleGridZ * PUZZLE_UNIT) + PUZZLE_UNIT/2;
 }
 
 // offset: 0x534 | func: 8 | export: 8
-void WCLevelControl_SunPuzzleSetGridPositionFromCoords(SRT* arg0, f32 x, f32 z, s16* puzzleGridX, s16* puzzleGridZ) {
+void WCLevelControl_SunPuzzleSetGridPositionFromCoords(Object* obj, f32 x, f32 z, s16* puzzleGridX, s16* puzzleGridZ) {
     f32 blockX;
     f32 blockZ;
 
-    mapWorldToBlockWorldCoords(arg0->transl.x, arg0->transl.y, arg0->transl.z, &blockX, &blockZ);
+    mapWorldToBlockWorldCoords(obj->srt.transl.x, obj->srt.transl.y, obj->srt.transl.z, &blockX, &blockZ);
     *puzzleGridX = (s16) ((x - blockX) - SUN_PUZZLE_ORIGIN_X) / PUZZLE_UNIT;
     *puzzleGridZ = (s16) ((z - blockZ) - SUN_PUZZLE_ORIGIN_Z) / PUZZLE_UNIT;
 }
@@ -271,83 +272,83 @@ void WCLevelControl_SunPuzzleSetupPositionEasy(s16 puzzleBlockID, s16* outX, s16
 }
 
 // offset: 0x8C8 | func: 13 | export: 13
-s32 WCLevelControl_SunPuzzleFunc8C8(SRT* arg0, s16 arg1, s16 arg2, f32* arg3, f32* arg4, s32 arg5, s32 arg6) {
-    s32 var_v0;
-    s32 var_a1;
-    s32 var_a1_2;
-    f32 sp38;
+s32 WCLevelControl_SunPuzzleMove(Object* obj, s16 gridX, s16 gridZ, f32* limitX, f32* limitZ, s32 stepX, s32 stepZ) {
+    s32 step;
+    s32 maxStepsX;
+    s32 maxStepsZ;
+    f32 temp;
 
-    if (arg5 != 0) {
-        if (arg5 == -1) {
-            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, 7, arg2, arg3, arg4);
-            arg1 += 1;
-            var_a1 = 8;
+    if (stepX != 0) {
+        if (stepX == -1) {
+            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(obj, 7, gridZ, limitX, limitZ);
+            gridX++;
+            maxStepsX = 8;
         } else {
-            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, 0, arg2, arg3, arg4);
-            arg1 -= 1;
-            var_a1 = -1;
+            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(obj, 0, gridZ, limitX, limitZ);
+            gridX--;
+            maxStepsX = -1;
         }
 
-        var_v0 = arg1;
-        while (var_v0 != var_a1) {
-            if (sSunPuzzleCells[var_v0][arg2] != 0) {
-                if (sSunPuzzleCells[var_v0][arg2] < 5) {
-                    var_v0 += arg5;
-                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, var_v0, arg2, arg3, &sp38);
-                    return 1;
+        step = gridX;
+        while (step != maxStepsX) {
+            if (sSunPuzzleCells[step][gridZ] != 0) {
+                if (sSunPuzzleCells[step][gridZ] < 5) {
+                    step += stepX;
+                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(obj, step, gridZ, limitX, &temp);
+                    return WCBlockPuzzle_HIT_Pushblock;
                 } else {
-                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, var_v0, arg2, arg3, &sp38);
-                    return 2;
+                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(obj, step, gridZ, limitX, &temp);
+                    return WCBlockPuzzle_HIT_Symbol;
                 }
             }
-            var_v0 -= arg5;
+            step -= stepX;
         }
     } else {
-        if (arg6 == -1) {
-            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, arg1, 7, arg3, arg4);
-            arg2 += 1;
-            var_a1_2 = 8;
+        if (stepZ == -1) {
+            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(obj, gridX, 7, limitX, limitZ);
+            gridZ++;
+            maxStepsZ = 8;
         } else {
-            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, arg1, 0, arg3, arg4);
-            arg2 -= 1;
-            var_a1_2 = -1;
+            WCLevelControl_SunPuzzleSetCoordsFromGridPosition(obj, gridX, 0, limitX, limitZ);
+            gridZ--;
+            maxStepsZ = -1;
         }
 
-        var_v0 = arg2;
-        while (var_v0 != var_a1_2) {
-            if (sSunPuzzleCells[arg1][var_v0] != 0) {
-                if (sSunPuzzleCells[arg1][var_v0] < 5) {
-                    var_v0 += arg6;
-                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, arg1, var_v0, &sp38, arg4);
-                    return 1;
+        step = gridZ;
+        while (step != maxStepsZ) {
+            if (sSunPuzzleCells[gridX][step] != 0) {
+                if (sSunPuzzleCells[gridX][step] < 5) {
+                    step += stepZ;
+                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(obj, gridX, step, &temp, limitZ);
+                    return WCBlockPuzzle_HIT_Pushblock;
                 } else {
-                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(arg0, arg1, var_v0, &sp38, arg4);
-                    return 2;
+                    WCLevelControl_SunPuzzleSetCoordsFromGridPosition(obj, gridX, step, &temp, limitZ);
+                    return WCBlockPuzzle_HIT_Symbol;
                 }
             }
-            var_v0 -= arg6;
+            step -= stepZ;
         }
     }
     
-    return 4;
+    return WCBlockPuzzle_HIT_Bounds;
 }
 
 // offset: 0xBA8 | func: 14 | export: 14
-void WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(SRT* arg0, s16 puzzleGridX, s16 puzzleGridZ, f32* x, f32* z) {
+void WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(Object* obj, s16 puzzleGridX, s16 puzzleGridZ, f32* x, f32* z) {
     f32 blockX;
     f32 blockZ;
 
-    mapWorldToBlockWorldCoords(arg0->transl.x, arg0->transl.y, arg0->transl.z, &blockX, &blockZ);
+    mapWorldToBlockWorldCoords(obj->srt.transl.x, obj->srt.transl.y, obj->srt.transl.z, &blockX, &blockZ);
     *x = blockX + MOON_PUZZLE_ORIGIN_X + (puzzleGridX * PUZZLE_UNIT) + PUZZLE_UNIT/2;
     *z = blockZ + MOON_PUZZLE_ORIGIN_Z + (puzzleGridZ * PUZZLE_UNIT) + PUZZLE_UNIT/2;
 }
 
 // offset: 0xC78 | func: 15 | export: 15
-void WCLevelControl_MoonPuzzleSetGridPositionFromCoords(SRT* arg0, f32 x, f32 z, s16* puzzleGridX, s16* puzzleGridZ) {
+void WCLevelControl_MoonPuzzleSetGridPositionFromCoords(Object* obj, f32 x, f32 z, s16* puzzleGridX, s16* puzzleGridZ) {
     f32 blockX;
     f32 blockZ;
 
-    mapWorldToBlockWorldCoords(arg0->transl.x, arg0->transl.y, arg0->transl.z, &blockX, &blockZ);
+    mapWorldToBlockWorldCoords(obj->srt.transl.x, obj->srt.transl.y, obj->srt.transl.z, &blockX, &blockZ);
     *puzzleGridX = (s16)((x - blockX) - MOON_PUZZLE_ORIGIN_X) / PUZZLE_UNIT;
     *puzzleGridZ = (s16)((z - blockZ) - MOON_PUZZLE_ORIGIN_Z) / PUZZLE_UNIT;
 }
@@ -407,61 +408,61 @@ void WCLevelControl_MoonPuzzleSetupPositionEasy(s16 puzzleBlockID, s16* outX, s1
 }
 
 // offset: 0x100C | func: 20 | export: 20
-s32 WCLevelControl_MoonPuzzleFunc100C(SRT* arg0, s16 puzzleGridX, s16 puzzleGridZ, f32* x, f32* z, s32 arg5, s32 arg6) {
-    s32 temp;
-    s32 var_a1;
-    s32 var_a1_2;
-    f32 sp38;
+s32 WCLevelControl_MoonPuzzleMove(Object* obj, s16 gridX, s16 gridZ, f32* limitX, f32* limitZ, s32 stepX, s32 stepZ) {
+    s32 step;
+    s32 maxStepsX;
+    s32 maxStepsZ;
+    f32 temp;
 
-    if (arg5 != 0) {
-        if (arg5 == -1) {
-            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, 7, puzzleGridZ, x, z);
-            puzzleGridX++;
-            var_a1 = 8;
+    if (stepX != 0) {
+        if (stepX == -1) {
+            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(obj, 7, gridZ, limitX, limitZ);
+            gridX++;
+            maxStepsX = 8;
         } else {
-            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, 0, puzzleGridZ, x, z);
-            puzzleGridX--;
-            var_a1 = -1;
+            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(obj, 0, gridZ, limitX, limitZ);
+            gridX--;
+            maxStepsX = -1;
         }
 
-        temp = puzzleGridX;
-        while (temp != var_a1) {
-            if (sMoonPuzzleCells[temp][puzzleGridZ] != 0) {
-                if (sMoonPuzzleCells[temp][puzzleGridZ] < 5) {
-                    temp += arg5;
-                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, temp, puzzleGridZ, x, &sp38);
-                    return 1;
+        step = gridX;
+        while (step != maxStepsX) {
+            if (sMoonPuzzleCells[step][gridZ] != 0) {
+                if (sMoonPuzzleCells[step][gridZ] < 5) {
+                    step += stepX;
+                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(obj, step, gridZ, limitX, &temp);
+                    return WCBlockPuzzle_HIT_Pushblock;
                 } else {
-                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, temp, puzzleGridZ, x, &sp38);
-                    return 2;
+                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(obj, step, gridZ, limitX, &temp);
+                    return WCBlockPuzzle_HIT_Symbol;
                 }
             }
-            temp -= arg5;
+            step -= stepX;
         }
     } else {
-        if (arg6 == -1) {
-            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, puzzleGridX, 7, x, z);
-            puzzleGridZ++;
-            var_a1_2 = 8;
+        if (stepZ == -1) {
+            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(obj, gridX, 7, limitX, limitZ);
+            gridZ++;
+            maxStepsZ = 8;
         } else {
-            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, puzzleGridX, 0, x, z);
-            puzzleGridZ--;
-            var_a1_2 = -1;
+            WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(obj, gridX, 0, limitX, limitZ);
+            gridZ--;
+            maxStepsZ = -1;
         }
 
-        temp = puzzleGridZ;
-        while (temp != var_a1_2) {
-            if (sMoonPuzzleCells[puzzleGridX][temp] != 0) {
-                if (sMoonPuzzleCells[puzzleGridX][temp] < 5) {
-                    temp += arg6;
-                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, puzzleGridX, temp, &sp38, z);
-                    return 1;
+        step = gridZ;
+        while (step != maxStepsZ) {
+            if (sMoonPuzzleCells[gridX][step] != 0) {
+                if (sMoonPuzzleCells[gridX][step] < 5) {
+                    step += stepZ;
+                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(obj, gridX, step, &temp, limitZ);
+                    return WCBlockPuzzle_HIT_Pushblock;
                 } else {
-                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(arg0, puzzleGridX, temp, &sp38, z);
-                    return 2;
+                    WCLevelControl_MoonPuzzleSetCoordsFromGridPosition(obj, gridX, step, &temp, limitZ);
+                    return WCBlockPuzzle_HIT_Symbol;
                 }
             }
-            temp -= arg6;
+            step -= stepZ;
         }
     }
 

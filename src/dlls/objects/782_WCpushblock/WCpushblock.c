@@ -13,36 +13,53 @@
 #include "dll.h"
 
 typedef struct {
-/*000*/    s8 unk0[0x260 - 0]; // probably DLL27_Data
-/*260*/    Object* levelCtrl; //WCLevelControl
-/*264*/    f32 unk264;
-/*268*/    f32 unk268;
-/*26C*/    u32 unk26C;
-/*270*/    s16 unk270;
-/*272*/    s16 unk272;
-/*274*/    u8 unk274;
-/*275*/    u8 unk275;
-/*276*/    u8 unk276;
-/*277*/    u8 unk277;
-} WCPushBlock_Data;
-
-typedef struct {
 /*00*/ ObjSetup base;
 /*18*/ u8 unk18;
 /*19*/ s8 modelIndex;
-/*1A*/ s16 unk1A;
+/*1A*/ s16 blockID;
 } WCPushBlock_Setup;
 
-static s32 dll_782_func_FF0(Object* self, WCPushBlock_Data* objdata, Object* player);
+typedef struct {
+/*000*/    DLL27_Data unk0;   //Unused: probably DLL27_Data
+/*260*/    Object* levelCtrl; //WCLevelControl
+/*264*/    f32 limitX;
+/*268*/    f32 limitZ;
+/*26C*/    u32 soundHandle;
+/*270*/    s16 gridX;
+/*272*/    s16 gridZ;
+/*274*/    u8 state;
+/*275*/    u8 moveDirection;
+/*276*/    u8 puzzlePieceID;  //The pushblock's identifier, used by WCLevelControl to quickly store which puzzle element is in each grid cell
+/*277*/    u8 collidedType;
+} WCPushBlock_Data;
+
+typedef enum {
+    WCPushBlock_STATE_0,
+    WCPushBlock_STATE_1,
+    WCPushBlock_STATE_2,
+    WCPushBlock_STATE_3_Pushed_to_Bounds,
+    WCPushBlock_STATE_4,
+    WCPushBlock_STATE_5,
+    WCPushBlock_STATE_6
+} WCPushBlock_States;
+
+typedef enum {
+    WCPushBlock_DIRECTION_X_Positive, //Moving forwards along world X axis
+    WCPushBlock_DIRECTION_X_Negative, //Moving backward along world X axis
+    WCPushBlock_DIRECTION_Z_Positive, //Moving forwards along world Z axis
+    WCPushBlock_DIRECTION_Z_Negative  //Moving backward along world Z axis
+} WCPushBlock_MoveDirections;
+
+static s32 WCPushBlock_appearIfPlayerOutsideDestination(Object* self, WCPushBlock_Data* objdata, Object* player);
 
 // offset: 0x0 | ctor
-void dll_782_ctor(void* dll){ }
+void WCPushBlock_ctor(void* dll){ }
 
 // offset: 0xC | dtor
-void dll_782_dtor(void* dll){ }
+void WCPushBlock_dtor(void* dll){ }
 
 // offset: 0x18 | func: 0 | export: 0
-void dll_782_setup(Object* self, WCPushBlock_Setup* setup, s32 arg2) {
+void WCPushBlock_obj_Setup(Object* self, WCPushBlock_Setup* setup, s32 reset) {
     WCPushBlock_Data* objdata = self->data;
 
     self->opacity = 0;
@@ -50,20 +67,20 @@ void dll_782_setup(Object* self, WCPushBlock_Setup* setup, s32 arg2) {
     if (self->modelInstIdx >= self->def->numModels) {
         self->modelInstIdx = 0;
     }
-    objdata->unk276 = setup->unk1A;
+    objdata->puzzlePieceID = setup->blockID;
 }
 
 // offset: 0x58 | func: 1 | export: 1
-void dll_782_control(Object* self) {
-    TextureAnimator* temp_v0;
+void WCPushBlock_obj_Control(Object* self) {
+    TextureAnimator* texAnim;
     Object* player;
-    f32 var_fv1;
-    s32 var_v0;
+    f32 speed;
+    s32 opacity;
     s32 isNighttime;
     f32 distance;
     WCPushBlock_Data* objdata;
     f32 time;
-    s32 var_a0;
+    s32 stopped;
 
     objdata = self->data;
     player = objGetPlayer();
@@ -74,139 +91,145 @@ void dll_782_control(Object* self) {
         return;
     }
     
-    temp_v0 = objExprGetTexAnimator(self, 0, 0);
-    if (temp_v0 != NULL) {
-        temp_v0->frame = 0;
+    texAnim = objExprGetTexAnimator(self, 0, 0);
+    if (texAnim != NULL) {
+        texAnim->frame = 0;
     }
-    if (objdata->unk274 != 6) {
+
+    if (objdata->state != WCPushBlock_STATE_6) {
         isNighttime = gDLL_7_Newday->vtbl->func8(&time);
         
         if (self->modelInstIdx == 1) {
             if (mainGetBits(BIT_WC_Sun_Aperture_Opened)) {
-                objdata->unk274 = 6;
-                ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func12(objdata->unk276, &objdata->unk270, &objdata->unk272);
-                ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func7(&self->srt, objdata->unk270, objdata->unk272, &self->srt.transl.x, &self->srt.transl.z);
-            } else if (isNighttime != 0) {
-                objdata->unk274 = 3;
+                objdata->state = WCPushBlock_STATE_6;
+                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionEasy(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
+            } else if (isNighttime) {
+                objdata->state = WCPushBlock_STATE_3_Pushed_to_Bounds;
             }
         } else {
             if (mainGetBits(BIT_WC_Moon_Aperture_Opened)) {
-                objdata->unk274 = 6;
-                ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func19(objdata->unk276, &objdata->unk270, &objdata->unk272);
-                ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func14(&self->srt, objdata->unk270, objdata->unk272, &self->srt.transl.x, &self->srt.transl.z);
-            } else if (isNighttime == 0) {
-                objdata->unk274 = 3;
+                objdata->state = WCPushBlock_STATE_6;
+                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionEasy(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
+            } else if (isNighttime == FALSE) {
+                objdata->state = WCPushBlock_STATE_3_Pushed_to_Bounds;
             }
         }
     }
-    switch (objdata->unk274) {
-    case 0:
+
+    switch (objdata->state) {
+    case WCPushBlock_STATE_0:
         if (self->modelInstIdx == 1) {
-            ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func11(objdata->unk276, &objdata->unk270, &objdata->unk272);
-            ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func7(&self->srt, objdata->unk270, objdata->unk272, &self->srt.transl.x, &self->srt.transl.z);
+            dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+            dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
         } else {
-            ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func18(objdata->unk276, &objdata->unk270, &objdata->unk272);
-            ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func14(&self->srt, objdata->unk270, objdata->unk272, &self->srt.transl.x, &self->srt.transl.z);
+            dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+            dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
         }
-        objdata->unk274 = 1;
+        objdata->state = WCPushBlock_STATE_1;
         break;
-    case 1:
-        var_v0 = self->opacity + (gUpdateRate * 8);
-        if (var_v0 > 0xFF) {
-            var_v0 = 0xFF;
+    case WCPushBlock_STATE_1:
+        opacity = self->opacity + (gUpdateRate * 8);
+        if (opacity > OBJECT_OPACITY_MAX) {
+            opacity = OBJECT_OPACITY_MAX;
         }
-        self->opacity = (u8) var_v0;
+        self->opacity = opacity;
         self->velocity.x = 0.0f;
         self->velocity.z = 0.0f;
-        if (((DLL_210_Player*)player->dll)->vtbl->func47(player, self, &objdata->unk275) != 0) {
+        if (((DLL_210_Player*)player->dll)->vtbl->func47(player, self, &objdata->moveDirection)) {
             if (self->modelInstIdx == 1) {
-                if (objdata->unk275 == 0) {
-                    objdata->unk277 = ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func13(
-                        &self->srt, objdata->unk270, objdata->unk272, &objdata->unk264, &objdata->unk268, -1, 0);
+                if (objdata->moveDirection == WCPushBlock_DIRECTION_X_Positive) {
+                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleMove(
+                        self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, -1, 0);
                 }
-                else if (objdata->unk275 == 1) {
-                    objdata->unk277 = ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func13(
-                        &self->srt, objdata->unk270, objdata->unk272, &objdata->unk264, &objdata->unk268, 1, 0);
+                else if (objdata->moveDirection == WCPushBlock_DIRECTION_X_Negative) {
+                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleMove(
+                        self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 1, 0);
                 }
-                else if  (objdata->unk275 == 2) {
-                    objdata->unk277 = ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func13(
-                        &self->srt, objdata->unk270, objdata->unk272, &objdata->unk264, &objdata->unk268, 0, -1);
+                else if (objdata->moveDirection == WCPushBlock_DIRECTION_Z_Positive) {
+                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleMove(
+                        self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 0, -1);
                 }
-                else if  (objdata->unk275 == 3) {
-                    objdata->unk277 = ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func13(
-                        &self->srt, objdata->unk270, objdata->unk272, &objdata->unk264, &objdata->unk268, 0, 1);
+                else if (objdata->moveDirection == WCPushBlock_DIRECTION_Z_Negative) {
+                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleMove(
+                        self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 0, 1);
                 }
             } else {
-                if (objdata->unk275 == 0) {
-                    objdata->unk277 = ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func20(
-                        &self->srt, objdata->unk270, objdata->unk272, &objdata->unk264, &objdata->unk268, -1, 0);
+                if (objdata->moveDirection == WCPushBlock_DIRECTION_X_Positive) {
+                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
+                        self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, -1, 0);
                 }
-                else if  (objdata->unk275 == 1) {
-                    objdata->unk277 = ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func20(
-                        &self->srt, objdata->unk270, objdata->unk272, &objdata->unk264, &objdata->unk268, 1, 0);
+                else if (objdata->moveDirection == WCPushBlock_DIRECTION_X_Negative) {
+                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
+                        self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 1, 0);
                 }
-                else if  (objdata->unk275 == 2) {
-                    objdata->unk277 = ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func20(
-                        &self->srt, objdata->unk270, objdata->unk272, &objdata->unk264, &objdata->unk268, 0, -1);
+                else if (objdata->moveDirection == WCPushBlock_DIRECTION_Z_Positive) {
+                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
+                        self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 0, -1);
                 }
-                else if  (objdata->unk275 == 3) {
-                    objdata->unk277 = ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func20(
-                        &self->srt, objdata->unk270, objdata->unk272, &objdata->unk264, &objdata->unk268, 0, 1);
+                else if (objdata->moveDirection == WCPushBlock_DIRECTION_Z_Negative) {
+                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
+                        self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 0, 1);
                 }
             }
-            if ((objdata->unk264 != self->srt.transl.x) || (objdata->unk268 != self->srt.transl.y)) {
-                dll_amSfx->Play(self, SOUND_9B9_Block_Shifting, 1, &objdata->unk26C, 0, 0, 0);
-                objdata->unk274 = 2;
+
+            if ((objdata->limitX != self->srt.transl.x) || (objdata->limitZ != self->srt.transl.y)) {
+                dll_amSfx->Play(self, SOUND_9B9_Block_Shifting, 1, &objdata->soundHandle, 0, 0, 0);
+                objdata->state = WCPushBlock_STATE_2;
             }
         }
         break;
-    case 2:
-        var_fv1 = sqrtf((self->velocity.x * self->velocity.x) + (self->velocity.z * self->velocity.z));
-        var_fv1 -= 0.25f;
-        if (var_fv1 < 0.0f) {
-            var_fv1 = 0.0f;
+    case WCPushBlock_STATE_2:
+        speed = sqrtf(SQ(self->velocity.x) + SQ(self->velocity.z));
+        speed -= 0.25f;
+        if (speed < 0.0f) {
+            speed = 0.0f;
         }
-        var_fv1 = ((126.0f * var_fv1) / 1.25f) + 1.0f;
-        if (var_fv1 > 127.0f) {
-            var_fv1 = 127.0f;
+        speed = ((126.0f * speed) / 1.25f) + 1.0f;
+        if (speed > 127.0f) {
+            speed = 127.0f;
         }
         
-        dll_amSfx->SetVol(objdata->unk26C, var_fv1);
+        dll_amSfx->SetVol(objdata->soundHandle, speed);
         objMove(self, self->velocity.x * gUpdateRateF, 0.0f, self->velocity.z * gUpdateRateF);
-        var_a0 = 0;
-        if (objdata->unk275 == 0) {
+
+        stopped = FALSE;
+        if (objdata->moveDirection == WCPushBlock_DIRECTION_X_Positive) {
             if (self->velocity.x < 1.5f) {
                 self->velocity.x += (gUpdateRateF * 0.05f);
             }
-            if (objdata->unk264 <= self->srt.transl.x) {
-                self->srt.transl.x = objdata->unk264;
-                var_a0 = 1;
+            if (self->srt.transl.x >= objdata->limitX) {
+                self->srt.transl.x = objdata->limitX;
+                stopped = TRUE;
             }
-        } else if (objdata->unk275 == 1) {
+        } else if (objdata->moveDirection == WCPushBlock_DIRECTION_X_Negative) {
             if (self->velocity.x > -1.5f) {
                 self->velocity.x -= (gUpdateRateF * 0.05f);
             }
-            if (self->srt.transl.x <= objdata->unk264) {
-                self->srt.transl.x = objdata->unk264;
-                var_a0 = 1;
+            if (self->srt.transl.x <= objdata->limitX) {
+                self->srt.transl.x = objdata->limitX;
+                stopped = TRUE;
             }
-        } else if (objdata->unk275 == 2) {
+        } else if (objdata->moveDirection == WCPushBlock_DIRECTION_Z_Positive) {
             if (self->velocity.z < 1.5f) {
                 self->velocity.z += (gUpdateRateF * 0.05f);
             }
-            if (objdata->unk268 <= self->srt.transl.z) {
-                self->srt.transl.z = objdata->unk268;
-                var_a0 = 1;
+            if (self->srt.transl.z >= objdata->limitZ) {
+                self->srt.transl.z = objdata->limitZ;
+                stopped = TRUE;
             }
-        } else if (objdata->unk275 == 3) {
+        } else if (objdata->moveDirection == WCPushBlock_DIRECTION_Z_Negative) {
             if (self->velocity.z > -1.5f) {
                 self->velocity.z -= (gUpdateRateF * 0.05f);
             }
-            if (self->srt.transl.z <= objdata->unk268) {
-                self->srt.transl.z = objdata->unk268;
-                var_a0 = 1;
+            if (self->srt.transl.z <= objdata->limitZ) {
+                self->srt.transl.z = objdata->limitZ;
+                stopped = TRUE;
             }
         }
+
+        //Clamp velocity
         if (self->velocity.x > 1.5f) {
             self->velocity.x = 1.5f;
         }
@@ -219,100 +242,108 @@ void dll_782_control(Object* self) {
         if (self->velocity.z < -1.5f) {
             self->velocity.z = -1.5f;
         }
-        if (var_a0 != 0) {
-            dll_amSfx->Stop(objdata->unk26C);
+
+        if (stopped) {
+            dll_amSfx->Stop(objdata->soundHandle);
             self->velocity.x = 0.0f;
             self->velocity.z = 0.0f;
-            if (objdata->unk277 == 2) {
-                objdata->unk274 = 4;
+
+            if (objdata->collidedType == WCBlockPuzzle_HIT_Symbol) {
+                objdata->state = WCPushBlock_STATE_4;
                 dll_amSfx->Play(self, SOUND_9BB_Magic_Reverse_Cymbal, MAX_VOLUME, NULL, 0, 0, 0);
                 if (self->modelInstIdx == 1) {
                     mainIncrementBits(BIT_810);
                 } else {
                     mainIncrementBits(BIT_811);
                 }
-            } else if (objdata->unk277 == 1) {
-                objdata->unk274 = 1;
+            } else if (objdata->collidedType == WCBlockPuzzle_HIT_Pushblock) {
+                objdata->state = WCPushBlock_STATE_1;
                 dll_amSfx->Play(self, SOUND_9BA_Thud, MAX_VOLUME, NULL, 0, 0, 0);
             } else {
-                objdata->unk274 = 3;
+                objdata->state = WCPushBlock_STATE_3_Pushed_to_Bounds;
                 dll_amSfx->Play(self, SOUND_9BA_Thud, MAX_VOLUME, NULL, 0, 0, 0);
             }
-            if (objdata->unk274 != 3) {
+
+            if (objdata->state != WCPushBlock_STATE_3_Pushed_to_Bounds) {
                 if (self->modelInstIdx == 1) {
-                    ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func9(0, objdata->unk270, objdata->unk272);
-                    ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func8(&self->srt, self->srt.transl.x, self->srt.transl.z, &objdata->unk270, &objdata->unk272);
-                    ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func9(objdata->unk276, objdata->unk270, objdata->unk272);
+                    dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCell(0, objdata->gridX, objdata->gridZ);
+                    dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetGridPositionFromCoords(self, self->srt.transl.x, self->srt.transl.z, &objdata->gridX, &objdata->gridZ);
+                    dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCell(objdata->puzzlePieceID, objdata->gridX, objdata->gridZ);
                 } else {
-                    ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func16(0, objdata->unk270, objdata->unk272);
-                    ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func15(&self->srt, self->srt.transl.x, self->srt.transl.z, &objdata->unk270, &objdata->unk272);
-                    ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func16(objdata->unk276, objdata->unk270, objdata->unk272);
+                    dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCell(0, objdata->gridX, objdata->gridZ);
+                    dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetGridPositionFromCoords(self, self->srt.transl.x, self->srt.transl.z, &objdata->gridX, &objdata->gridZ);
+                    dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCell(objdata->puzzlePieceID, objdata->gridX, objdata->gridZ);
                 }
             }
         }
         break;
-    case 3:
+    case WCPushBlock_STATE_3_Pushed_to_Bounds:
         func_800267A4(self);
-        if (self->opacity == 0xFF) {
+
+        if (self->opacity == OBJECT_OPACITY_MAX) {
             dll_amSfx->Play(self, SOUND_9C5_Vanish, MAX_VOLUME, NULL, 0, 0, 0);
         }
-        var_v0 = self->opacity - (gUpdateRate * 8);
-        if (var_v0 < 0) {
-            var_v0 = 0;
+
+        //Fade out
+        opacity = self->opacity - (gUpdateRate * 8);
+        if (opacity < 0) {
+            opacity = 0;
         }
-        self->opacity = (u8) var_v0;
-        if (self->opacity == 0 && (dll_782_func_FF0(self, objdata, objGetPlayer()) != 0)) {
+        self->opacity = opacity;
+
+        //Reappear once the player moves away from the spot the block should appear
+        if (self->opacity == 0 && WCPushBlock_appearIfPlayerOutsideDestination(self, objdata, objGetPlayer())) {
             if (self->modelInstIdx == 1) {
-                ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func11(objdata->unk276, &objdata->unk270, &objdata->unk272);
-                ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func7(&self->srt, objdata->unk270, objdata->unk272, &self->srt.transl.x, &self->srt.transl.z);
+                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
             } else {
-                ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func18(objdata->unk276, &objdata->unk270, &objdata->unk272);
-                ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func14(&self->srt, objdata->unk270, objdata->unk272, &self->srt.transl.x, &self->srt.transl.z);
+                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
             }
-            objdata->unk274 = 5;
+            objdata->state = WCPushBlock_STATE_5;
         }
         break;
-    case 5:
+    case WCPushBlock_STATE_5:
         if (self->opacity == 0) {
             func_8002674C(self);
             dll_amSfx->Play(self, SOUND_9C6_Appear, MAX_VOLUME, NULL, 0, 0, 0);
         }
-        var_v0 = self->opacity + (gUpdateRate * 8);
-        if (var_v0 > 0xFF) {
-            var_v0 = 0xFF;
+        opacity = self->opacity + (gUpdateRate * 8);
+        if (opacity > OBJECT_OPACITY_MAX) {
+            opacity = OBJECT_OPACITY_MAX;
         }
-        self->opacity = (u8) var_v0;
-        if (self->opacity >= 0xFF) {
-            objdata->unk274 = 1;
+        self->opacity = opacity;
+        if (self->opacity >= OBJECT_OPACITY_MAX) {
+            objdata->state = WCPushBlock_STATE_1;
         }
         break;
-    case 6:
-        self->opacity = 0xFF;
+    case WCPushBlock_STATE_6:
+        self->opacity = OBJECT_OPACITY_MAX;
         /* fallthrough */
-    case 4:
-        temp_v0 = objExprGetTexAnimator(self, 0, 0);
-        if (temp_v0 != NULL) {
-            temp_v0->frame = 0x100;
+    case WCPushBlock_STATE_4:
+        texAnim = objExprGetTexAnimator(self, 0, 0);
+        if (texAnim != NULL) {
+            texAnim->frame = 0x100;
         }
         break;
     }
 }
 
 // offset: 0xF38 | func: 2 | export: 2
-void dll_782_update(Object* self) { }
+void WCPushBlock_obj_Update(Object* self) { }
 
 // offset: 0xF44 | func: 3 | export: 3
-void dll_782_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
+void WCPushBlock_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0xF98 | func: 4 | export: 4
-void dll_782_free(Object* self, s32 arg1) { }
+void WCPushBlock_obj_Free(Object* self, s32 onlySelf) { }
 
 // offset: 0xFA8 | func: 5 | export: 5
-u32 dll_782_get_model_flags(Object* self) {
+u32 WCPushBlock_obj_GetModelFlags(Object* self) {
     WCPushBlock_Setup* setup;
     s8 modelIndex;
 
@@ -325,50 +356,51 @@ u32 dll_782_get_model_flags(Object* self) {
 }
 
 // offset: 0xFDC | func: 6 | export: 6
-u32 dll_782_get_data_size(Object* self, s32 arg1) {
+u32 WCPushBlock_obj_GetDataSize(Object* self, s32 offsetAddr) {
     return sizeof(WCPushBlock_Data);
 }
 
 // offset: 0xFF0 | func: 7
-static s32 dll_782_func_FF0(Object* self, WCPushBlock_Data* objdata, Object* player) {
+static s32 WCPushBlock_appearIfPlayerOutsideDestination(Object* self, WCPushBlock_Data* objdata, Object* player) {
     f32 positionX;
     f32 positionZ;
     f32 min;
     f32 max;
-    f32* time;
+    f32 time;
     u8 isNighttime;
 
-    isNighttime = gDLL_7_Newday->vtbl->func8((f32*)&time);
+    isNighttime = gDLL_7_Newday->vtbl->func8(&time);
 
     if (self->modelInstIdx == 1) {
-        //Sun block?
+        //Sun block
         if (isNighttime) {
-            return 0;
+            return FALSE;
         }
-        ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func11(objdata->unk276, &objdata->unk270, &objdata->unk272);
-        ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func7(&self->srt, objdata->unk270, objdata->unk272, &positionX, &positionZ);
+        dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+        dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &positionX, &positionZ);
     } else {
-        //Moon block?
-        if (!isNighttime) {
-            return 0;
+        //Moon block
+        if (isNighttime == FALSE) {
+            return FALSE;
         }
 
-        ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func18(objdata->unk276, &objdata->unk270, &objdata->unk272);
-        ((DLL_779_WCLevelControl*)(objdata->levelCtrl)->dll)->vtbl->func14(&self->srt, objdata->unk270, objdata->unk272, &positionX, &positionZ);
+        dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+        dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &positionX, &positionZ);
     }
 
     //Check if player out of range
     max = positionX + 56.0f;
     min = positionX - 56.0f;
     if (max < player->srt.transl.x || player->srt.transl.x < min) {
-        return 1;
-    }
-    max = positionZ + 56.0f;
-    min = positionZ - 56.0f;
-    if (positionZ + 56.0f < player->srt.transl.z || player->srt.transl.z < positionZ - 56.0f) {
-        return 1;
+        return TRUE;
     }
 
-    return 0;
+    max = positionZ + 56.0f;
+    min = positionZ - 56.0f;
+    if (max < player->srt.transl.z || player->srt.transl.z < min) {
+        return TRUE;
+    }
+
+    return FALSE;
 }
 

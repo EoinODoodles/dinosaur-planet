@@ -4,14 +4,14 @@
 _exports:
 
 # ctor/dtor
-.dword dll_782_ctor
-.dword dll_782_dtor
+.dword WCPushBlock_ctor
+.dword WCPushBlock_dtor
 
 # export table
-.dword dll_782_setup
-.dword dll_782_control
-.dword dll_782_update
-.dword dll_782_print
-.dword dll_782_free
-.dword dll_782_get_model_flags
-.dword dll_782_get_data_size
+.dword WCPushBlock_obj_Setup
+.dword WCPushBlock_obj_Control
+.dword WCPushBlock_obj_Update
+.dword WCPushBlock_obj_Print
+.dword WCPushBlock_obj_Free
+.dword WCPushBlock_obj_GetModelFlags
+.dword WCPushBlock_obj_GetDataSize
