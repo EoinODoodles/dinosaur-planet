@@ -6,6 +6,23 @@
 /** Object hit detection system
  */
 
+typedef enum {
+    ObjHitInfo_FLAG_1 = 1, //collision toggle
+    ObjHitInfo_FLAG_2 = 2, //ignore player but allow projectiles etc. to collide?
+    ObjHitInfo_FLAG_4 = 4,
+    ObjHitInfo_FLAG_8 = 8, //currently colliding with something?
+    ObjHitInfo_FLAG_10 = 0x10,
+    ObjHitInfo_FLAG_20 = 0x20,
+    ObjHitInfo_FLAG_40 = 0x40,
+    ObjHitInfo_FLAG_80 = 0x80, //Only check objHits once (ObjHitInfo_FLAG_1 switched off afterwards)
+    ObjHitInfo_FLAG_100 = 0x100,
+    ObjHitInfo_FLAG_200 = 0x200,
+    ObjHitInfo_FLAG_400 = 0x400,
+    ObjHitInfo_FLAG_800 = 0x800,
+    ObjHitInfo_FLAG_1000 = 0x1000,
+    ObjHitInfo_FLAG_2000 = 0x2000
+} ObjHitInfo_Flags;
+
 typedef struct {
     /*0x00*/ struct Object *unk0;
     /*0x04*/ s16 unk4;
@@ -28,12 +45,7 @@ typedef struct {
     /*0x52*/ s16 unk52;
     /*0x54*/ s16 unk54;
     /*0x56*/ s16 unk56;
-    /*0x58*/ s16 unk58; //flags, bit0 collision toggle
-                        //       bit1 ignore player but allow projectiles etc. to collide?
-                        //       bit2 ?
-                        //       bit3 currently colliding with something?
-                        //       bit4 ?
-                        //       bit5 ?
+    /*0x58*/ s16 unk58; //flags, (see `ObjHitInfo_Flags`)
     /*0x5a*/ u8 unk5A;  //bitfield, unk93 in ObjDef, collision size/shape?
     /*0x5b*/ u8 unk5B;
     /*0x5c*/ u8 unk5C;
