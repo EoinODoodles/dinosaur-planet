@@ -645,6 +645,8 @@ enum SoundID {
     SOUND_77C_Capy_Sniff = 0x77C,
     SOUND_77D_Capy_Eat = 0x77D,
 
+    SOUND_780_Hatch_Opening = 0x780,
+
     SOUND_782 = 0x782, //DFpulley
     SOUND_783_Rope_Strain = 0x783, //DFcradle
     SOUND_784_Rope_Strain = 0x784, //DFcradle
