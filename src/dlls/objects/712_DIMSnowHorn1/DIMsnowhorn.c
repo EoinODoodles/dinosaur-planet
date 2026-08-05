@@ -67,7 +67,7 @@ typedef enum {
     DIMSnowHorn_ASTATE_4_Leap_Fidget,               //Leap of Faith cave SnowHorn scratching back/shaking off snow
     DIMSnowHorn_ASTATE_5_Famished_Fallen,           //Famished SnowHorn being attacked by a SharpClaw
     DIMSnowHorn_ASTATE_6_Famished_Met,              //Famished SnowHorn saved from the SharpClaw, but still needs feeding
-    DIMSnowHorn_ASTATE_7_Famished_Fed_Once,     //Fanished SnowHorn fed one Alpine Root, and waiting for a second one
+    DIMSnowHorn_ASTATE_7_Famished_Fed_Once,         //Famished SnowHorn fed one Alpine Root, and waiting for a second one
     DIMSnowHorn_ASTATE_8_Vehicle_Idle,              //SnowHorn standing around, waiting for the player
     DIMSnowHorn_ASTATE_9_Vehicle_Sit,               //SnowHorn sitting down and getting back up again after an input (unused?)
     DIMSnowHorn_ASTATE_10_Vehicle_Turn_on_Spot,     //SnowHorn turning (without walking forward)
@@ -130,7 +130,7 @@ static s32 DIMSnowHorn_animState3LeapIdle(Object* obj, ObjFSA_Data* fsa, f32 upd
 static s32 DIMSnowHorn_animState4LeapFidget(Object* obj, ObjFSA_Data* fsa, f32 updateRate);
 static s32 DIMSnowHorn_animState5FamishedFallen(Object* obj, ObjFSA_Data* fsa, f32 updateRate);
 static s32 DIMSnowHorn_animState6FamishedMet(Object* obj, ObjFSA_Data* fsa, f32 updateRate);
-static s32 DIMSnowHorn_animState7FanishedFedOnce(Object* obj, ObjFSA_Data* fsa, f32 updateRate);
+static s32 DIMSnowHorn_animState7FamishedFedOnce(Object* obj, ObjFSA_Data* fsa, f32 updateRate);
 static s32 DIMSnowHorn_animState8VehicleIdle(Object* obj, ObjFSA_Data* fsa, f32 updateRate);
 static s32 DIMSnowHorn_animState9VehicleSit(Object* obj, ObjFSA_Data* fsa, f32 updateRate);
 static s32 DIMSnowHorn_animState10VehicleTurn(Object* obj, ObjFSA_Data* fsa, f32 updateRate);
@@ -156,7 +156,7 @@ static void DIMSnowHorn_initFSACallbacks(void) {
         //Famished SnowHorn
         sAnimStateCallbacks[DIMSnowHorn_ASTATE_5_Famished_Fallen]   = DIMSnowHorn_animState5FamishedFallen;
         sAnimStateCallbacks[DIMSnowHorn_ASTATE_6_Famished_Met]      = DIMSnowHorn_animState6FamishedMet;
-        sAnimStateCallbacks[DIMSnowHorn_ASTATE_7_Famished_Fed_Once] = DIMSnowHorn_animState7FanishedFedOnce;
+        sAnimStateCallbacks[DIMSnowHorn_ASTATE_7_Famished_Fed_Once] = DIMSnowHorn_animState7FamishedFedOnce;
 
         //Vehicle
         sAnimStateCallbacks[DIMSnowHorn_ASTATE_8_Vehicle_Idle]          = DIMSnowHorn_animState8VehicleIdle;
@@ -1169,7 +1169,7 @@ s32 DIMSnowHorn_animState6FamishedMet(Object* self, ObjFSA_Data* fsa, f32 update
 }
 
 // offset: 0x27D4 | func: 36
-s32 DIMSnowHorn_animState7FanishedFedOnce(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 DIMSnowHorn_animState7FamishedFedOnce(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     DIMSnowHorn_Data* objData;
     s8 value;
 
