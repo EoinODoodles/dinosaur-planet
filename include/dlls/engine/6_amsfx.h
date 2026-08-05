@@ -172,19 +172,6 @@ enum SoundID {
     SOUND_C4_CloudRunner_Chirp_Descending = 0xC4,  
     SOUND_C5_CloudRunner_Chirp_Warble = 0xC5,  
 
-    SOUND_C8_CC_HighTop_Do_Not_Swim = 0xC8, //"Do not swim in these waters! The currents are strong, they will drag you straight under."
-    SOUND_C9_WM_Quan_Ata_Lachu_6th_Spirit_Deposited_1 = 0xC9, //"WE ARE QUAN ATA LACHU, SIX STARS OF EIGHT. BY YOUR WILL YOU HAVE ALMOST [...]"
-    SOUND_CA_WM_Quan_Ata_Lachu_6th_Spirit_Deposited_2 = 0xCA, //"Do you mean General Scales?" (Sabre) 
-    SOUND_CB_WM_Quan_Ata_Lachu_6th_Spirit_Deposited_3 = 0xCB, //"NOT SCALES. EVIL."
-    SOUND_CC_WM_Quan_Ata_Lachu_6th_Spirit_Deposited_4 = 0xCC, //"WHEN WE ARE ONE, THE MAJESTIC 8 SHALL BE ALIGNED. WHEN THIS IS COMPLETE, EVIL SHALL BE BANISHED FOREVER."
-    SOUND_CD_WM_Quan_Ata_Lachu_6th_Spirit_Deposited_5 = 0xCD, //"Majestic 8? Eight planets in alignment?" (Sabre)
-    SOUND_CE_WM_Quan_Ata_Lachu_6th_Spirit_Deposited_6 = 0xCE, //"DINOSAUR PLANET AND YOUR OWN WORLD, ARE BUT TWO OF THE MAJESTIC 8. [...]"
-    SOUND_CF_WM_Quan_Ata_Lachu_6th_Spirit_Deposited_7 = 0xCF, //"You mean they actually exist??" (Sabre)
-    SOUND_D0_WM_Quan_Ata_Lachu_6th_Spirit_Deposited_8 = 0xD0, //"THE KRAZOA FOUGHT A GREAT WAR AGAINST EVIL. MANY AEONS IN THE PAST. [...]"
-    SOUND_D1_WM_Quan_Ata_Lachu_6th_Spirit_Deposited_9 = 0xD1, //"IF EVIL SUCCEEDS IN EXTRACTING THIS PLANET'S SOURCE OF MAGIC ENERGY, THEN EVIL HAS WON. WE CANNOT STOP THE DARKNESS."
-    SOUND_D2_WM_Quan_Ata_Lachu_6th_Spirit_Deposited_10 = 0xD2, //"GO TO THE KRAZOA. GO TO THE KRAZOA. GO TO THE KRAZOA. [...]"
-    SOUND_D3_WM_Quan_Ata_Lachu_6th_Spirit_Deposited_11 = 0xD3, //"So that's why Krystal saw the mirage... the Krazoa need us to help them. Krystal must go there immediately!" (Sabre)
-
     SOUND_D6_Krystal_Hup = 0xD6,           //player attack sfx
     SOUND_D7_Krystal_Hut = 0xD7,           //player attack sfx
     SOUND_D8_Krystal_Huh = 0xD8,           //player attack sfx
@@ -262,7 +249,7 @@ enum SoundID {
     SOUND_156_Tricky_Wait_Theres_Something_Close_By = 0x156, //(Heard along the path to the SnowHorn geyser area in the One Hour Footage)
     SOUND_157_Bird_Call_Warbling = 0x157, //NWsfx
     SOUND_158_Bird_Call_Whistle_Descending = 0x158, //NWsfx
-    SOUND_159_DFPT_Kyte_SpellStone_Holder = 0x159, //"Krystal! It's the SpellStone Holder!"
+
     SOUND_15A_Bird_Call_Whistle_Ascending = 0x15A, //NWsfx
     SOUND_15B_Bird_Call_Squawk = 0x15B, //NWsfx
 
