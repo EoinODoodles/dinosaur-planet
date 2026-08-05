@@ -38,10 +38,14 @@ typedef enum {
 } WCLevelControl_Flags;
 
 typedef enum {
-    STATE_0,
-    STATE_1,
-    STATE_2,
-    STATE_3,
+    STATE_0_Idle,
+
+    //Act 1 states
+    STATE_1_Sun_Beacon_Timed_Challenge,
+    STATE_2_Moon_Beacon_Timed_Challenge,
+    STATE_3_WCSlabDoor_Opened,
+
+    //Act 2 states
     STATE_4,
     STATE_5,
     STATE_6
@@ -477,12 +481,12 @@ static int WCLevelControl_animCallback(Object* self, Object* overrideObj, AnimOb
     objdata->flags |= FLAG_1_Entered_ObjSeq;
     objdata->flags &= ~FLAG_2_Pressure_Switch_Challenge_Active;
 
-    if (objdata->previousState == STATE_1) {
+    if (objdata->previousState == STATE_1_Sun_Beacon_Timed_Challenge) {
         objdata->timer -= gUpdateRateF;
         if (objdata->timer <= 0.0f) {
             mainSetBits(BIT_WC_SlabDoor_Sun_Symbol_Lit, TRUE);
         }
-    } else if (objdata->previousState == STATE_2) {
+    } else if (objdata->previousState == STATE_2_Moon_Beacon_Timed_Challenge) {
         objdata->timer -= gUpdateRateF;
         if (objdata->timer <= 0.0f) {
             mainSetBits(BIT_WC_SlabDoor_Moon_Symbol_Lit, TRUE);
@@ -514,65 +518,76 @@ static void WCLevelControl_handleAct1(Object* self, WCLevelControl_Data* objdata
     objdata->previousState = objdata->state;
 
     switch (objdata->state) {
-    case STATE_1:
+    case STATE_1_Sun_Beacon_Timed_Challenge:
         if (objdata->flags & FLAG_1_Entered_ObjSeq) {
             //Start a 60 second timed challenge
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x106, 0, 0, 0);
             menu_func_8000F64C(0x11, 60);
             menu_func_8000F6CC();
         } else if (mainGetBits(BIT_WC_Sun_Beacon_Lit)) {
+            //Success! Play a sequence when the player lights the beacon
             objdata->flags |= FLAG_4_Sun_Beacon_Lit;
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x104, 0, 0, 0);
             menu_func_8000FAC8();
 
+            //Play a different sequence (WCSlabDoor opening) if both beacons are now lit
             if (mainGetBits(BIT_WC_Moon_Beacon_Lit)) {
                 gDLL_3_Animation->vtbl->start_obj_sequence(0, self, -1);
-                objdata->state = STATE_3;
+                objdata->state = STATE_3_WCSlabDoor_Opened;
             } else {
                 gDLL_3_Animation->vtbl->start_obj_sequence(1, self, -1);
-                objdata->state = STATE_0;
+                objdata->state = STATE_0_Idle;
             }
         } else if (menu_func_8000FB1C()) {
+            //Failure... reset the gamebits and revert state
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x104, 0, 0, 0);
             mainSetBits(BIT_WC_Sun_Beacon_Raised, FALSE);
             mainSetBits(BIT_WC_Sun_Pressure_Switch_Active, FALSE);
-            objdata->state = STATE_0;
+            objdata->state = STATE_0_Idle;
         }
         break;
-    case STATE_2:
+    case STATE_2_Moon_Beacon_Timed_Challenge:
         if (objdata->flags & FLAG_1_Entered_ObjSeq) {
+            //Start a 60 second timed challenge
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x106, 0, 0, 0);
             menu_func_8000F64C(0x11, 60);
             menu_func_8000F6CC();
         } else if (mainGetBits(BIT_WC_Moon_Beacon_Lit)) {
+            //Success! Play a sequence when the player lights the beacon
             objdata->flags |= FLAG_8_Moon_Beacon_Lit;
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x104, 0, 0, 0);
             menu_func_8000FAC8();
+
+            //Play a different sequence (WCSlabDoor opening) if both beacons are now lit
             if (mainGetBits(BIT_WC_Sun_Beacon_Lit)) {
                 gDLL_3_Animation->vtbl->start_obj_sequence(0, self, -1);
-                objdata->state = STATE_3;
+                objdata->state = STATE_3_WCSlabDoor_Opened;
             } else {
                 gDLL_3_Animation->vtbl->start_obj_sequence(1, self, -1);
-                objdata->state = STATE_0;
+                objdata->state = STATE_0_Idle;
             }
         } else if (menu_func_8000FB1C()) {
+            //Failure... reset the gamebits and revert state
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x104, 0, 0, 0);
             mainSetBits(BIT_WC_Moon_Beacon_Raised, FALSE);
             mainSetBits(BIT_WC_Moon_Pressure_Switch_Active, FALSE);
-            objdata->state = STATE_0;
+            objdata->state = STATE_0_Idle;
         }
         break;
-    case STATE_3:
+    case STATE_3_WCSlabDoor_Opened:
         break;
     default:
+        //Start a timed challenge when one of the pressure switches is pressed
         if (!(objdata->flags & FLAG_4_Sun_Beacon_Lit) && (mainGetBits(BIT_WC_Sun_Pressure_Switch_Active))) {
+            //Sun switch
             mainSetBits(BIT_WC_Sun_Beacon_Raised, TRUE);
-            objdata->state = STATE_1;
+            objdata->state = STATE_1_Sun_Beacon_Timed_Challenge;
             objdata->flags |= FLAG_2_Pressure_Switch_Challenge_Active;
             objdata->timer = 70.0f;
         } else if (!(objdata->flags & FLAG_8_Moon_Beacon_Lit) && (mainGetBits(BIT_WC_Moon_Pressure_Switch_Active))) {
+            //Moon switch
             mainSetBits(BIT_WC_Moon_Beacon_Raised, TRUE);
-            objdata->state = STATE_2;
+            objdata->state = STATE_2_Moon_Beacon_Timed_Challenge;
             objdata->flags |= FLAG_2_Pressure_Switch_Challenge_Active;
             objdata->timer = 70.0f;
         }
@@ -590,7 +605,7 @@ static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata
 
     isNightTime = gDLL_7_Newday->vtbl->func8(&time);
 
-    switch(objdata->state) {
+    switch (objdata->state) {
         case STATE_6:
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x106, 0, 0, 0);
             menu_func_8000F64C(0x11, 60);
@@ -610,7 +625,7 @@ static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata
                     mainSetBits(BIT_206, 1);
                     mainSetBits(BIT_25F, 1);
                 }
-                objdata->state = STATE_0;
+                objdata->state = STATE_0_Idle;
             }
             break;
         default:
@@ -630,21 +645,23 @@ static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata
     if (!(objdata->flags & FLAG_10_Sun_Aperture_Opened)) {
         temp = mainGetBits(BIT_810); // get sun block puzzle pieces in correct place
         if (temp == 4) {
-            mainSetBits(BIT_WC_Sun_Aperture_Opened, 1);
+            mainSetBits(BIT_WC_Sun_Aperture_Opened,  TRUE);
             objdata->flags |= FLAG_10_Sun_Aperture_Opened;
         } else if (isNightTime || mainGetBits(BIT_808)) {
             WCLevelControl_sunPuzzleInitHard();
         }
     }
+    
     if (!(objdata->flags & FLAG_20_Moon_Aperture_Opened)) {
         temp = mainGetBits(BIT_811); // get moon block puzzle pieces in correct place
         if (temp == 4) {
-            mainSetBits(BIT_WC_Moon_Aperture_Opened, 1);
+            mainSetBits(BIT_WC_Moon_Aperture_Opened, TRUE);
             objdata->flags |= FLAG_20_Moon_Aperture_Opened;
         } else if (!isNightTime || mainGetBits(BIT_809)) {
             WCLevelControl_moonPuzzleInitHard();
         }
     }
+
     objdata->flags &= ~FLAG_1_Entered_ObjSeq;
 }
 
