@@ -26,14 +26,14 @@ typedef struct {
 
 typedef enum {
     FLAG_0 = 0x0,
-    FLAG_1 = 0x1,
-    FLAG_2 = 0x2,
-    FLAG_4 = 0x4,
-    FLAG_8 = 0x8,
-    FLAG_10 = 0x10,
-    FLAG_20 = 0x20,
-    FLAG_40 = 0x40,
-    FLAG_80 = 0x80
+    FLAG_1_Entered_ObjSeq = 0x1,
+    FLAG_2_Pressure_Switch_Challenge_Active = 0x2,
+    FLAG_4_Sun_Beacon_Lit = 0x4,
+    FLAG_8_Moon_Beacon_Lit = 0x8,
+    FLAG_10_Sun_Aperture_Opened = 0x10,
+    FLAG_20_Moon_Aperture_Opened = 0x20,
+    FLAG_40 = 0x40, //Related to Sun Temple maze?
+    FLAG_80 = 0x80  //Related to Moon Temple maze?
 } WCLevelControl_Flags;
 
 typedef enum {
@@ -111,17 +111,17 @@ void WCLevelControl_setup(Object *self, ObjSetup *setup, s32 arg2) {
     WCLevelControl_sun_puzzle_init_hard();
     WCLevelControl_moon_puzzle_init_hard();
 
-    if (mainGetBits(BIT_7FA)) {
-        objdata->flags |= FLAG_8;
+    if (mainGetBits(BIT_WC_Moon_Beacon_Lit)) {
+        objdata->flags |= FLAG_8_Moon_Beacon_Lit;
     }
-    if (mainGetBits(BIT_7F9)) {
-        objdata->flags |= FLAG_4;
+    if (mainGetBits(BIT_WC_Sun_Beacon_Lit)) {
+        objdata->flags |= FLAG_4_Sun_Beacon_Lit;
     }
-    if (mainGetBits(BIT_813)) {
-        objdata->flags |= FLAG_20;
+    if (mainGetBits(BIT_WC_Moon_Aperture_Opened)) {
+        objdata->flags |= FLAG_20_Moon_Aperture_Opened;
     }
-    if (mainGetBits(BIT_812)) {
-        objdata->flags |= FLAG_10;
+    if (mainGetBits(BIT_WC_Sun_Aperture_Opened)) {
+        objdata->flags |= FLAG_10_Sun_Aperture_Opened;
     }
     if (mainGetBits(BIT_2A5)) {
         objdata->flags |= FLAG_40;
@@ -466,8 +466,8 @@ static int WCLevelControl_anim_callback(Object *self, Object *overrideObj, AnimO
     WCLevelControl_Data* objdata = self->data;
     s32 i;
     
-    objdata->flags |= FLAG_1;
-    objdata->flags &= ~FLAG_2;
+    objdata->flags |= FLAG_1_Entered_ObjSeq;
+    objdata->flags &= ~FLAG_2_Pressure_Switch_Challenge_Active;
 
     if (objdata->previousState == STATE_1) {
         objdata->timer -= gUpdateRateF;
@@ -498,7 +498,7 @@ static int WCLevelControl_anim_callback(Object *self, Object *overrideObj, AnimO
   * Also used by any acts after Act 2.
   */
 static void WCLevelControl_handle_act1(Object *self, WCLevelControl_Data *objdata) {
-    if (objdata->flags & FLAG_2) {
+    if (objdata->flags & FLAG_2_Pressure_Switch_Challenge_Active) {
         return;
     }
 
@@ -506,15 +506,17 @@ static void WCLevelControl_handle_act1(Object *self, WCLevelControl_Data *objdat
 
     switch (objdata->state) {
     case STATE_1:
-        if (objdata->flags & FLAG_1) {
+        if (objdata->flags & FLAG_1_Entered_ObjSeq) {
+            //Start a 60 second timed challenge
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x106, 0, 0, 0);
             menu_func_8000F64C(0x11, 60);
             menu_func_8000F6CC();
-        } else if (mainGetBits(BIT_7F9)) {
-            objdata->flags |= FLAG_4;
+        } else if (mainGetBits(BIT_WC_Sun_Beacon_Lit)) {
+            objdata->flags |= FLAG_4_Sun_Beacon_Lit;
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x104, 0, 0, 0);
             menu_func_8000FAC8();
-            if (mainGetBits(BIT_7FA) != 0) {
+
+            if (mainGetBits(BIT_WC_Moon_Beacon_Lit)) {
                 gDLL_3_Animation->vtbl->start_obj_sequence(0, self, -1);
                 objdata->state = STATE_3;
             } else {
@@ -523,21 +525,21 @@ static void WCLevelControl_handle_act1(Object *self, WCLevelControl_Data *objdat
             }
         } else if (menu_func_8000FB1C()) {
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x104, 0, 0, 0);
-            mainSetBits(BIT_7EF, 0);
-            mainSetBits(BIT_7ED, 0);
+            mainSetBits(BIT_WC_Sun_Beacon_Raised, FALSE);
+            mainSetBits(BIT_WC_Sun_Pressure_Switch_Active, FALSE);
             objdata->state = STATE_0;
         }
         break;
     case STATE_2:
-        if (objdata->flags & FLAG_1) {
+        if (objdata->flags & FLAG_1_Entered_ObjSeq) {
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x106, 0, 0, 0);
             menu_func_8000F64C(0x11, 60);
             menu_func_8000F6CC();
-        } else if (mainGetBits(BIT_7FA)) {
-            objdata->flags |= FLAG_8;
+        } else if (mainGetBits(BIT_WC_Moon_Beacon_Lit)) {
+            objdata->flags |= FLAG_8_Moon_Beacon_Lit;
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x104, 0, 0, 0);
             menu_func_8000FAC8();
-            if (mainGetBits(BIT_7F9) != 0) {
+            if (mainGetBits(BIT_WC_Sun_Beacon_Lit)) {
                 gDLL_3_Animation->vtbl->start_obj_sequence(0, self, -1);
                 objdata->state = STATE_3;
             } else {
@@ -546,29 +548,29 @@ static void WCLevelControl_handle_act1(Object *self, WCLevelControl_Data *objdat
             }
         } else if (menu_func_8000FB1C()) {
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x104, 0, 0, 0);
-            mainSetBits(BIT_7F0, 0);
-            mainSetBits(BIT_7EE, 0);
+            mainSetBits(BIT_WC_Moon_Beacon_Raised, FALSE);
+            mainSetBits(BIT_WC_Moon_Pressure_Switch_Active, FALSE);
             objdata->state = STATE_0;
         }
         break;
     case STATE_3:
         break;
     default:
-        if (!(objdata->flags & FLAG_4) && (mainGetBits(BIT_7ED))) {
-            mainSetBits(BIT_7EF, 1);
+        if (!(objdata->flags & FLAG_4_Sun_Beacon_Lit) && (mainGetBits(BIT_WC_Sun_Pressure_Switch_Active))) {
+            mainSetBits(BIT_WC_Sun_Beacon_Raised, TRUE);
             objdata->state = STATE_1;
-            objdata->flags |= FLAG_2;
+            objdata->flags |= FLAG_2_Pressure_Switch_Challenge_Active;
             objdata->timer = 70.0f;
-        } else if (!(objdata->flags & FLAG_8) && (mainGetBits(BIT_7EE))) {
-            mainSetBits(BIT_7F0, 1);
+        } else if (!(objdata->flags & FLAG_8_Moon_Beacon_Lit) && (mainGetBits(BIT_WC_Moon_Pressure_Switch_Active))) {
+            mainSetBits(BIT_WC_Moon_Beacon_Raised, TRUE);
             objdata->state = STATE_2;
-            objdata->flags |= FLAG_2;
+            objdata->flags |= FLAG_2_Pressure_Switch_Challenge_Active;
             objdata->timer = 70.0f;
         }
         break;
     }
 
-    objdata->flags &= ~FLAG_1;
+    objdata->flags &= ~FLAG_1_Entered_ObjSeq;
 }
 
 // offset: 0x1928 | func: 23
@@ -616,25 +618,25 @@ static void WCLevelControl_handle_act2(Object *self, WCLevelControl_Data *objdat
             break;
     }
 
-    if (!(objdata->flags & FLAG_10)) {
+    if (!(objdata->flags & FLAG_10_Sun_Aperture_Opened)) {
         temp = mainGetBits(BIT_810); // get sun block puzzle pieces in correct place
         if (temp == 4) {
-            mainSetBits(BIT_812, 1);
-            objdata->flags |= FLAG_10;
+            mainSetBits(BIT_WC_Sun_Aperture_Opened, 1);
+            objdata->flags |= FLAG_10_Sun_Aperture_Opened;
         } else if (isNightTime || mainGetBits(BIT_808)) {
             WCLevelControl_sun_puzzle_init_hard();
         }
     }
-    if (!(objdata->flags & FLAG_20)) {
+    if (!(objdata->flags & FLAG_20_Moon_Aperture_Opened)) {
         temp = mainGetBits(BIT_811); // get moon block puzzle pieces in correct place
         if (temp == 4) {
-            mainSetBits(BIT_813, 1);
-            objdata->flags |= FLAG_20;
+            mainSetBits(BIT_WC_Moon_Aperture_Opened, 1);
+            objdata->flags |= FLAG_20_Moon_Aperture_Opened;
         } else if (!isNightTime || mainGetBits(BIT_809)) {
             WCLevelControl_moon_puzzle_init_hard();
         }
     }
-    objdata->flags &= ~FLAG_1;
+    objdata->flags &= ~FLAG_1_Entered_ObjSeq;
 }
 
 // offset: 0x1CF4 | func: 24

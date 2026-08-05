@@ -12,7 +12,7 @@ typedef struct {
 
 typedef struct {
 /*00*/ ObjSetup base;
-/*19*/ s8 yaw;
+/*18*/ s8 yaw;
 /*19*/ s8 modelIndex;
 /*1A*/ u8 _unk1A[0x1E - 0x1A];
 /*1E*/ s16 gamebitLit;

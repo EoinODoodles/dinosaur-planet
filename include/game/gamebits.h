@@ -2032,10 +2032,10 @@ typedef enum {
     BIT_Map_DFPT = 0x7E9, // len:1 group:1          [MINIMAP - Desert Force Point Temple]
     BIT_7EB = 0x7EB, // len:1 group:0
     BIT_7EC = 0x7EC, // len:1 group:1
-    BIT_7ED = 0x7ED, // len:1 group:1
-    BIT_7EE = 0x7EE, // len:1 group:1
-    BIT_7EF = 0x7EF, // len:1 group:1
-    BIT_7F0 = 0x7F0, // len:1 group:1
+    BIT_WC_Sun_Pressure_Switch_Active = 0x7ED, // len:1 group:1
+    BIT_WC_Moon_Pressure_Switch_Active = 0x7EE, // len:1 group:1
+    BIT_WC_Sun_Beacon_Raised = 0x7EF, // len:1 group:1
+    BIT_WC_Moon_Beacon_Raised = 0x7F0, // len:1 group:1
     BIT_7F1 = 0x7F1, // len:1 group:1
     BIT_7F2 = 0x7F2, // len:1 group:1
     BIT_7F3 = 0x7F3, // len:1 group:1
@@ -2044,8 +2044,8 @@ typedef enum {
     BIT_7F6 = 0x7F6, // len:1 group:1
     BIT_WC_SlabDoor_Sun_Symbol_Lit = 0x7F7, // len:1 group:1 (BIT_WC_SlabDoor_Moon_Symbol_Lit must be set too to open door)
     BIT_WC_SlabDoor_Opened = 0x7F8, // len:1 group:1 (SeqDoor's gamebitRestoreState)
-    BIT_7F9 = 0x7F9, // len:1 group:1
-    BIT_7FA = 0x7FA, // len:1 group:1
+    BIT_WC_Sun_Beacon_Lit = 0x7F9, // len:1 group:1
+    BIT_WC_Moon_Beacon_Lit = 0x7FA, // len:1 group:1
     BIT_WC_Met_King_EarthWalker = 0x7FB, // len:1 group:1
     BIT_7FC = 0x7FC, // len:1 group:1
     BIT_7FD = 0x7FD, // len:1 group:0
@@ -2069,8 +2069,8 @@ typedef enum {
     BIT_80F = 0x80F, // len:1 group:0
     BIT_810 = 0x810, // len:3 group:1
     BIT_811 = 0x811, // len:3 group:1
-    BIT_812 = 0x812, // len:1 group:1
-    BIT_813 = 0x813, // len:1 group:1
+    BIT_WC_Sun_Aperture_Opened = 0x812, // len:1 group:1
+    BIT_WC_Moon_Aperture_Opened = 0x813, // len:1 group:1
     BIT_814 = 0x814, // len:1 group:1
     BIT_815 = 0x815, // len:1 group:1
     BIT_816 = 0x816, // len:1 group:1
