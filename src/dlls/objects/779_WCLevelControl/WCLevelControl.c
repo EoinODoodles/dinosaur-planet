@@ -26,7 +26,6 @@ typedef struct {
 } WCLevelControl_Data;
 
 typedef enum {
-    FLAG_0 = 0x0,
     FLAG_1_Entered_ObjSeq = 0x1,
     FLAG_2_Pressure_Switch_Challenge_Active = 0x2,
     FLAG_4_Sun_Beacon_Lit = 0x4,
@@ -651,7 +650,7 @@ static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata
             WCLevelControl_sunPuzzleInitHard();
         }
     }
-    
+
     if (!(objdata->flags & FLAG_20_Moon_Aperture_Opened)) {
         temp = mainGetBits(BIT_811); // get moon block puzzle pieces in correct place
         if (temp == 4) {
