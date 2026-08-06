@@ -87,7 +87,10 @@ typedef struct DLL420_Data {
     0x00000000, 0x00000000
 };
 
-static void dll_420_func_18BC(DLL420_Child* nodeData);
+static void dll_420_func_18BC(DLL420_Child* rope);
+static void dll_420_func_1A8C(DLL420_Child* rope);
+static void dll_420_func_1C48(DLL420_Child* rope);
+static void dll_420_func_1EF0(DLL420_Child* rope);
 
 // offset: 0x0 | ctor
 void dll_420_ctor(void* dll) { }
@@ -316,9 +319,9 @@ void dll_420_func_1514(Object* self, f32 arg1) {
 #pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/420_DFropenode/dll_420_func_152C.s")
 
 // offset: 0x18BC | func: 20
-void dll_420_func_18BC(DLL420_Child* nodeData) {
-    if (nodeData != NULL) {
-        mmFree(nodeData);
+void dll_420_func_18BC(DLL420_Child* rope) {
+    if (rope != NULL) {
+        mmFree(rope);
     }
 }
 
@@ -344,15 +347,7 @@ void dll_420_func_18FC(DLL420_Grandchild_TypeB* typeB, DLL420_Grandchild_TypeA* 
 }
 
 // offset: 0x1994 | func: 22
-#if 1
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/420_DFropenode/dll_420_func_1994.s")
-#else
-
-static void dll_420_func_1A8C(DLL420_Child* rope); //MATCHED
-static void dll_420_func_1C48(DLL420_Child* rope);
-static void dll_420_func_1EF0(DLL420_Child* rope); //MATCHED
-
-void dll_420_func_1994(DLL420_Child* rope) { //MATCHED, but needs next three functions static
+void dll_420_func_1994(DLL420_Child* rope) {
     DLL420_Grandchild_TypeA* node;
     s32 i;
     s32 j;
@@ -368,12 +363,11 @@ void dll_420_func_1994(DLL420_Child* rope) { //MATCHED, but needs next three fun
     for (i = 0; i < rope->unk8; i++) {
         j = 0;
         while (j < 3) {
-            node->unk18[j++] = 0.0f;
+            node->unk18.f[j++] = 0.0f;
         }
         node++;
     }
 }
-#endif
 
 // offset: 0x1A8C | func: 23
 void dll_420_func_1A8C(DLL420_Child* rope) {
@@ -411,7 +405,56 @@ void dll_420_func_1A8C(DLL420_Child* rope) {
 }
 
 // offset: 0x1C48 | func: 24
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/420_DFropenode/dll_420_func_1C48.s")
+void dll_420_func_1C48(DLL420_Child* rope) {
+    DLL420_Grandchild_TypeA* node;
+    f32 sp68[3];
+    DLL420_Grandchild_TypeB* temp_a0;
+    f32 distance;
+    f32 scaleFactor;
+    s32 i;
+    s32 j;
+    s32 k;
+
+    node = rope->unk0;
+    for (i = 0; i < rope->unk8; i++, node++) {
+        for (j = 0; j < 3; j++) {
+            sp68[j] = 0.0f;
+        }
+
+        if (node->unk30 != 0) {
+            continue;
+        }
+
+        for (k = 0; k < node->unk24; k++) {
+            for (j = 0; j < 3; j++) {
+                temp_a0 = node->unk28[k];
+                if (node == temp_a0->unk4) {
+                    sp68[j] += temp_a0->unk18.f[j];
+                } else {
+                    sp68[j] -= temp_a0->unk18.f[j];
+                }
+            }
+        }
+
+        distance = sqrtf(SQ(sp68[0]) + SQ(sp68[1]) + SQ(sp68[2]));
+        if (rope->unk2C < distance) {
+            scaleFactor = rope->unk2C / distance;
+            sp68[0] *= scaleFactor;
+            sp68[1] *= scaleFactor;
+            sp68[2] *= scaleFactor;
+        }
+
+        for (j = 0; j < 3; j++) {
+            node->unkC.f[j] += (sp68[j] * rope->unk40) + node->unk18.f[j];
+            node->unkC.f[j] -= (node->unkC.f[j] * rope->unk38);
+        }
+
+        node->unkC.f[1] += rope->unk30 * rope->unk3C;
+        for (j = 0; j < 3; j++) {
+            node->unk0.f[j] += (node->unkC.f[j] * rope->unk30);
+        }
+    }
+}
 
 // offset: 0x1EF0 | func: 25
 void dll_420_func_1EF0(DLL420_Child* rope) {
