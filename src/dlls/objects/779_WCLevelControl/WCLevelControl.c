@@ -27,7 +27,7 @@ typedef struct {
 
 typedef enum {
     FLAG_1_Entered_ObjSeq = 0x1,
-    FLAG_2_Pressure_Switch_Challenge_Active = 0x2,
+    FLAG_2_Pressure_Switch_Challenge_Started = 0x2,
     FLAG_4_Sun_Beacon_Lit = 0x4,
     FLAG_8_Moon_Beacon_Lit = 0x8,
     FLAG_10_Sun_Aperture_Opened = 0x10,
@@ -478,7 +478,7 @@ static int WCLevelControl_animCallback(Object* self, Object* overrideObj, AnimOb
     s32 i;
     
     objdata->flags |= FLAG_1_Entered_ObjSeq;
-    objdata->flags &= ~FLAG_2_Pressure_Switch_Challenge_Active;
+    objdata->flags &= ~FLAG_2_Pressure_Switch_Challenge_Started;
 
     if (objdata->previousState == STATE_1_Sun_Beacon_Timed_Challenge) {
         objdata->timer -= gUpdateRateF;
@@ -510,7 +510,8 @@ static int WCLevelControl_animCallback(Object* self, Object* overrideObj, AnimOb
   * Runs if Walled City isn't currently in Act 2.
   */
 static void WCLevelControl_handleAct1(Object* self, WCLevelControl_Data* objdata) {
-    if (objdata->flags & FLAG_2_Pressure_Switch_Challenge_Active) {
+    //Do nothing while waiting for the Pressure Switch challenge's initial sequence to play
+    if (objdata->flags & FLAG_2_Pressure_Switch_Challenge_Started) {
         return;
     }
 
@@ -581,13 +582,13 @@ static void WCLevelControl_handleAct1(Object* self, WCLevelControl_Data* objdata
             //Sun switch
             mainSetBits(BIT_WC_Sun_Beacon_Raised, TRUE);
             objdata->state = STATE_1_Sun_Beacon_Timed_Challenge;
-            objdata->flags |= FLAG_2_Pressure_Switch_Challenge_Active;
+            objdata->flags |= FLAG_2_Pressure_Switch_Challenge_Started;
             objdata->timer = 70.0f;
         } else if (!(objdata->flags & FLAG_8_Moon_Beacon_Lit) && (mainGetBits(BIT_WC_Moon_Pressure_Switch_Active))) {
             //Moon switch
             mainSetBits(BIT_WC_Moon_Beacon_Raised, TRUE);
             objdata->state = STATE_2_Moon_Beacon_Timed_Challenge;
-            objdata->flags |= FLAG_2_Pressure_Switch_Challenge_Active;
+            objdata->flags |= FLAG_2_Pressure_Switch_Challenge_Started;
             objdata->timer = 70.0f;
         }
         break;
