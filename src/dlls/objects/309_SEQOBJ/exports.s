@@ -8,10 +8,10 @@ _exports:
 .dword SeqObj_dtor
 
 # export table
-/*0*/ .dword SeqObj_setup
-/*1*/ .dword SeqObj_control
-/*2*/ .dword SeqObj_update
-/*3*/ .dword SeqObj_print
-/*4*/ .dword SeqObj_free
-/*5*/ .dword SeqObj_get_model_flags
-/*6*/ .dword SeqObj_get_data_size
+/*0*/ .dword SeqObj_obj_Setup
+/*1*/ .dword SeqObj_obj_Control
+/*2*/ .dword SeqObj_obj_Update
+/*3*/ .dword SeqObj_obj_Print
+/*4*/ .dword SeqObj_obj_Free
+/*5*/ .dword SeqObj_obj_GetModelFlags
+/*6*/ .dword SeqObj_obj_GetDataSize

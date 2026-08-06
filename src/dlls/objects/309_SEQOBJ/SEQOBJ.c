@@ -38,20 +38,20 @@ typedef enum {
     SEQOBJ_OPTIONS_HasReplayActorMask = 16 // if set, more than just the seqobj will be controlled by a replay
 } SeqObj_PlaybackOptions;
 
-static int SeqObj_anim_callback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 arg3);
+static int SeqObj_animCallback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 prevCallbackValue);
 
 // offset: 0x0 | ctor
-void SeqObj_ctor(void *dll) { }
+void SeqObj_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void SeqObj_dtor(void *dll) { }
+void SeqObj_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void SeqObj_setup(Object* self, SeqObj_Setup* objSetup, s32 arg2) {
+void SeqObj_obj_Setup(Object* self, SeqObj_Setup* objSetup, s32 reset) {
     SeqObj_Data* objData;
 
     self->srt.yaw = objSetup->yaw << 8;
-    self->animCallback = SeqObj_anim_callback;
+    self->animCallback = SeqObj_animCallback;
     
     objData = self->data;
 
@@ -82,7 +82,7 @@ void SeqObj_setup(Object* self, SeqObj_Setup* objSetup, s32 arg2) {
 }
 
 // offset: 0x124 | func: 1 | export: 1
-void SeqObj_control(Object* self) {
+void SeqObj_obj_Control(Object* self) {
     SeqObj_Data* objData;
     SeqObj_Setup* objSetup;
     s8 playBitValue;
@@ -151,32 +151,32 @@ void SeqObj_control(Object* self) {
 }
 
 // offset: 0x3B8 | func: 2 | export: 2
-void SeqObj_update(Object *self) { }
+void SeqObj_obj_Update(Object* self) { }
 
 // offset: 0x3C4 | func: 3 | export: 3
-void SeqObj_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+void SeqObj_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x418 | func: 4 | export: 4
-void SeqObj_free(Object *self, s32 arg1) {
+void SeqObj_obj_Free(Object* self, s32 onlySelf) {
     objFreeObjectType(self, OBJTYPE_UseObj);
 }
 
 // offset: 0x458 | func: 5 | export: 5
-u32 SeqObj_get_model_flags(Object *self) {
+u32 SeqObj_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x468 | func: 6 | export: 6
-u32 SeqObj_get_data_size(Object *self, u32 a1) {
+u32 SeqObj_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(SeqObj_Data);
 }
 
 // offset: 0x47C | func: 7
-static int SeqObj_anim_callback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 arg3) {
+static int SeqObj_animCallback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 prevCallbackValue) {
     SeqObj_Setup* objSetup;
     SeqObj_Data* objData;
     s32 index;
