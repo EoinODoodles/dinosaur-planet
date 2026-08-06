@@ -256,19 +256,19 @@ s32 menu_func_8000FB1C(void) {
 void menu_func_8000FB2C(Gfx **gdl) {
     s32 _stackPad[2];
     f32 delay;
-    s32 bvar;
+    s32 timerRanOut;
 
     delay = gUpdateRateF;
     if (D_800A7D6C != 0 || mainGetPauseState() != 0) {
         delay = 0.0f;
     }
 
-    bvar = FALSE;
+    timerRanOut = FALSE;
     if (D_800A7D94 == 1) {
         D_800A7D70 -= delay;
 
         if (D_800A7D70 <= 0.0f) {
-            bvar = TRUE;
+            timerRanOut = TRUE;
             D_800A7D70 = 0.0f;
         }
     } else {
@@ -277,12 +277,12 @@ void menu_func_8000FB2C(Gfx **gdl) {
         D_800A7D70 += delay;
 
         if (D_800A7D70 > D_800A7D74) {
-            bvar = TRUE;
+            timerRanOut = TRUE;
             D_800A7D70 = D_800A7D74;
         }
     }
 
-    if (bvar) {
+    if (timerRanOut) {
         if (D_800A7D79 & 8) {
             dll_amSfx->Play(0, SOUND_242_Failure_Glissando, MAX_VOLUME, 0, 0, 0, 0);
         }
