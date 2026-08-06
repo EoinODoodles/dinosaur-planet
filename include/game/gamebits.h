@@ -2040,7 +2040,7 @@ typedef enum {
     BIT_7F2 = 0x7F2, // len:1 group:1
     BIT_WC_Is_Nighttime = 0x7F3, // len:1 group:1
     BIT_7F4 = 0x7F4, // len:1 group:1
-    BIT_7F5 = 0x7F5, // len:1 group:1
+    BIT_WC_King_EarthWalker_Cage_Opened = 0x7F5, // len:1 group:1
     BIT_7F6 = 0x7F6, // len:1 group:1
     BIT_WC_SlabDoor_Sun_Symbol_Lit = 0x7F7, // len:1 group:1 (BIT_WC_SlabDoor_Moon_Symbol_Lit must be set too to open door)
     BIT_WC_SlabDoor_Opened = 0x7F8, // len:1 group:1 (SeqDoor's gamebitRestoreState)
