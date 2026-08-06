@@ -29,7 +29,7 @@ enum WCPressureSwitchStates {
 
 static void WCPressureSwitch_addObject(Object* self, Object* objectOnSwitch);
 static s32 WCPressureSwitch_isObjectOnSwitch(Object* self);
-static int WCPressureSwitch_animCallback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 arg3);
+static int WCPressureSwitch_animCallback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 prevCallbackValue);
 
 // offset: 0x0 | ctor
 void WCPressureSwitch_ctor(void* dll) { }
