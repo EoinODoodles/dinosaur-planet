@@ -1,0 +1,15 @@
+.text = 0x0:
+WCSunTempleLaser_ctor = 0x0;
+WCSunTempleLaser_dtor = 0xC;
+WCSunTempleLaser_obj_Setup = 0x18;
+WCSunTempleLaser_obj_Control = 0x140;
+WCSunTempleLaser_obj_Update = 0x9D4;
+WCSunTempleLaser_obj_Print = 0x9E0;
+WCSunTempleLaser_obj_Free = 0x9F8;
+WCSunTempleLaser_obj_GetModelFlags = 0xABC;
+WCSunTempleLaser_obj_GetDataSize = 0xACC;
+
+.rodata = 0xB4C:
+
+.data = 0xB5C:
+data_0 = 0x0; // absolute:0xB5C

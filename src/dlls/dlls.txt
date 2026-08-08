@@ -471,6 +471,7 @@
 784 = objects/784_WCTrexStatue
 786 = objects/786_WCTempleLift
 787 = objects/787_WCApertureSymbol
+788 = objects/788_WCSunTempleLaser
 793 = objects/793_BWlog
 795 = objects/795_BWLevelControl
 796 = objects/796_AMLevelControl
