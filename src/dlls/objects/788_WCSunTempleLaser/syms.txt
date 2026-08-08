@@ -12,4 +12,4 @@ WCSunTempleLaser_obj_GetDataSize = 0xACC;
 .rodata = 0xB4C:
 
 .data = 0xB5C:
-data_0 = 0x0; // absolute:0xB5C
+dModGfxDLL = 0x0; // absolute:0xB5C

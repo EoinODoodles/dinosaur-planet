@@ -93,6 +93,7 @@ enum ParticleID {
     PARTICLE_27A = 0x27A, //glowing pink magic flares (DBSH_Symbol)
     PARTICLE_286 = 0x286,
     PARTICLE_28A = 0x28A,
+    PARTICLE_28B = 0x28B,
     PARTICLE_2BB = 0x2BB,
     /* --- DLL 35 END --- */
     PARTICLE_320 = 0x320, // big expanding cloud of mist         (WaterWallSpray)

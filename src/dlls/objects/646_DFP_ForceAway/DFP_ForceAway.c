@@ -148,7 +148,7 @@ static void DFP_ForceAway_type0_control(Object* self) {
             partSRT.yaw = 0x3FFF;
         }
         if (mainGetBits(BIT_Player_Immune_to_Rainbow_Scarabs) != 0) {
-            mainSetBits(BIT_468, 1);
+            mainSetBits(BIT_468_Forcefield_Spell_Taking_Damage, 1);
             objSendMesg(player, 0x60004, self, NULL);
             gDLL_17_partfx->vtbl->spawn(self, PARTICLE_5ED, &partSRT, PARTFXFLAG_2, -1, NULL);
         } else {
@@ -262,15 +262,15 @@ static void DFP_ForceAway_type2_control(Object* self) {
         if (xSide != objdata->prevPlayerXSide) {
             partSRT.yaw = 0x3FFF;
         }
-        if (((DLL_210_Player*)player->dll)->vtbl->func50(player) == 0x1D7) {
+        if (((DLL_210_Player*)player->dll)->vtbl->func50(player) == BIT_Spell_Forcefield) {
             if (data_0 > 20) {
                 data_0 = 0;
-                mainSetBits(BIT_468, 1);
+                mainSetBits(BIT_468_Forcefield_Spell_Taking_Damage, 1);
                 dll_amSfx->Play(self, SOUND_837, MAX_VOLUME, NULL, NULL, 0, NULL);
             }
             gDLL_17_partfx->vtbl->spawn(player, PARTICLE_397, NULL, PARTFXFLAG_2, -1, NULL);
         } else {
-            mainSetBits(BIT_468, 1);
+            mainSetBits(BIT_468_Forcefield_Spell_Taking_Damage, 1);
             objSendMesg(player, 0x60004, self, (void* )2);
             gDLL_17_partfx->vtbl->spawn(self, PARTICLE_399, &partSRT, PARTFXFLAG_2, -1, NULL);
             dll_amSfx->Play(self, SOUND_837, MAX_VOLUME, NULL, NULL, 0, NULL);
@@ -332,7 +332,7 @@ static void DFP_ForceAway_type3_control(Object* self) {
     }
     if ((axisCounter == 3) && (objdata->cooldownTimer <= 0)) {
         if (((DLL_210_Player*)player->dll)->vtbl->func50(player) == 0x1D7) {
-            mainSetBits(BIT_468, 1);
+            mainSetBits(BIT_468_Forcefield_Spell_Taking_Damage, 1);
             dll_amSfx->Play(player, SOUND_B47, MAX_VOLUME, NULL, NULL, 0, NULL);
             gDLL_17_partfx->vtbl->spawn(player, PARTICLE_397, NULL, PARTFXFLAG_2, -1, NULL);
             objdata->cooldownTimer = 200;

@@ -305,6 +305,8 @@ enum SoundID {
 
     SOUND_226_Fall_Impact = 0x226,
 
+    SOUND_228 = 0x228,
+
     SOUND_236_SharpClaw_Argh = 0x236, //DR_NiceSharpy
     SOUND_237_SharpClaw_Arghhh = 0x237,
     SOUND_238_SharpClaw_Snort = 0x238,
@@ -358,6 +360,8 @@ enum SoundID {
     SOUND_292_Impact = 0x292, // used by IMSnowBike
 
     SOUND_2B8_Spell_Fired = 0x2B8, //used by Projectile Spell and Grenade Spell (and by Ice Beam?)
+    
+    SOUND_2BB_Laser_Stop_Hiss = 0x2BB,
 
     SOUND_2F8_Door_Opening = 0x2f8, // used by doors in Krazoa Shrines
     SOUND_2F9_Door_Closing = 0x2f9, // used by doors in Krazoa Shrines
@@ -777,6 +781,9 @@ enum SoundID {
     SOUND_9D2_Fire_Roaring_Loop = 0x9D2,
 
     SOUND_9F5_Steam_Hiss = 0x9F5,
+
+    SOUND_9F9_Laser_Startup_Hiss = 0x9F9,
+    SOUND_9FA_Laser_Whir_Loop = 0x9FA,
 
     SOUND_A20_Electric_Surge_Quieter = 0xA20,       //DBdustgeezer
     SOUND_A21_Whoosh_Echoey = 0xA21,                //DBdustgeezer

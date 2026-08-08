@@ -828,7 +828,7 @@ typedef enum {
     BIT_335 = 0x335, // len:1 group:1
     BIT_CRF_Treasure_Chest_Key = 0x336, // len:1 group:1    [INVENTORY]
     BIT_CF_Free_Cloudrunner_From_Chest = 0x337, // len:1 group:1
-    BIT_338 = 0x338, // len:1 group:1
+    BIT_338 = 0x338, // len:1 group:1 //Walled City: all timed lasers switched off?
     BIT_339 = 0x339, // len:1 group:1
     BIT_33A = 0x33A, // len:1 group:1
     BIT_33B = 0x33B, // len:1 group:0
@@ -1132,7 +1132,7 @@ typedef enum {
     BIT_465 = 0x465, // len:1 group:0
     BIT_466 = 0x466, // len:1 group:0
     BIT_467 = 0x467, // len:1 group:0
-    BIT_468 = 0x468, // len:1 group:0
+    BIT_468_Forcefield_Spell_Taking_Damage = 0x468, // len:1 group:0 (The Forcefield Spell's effect changes colour while this is active - used to indicate that damage is being deflected)
     BIT_469 = 0x469, // len:1 group:0
     BIT_46A = 0x46A, // len:1 group:0
     BIT_46B = 0x46B, // len:1 group:1
