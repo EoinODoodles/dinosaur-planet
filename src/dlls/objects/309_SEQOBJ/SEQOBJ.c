@@ -30,7 +30,6 @@ typedef enum {
 } SeqObj_Flags;
 
 typedef enum {
-    SEQOBJ_OPTIONS_None = 0,
     SEQOBJ_OPTIONS_ManualHasPlayedBit = 1, // don't auto update the hasPlayed gamebit
     SEQOBJ_OPTIONS_ManualHasPlayed_Set_By_SeqCmd = 2, //gamebitFinished intended to be set via a seqCommand?
     SEQOBJ_OPTIONS_ManualHasPlayed_Dont_Unset_Play_Gamebit = 4, //Avoids setting gamebitPlay back to 0 after sequence finishes, under some circumstances?
@@ -63,7 +62,8 @@ void SeqObj_obj_Setup(Object* self, SeqObj_Setup* objSetup, s32 reset) {
     
     objAddObjectType(self, OBJTYPE_UseObj);
     
-    objData->flags = SEQOBJ_FLAG_None;
+    objData->flags = 0;
+
     if (objSetup->gamebitHasPlayed != NO_GAMEBIT) {
         if (mainGetBits(objSetup->gamebitHasPlayed)) {
             objData->flags |= SEQOBJ_FLAG_PlayedBefore;
@@ -77,6 +77,7 @@ void SeqObj_obj_Setup(Object* self, SeqObj_Setup* objSetup, s32 reset) {
             }
         }
     }
+    
     objData->lastPlayBitValue = FALSE;
     self->stateFlags |= OBJSTATE_UPDATE_DISABLED;
 }
