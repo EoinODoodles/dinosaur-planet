@@ -217,6 +217,7 @@
 363 = objects/363_FElevControl
 364 = objects/364_FEseqobject
 365 = objects/365
+374 = objects/374_LaserBeam
 375 = objects/375_CFPrisonGuard
 376 = objects/376_CFPrisonUncle
 378 = objects/378_CFScalesGalleon

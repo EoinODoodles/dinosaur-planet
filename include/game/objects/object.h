@@ -379,7 +379,7 @@ typedef struct {
 typedef BinFileEntry ObjectEvent;
 
 typedef struct {
-/*0000*/    u8 unk0[0x80 - 0x00];
+/*0000*/    MtxF unk0[2];
 /*0080*/    MtxF unk80[2];              // probably length of 2
 /*0100*/    struct Object *unk100[3];   // other Objects colliding with this Object?
 /*010c*/    u8 unk10C;                  // index into field 0x80?

@@ -1,0 +1,15 @@
+.text = 0x0:
+LaserBeam_ctor = 0x0;
+LaserBeam_dtor = 0xC;
+LaserBeam_obj_Setup = 0x18;
+LaserBeam_obj_Control = 0x80;
+LaserBeam_obj_Update = 0x6AC;
+LaserBeam_obj_Print = 0x6B8;
+LaserBeam_obj_Free = 0xA04;
+LaserBeam_obj_GetModelFlags = 0xA60;
+LaserBeam_obj_GetDataSize = 0xA70;
+
+.rodata = 0xAF8:
+
+.data = 0xB08:
+dLaserTris = 0x0; // absolute:0xB08

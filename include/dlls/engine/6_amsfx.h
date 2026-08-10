@@ -227,6 +227,8 @@ enum SoundID {
     SOUND_12A_SnowHorn_SnoreHorn = 0x12A,
     SOUND_12B_SnowHorn_Yawn_2 = 0x12B,
 
+    SOUND_135_Laser_Hum = 0x135,
+
     SOUND_140_Galleon_Propeller_Loop = 0x140,
 
     SOUND_142_Krystal_Play = 0x142,          //"Go play!"
