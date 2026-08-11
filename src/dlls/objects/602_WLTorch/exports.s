@@ -4,14 +4,14 @@
 _exports:
 
 # ctor/dtor
-.dword dll_602_ctor
-.dword dll_602_dtor
+.dword WLTorch_ctor
+.dword WLTorch_dtor
 
 # export table
-/*0*/ .dword dll_602_setup
-/*1*/ .dword dll_602_control
-/*2*/ .dword dll_602_update
-/*3*/ .dword dll_602_print
-/*4*/ .dword dll_602_free
-/*5*/ .dword dll_602_get_model_flags
-/*6*/ .dword dll_602_get_data_size
+/*0*/ .dword WLTorch_obj_Setup
+/*1*/ .dword WLTorch_obj_Control
+/*2*/ .dword WLTorch_obj_Update
+/*3*/ .dword WLTorch_obj_Print
+/*4*/ .dword WLTorch_obj_Free
+/*5*/ .dword WLTorch_obj_GetModelFlags
+/*6*/ .dword WLTorch_obj_GetDataSize
