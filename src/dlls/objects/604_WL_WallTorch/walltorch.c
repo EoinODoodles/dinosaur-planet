@@ -33,7 +33,7 @@ typedef enum {
 typedef enum {
     WLWallTorch_FLAG_1 = 1,
     WLWallTorch_FLAG_2_Alternate_Model = 2,
-    WLWallTorch_FLAG_4 = 4
+    WLWallTorch_FLAG_4_Blue_Flame = 4
 } WLWallTorch_Flags;
 
 // offset: 0x0 | ctor
@@ -67,7 +67,7 @@ void WL_WallTorch_obj_Setup(Object* self, WLWallTorch_Setup* objSetup, s32 reset
         objData->isLit = TRUE;
         modGfxDLL = dllLoad(DLL_ID_121, 1);
 
-        if (objSetup->flags & WLWallTorch_FLAG_4) {
+        if (objSetup->flags & WLWallTorch_FLAG_4_Blue_Flame) {
             effectIdx = 2;
         } else if (objSetup->flags & WLWallTorch_FLAG_1) {
             effectIdx = 1;
