@@ -105,7 +105,7 @@ void WLTorch_obj_Control(Object* self) {
 
     if (objdata->soundHandle == 0) {
         if (playerDistance < 90.0f) {
-            dll_amSfx->Play(self, SOUND_1D3, MAX_VOLUME, &objdata->soundHandle, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_1D3_Fire_Crackling_Loop, MAX_VOLUME, &objdata->soundHandle, NULL, 0, NULL);
         }
     } else if (playerDistance >= 90.0f) {
         dll_amSfx->Stop(objdata->soundHandle);

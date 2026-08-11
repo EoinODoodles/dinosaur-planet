@@ -1,0 +1,12 @@
+.text = 0x0:
+WL_WallTorch_ctor = 0x0;
+WL_WallTorch_dtor = 0xC;
+WL_WallTorch_obj_Setup = 0x18;
+WL_WallTorch_obj_Control = 0x174;
+WL_WallTorch_obj_Update = 0x6BC;
+WL_WallTorch_obj_Print = 0x6C8;
+WL_WallTorch_obj_Free = 0x950;
+WL_WallTorch_obj_GetModelFlags = 0xA38;
+WL_WallTorch_obj_GetDataSize = 0xA54;
+
+.rodata = 0xAFC:

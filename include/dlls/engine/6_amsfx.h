@@ -290,7 +290,7 @@ enum SoundID {
     SOUND_1D1 = 0x1D1, //Silent
 
     SOUND_1D2_Roar = 0x1D2, // Deleted genprops object
-    SOUND_1D3 = 0x1D3,
+    SOUND_1D3_Fire_Crackling_Loop = 0x1D3,
     SOUND_1D4_Metal_Ratcheting_Loop = 0x1D4,
     SOUND_1D5_Metal_Squeak = 0x1D5,
 
@@ -454,6 +454,8 @@ enum SoundID {
     SOUND_407_Footstep_Ice = 0x407, //Creaky ice [FOOTSTEP FOLEY]
 
     SOUND_411_SharpClaw_Laughing = 0x411, //"Ehhh-hehehehehhh!"
+
+    SOUND_424_Flame_Lighting = 0x424,
 
     SOUND_43C_Target_Highlighted = 0x43C, // camera DLL [Interaction Arrow]
     SOUND_43D_Transporter_Fire = 0x43D,
