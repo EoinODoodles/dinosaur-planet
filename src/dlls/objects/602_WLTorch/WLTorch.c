@@ -20,6 +20,12 @@ typedef struct {
     s16 _unk12; 
 } WLTorch_Data;
 
+typedef enum {
+    WLTorch_MODE_0 = 0,
+    WLTorch_MODE_2_Spin = 2,
+    WLTorch_MODE_7F_Blue = 0x7F
+} WLTorch_Modes;
+
 // offset: 0x0 | ctor
 void WLTorch_ctor(void* dll) { }
 
@@ -49,11 +55,11 @@ void WLTorch_obj_Setup(Object* self, WLTorch_Setup* setup, s32 reset) {
     objdata->mode = setup->mode;
 
     fxTransform.transl.y = -2.0f;
-    if (objdata->mode == 0) {
+    if (objdata->mode == WLTorch_MODE_0) {
         modGfxDLL = dllLoad(DLL_ID_121, 1);
         self->srt.scale *= 0.5f;
         modGfxDLL->vtbl->func0(self, 1, &fxTransform, 0x10004, -1, 0);
-    } else if (objdata->mode == 0x7F) {
+    } else if (objdata->mode == WLTorch_MODE_7F_Blue) {
         modGfxDLL = dllLoad(DLL_ID_121, 1);
         self->srt.scale *= 0.5f;
         modGfxDLL->vtbl->func0(self, 2, &fxTransform, 0x10004, -1, 0);
@@ -91,7 +97,7 @@ void WLTorch_obj_Control(Object* self) {
 
     objdata = self->data;
 
-    if (objdata->mode == 2) {
+    if (objdata->mode == WLTorch_MODE_2_Spin) {
         self->srt.yaw += 50;
     }
 
@@ -107,7 +113,7 @@ void WLTorch_obj_Control(Object* self) {
     }
     
     //Check if the torch's flare should be drawn (occlusion depth check)
-    if (objdata->mode != 2) {
+    if (objdata->mode != WLTorch_MODE_2_Spin) {
         pointX = self->srt.transl.x - gWorldX;
         pointY = self->srt.transl.y;
         pointZ = self->srt.transl.z - gWorldZ;
@@ -125,7 +131,7 @@ void WLTorch_obj_Control(Object* self) {
                 fxTransform.transl.x = 0.0f;
                 fxTransform.transl.z = 0.0f;
                 fxTransform.transl.y = 13.0f;
-                if (objdata->mode == 0x7F) {
+                if (objdata->mode == WLTorch_MODE_7F_Blue) {
                     gDLL_17_partfx->vtbl->spawn(self, PARTICLE_741, &fxTransform, PARTFXFLAG_10 | PARTFXFLAG_2, -1, NULL);
                 } else {
                     gDLL_17_partfx->vtbl->spawn(self, PARTICLE_1F7, &fxTransform, PARTFXFLAG_10 | PARTFXFLAG_2, -1, NULL);
