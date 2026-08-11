@@ -221,7 +221,7 @@ void ScorpionRobot_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Tri
     if ((visibility != 0) && (self->unkDC == 0)) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
         if ((objdata->fire) && (baddie->fsa.target != NULL)) {
-            dll_amSfx->Play(self, SOUND_115_ScorpionRobot_LaserFire, MAX_VOLUME, NULL, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_115_Robot_LaserFire, MAX_VOLUME, NULL, NULL, 0, NULL);
         }
         objdata->fire = 0;
     }

@@ -213,8 +213,9 @@ enum SoundID {
     SOUND_10A_Galleon_Roar = 0x10A,
 
     SOUND_111_Heavy_Collision = 0x111, //DIMboulder
+    SOUND_112_RobotPatrol_Activate = 0x112,
 
-    SOUND_115_ScorpionRobot_LaserFire = 0x115,
+    SOUND_115_Robot_LaserFire = 0x115,
 
     SOUND_117_Brawl = 0x117,
     SOUND_118_Cartoon_Fling = 0x118,

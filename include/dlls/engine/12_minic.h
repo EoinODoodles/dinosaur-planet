@@ -3,17 +3,18 @@
 
 #include "PR/ultratypes.h"
 #include "game/objects/object.h"
+#include "sys/envfx.h"
 #include "dll_def.h"
 #include "types.h"
 
 DLL_INTERFACE(DLL_12_minic) {
     /*:*/ DLL_INTERFACE_BASE(DLL);
-    /*0*/ void (*func0)(Object*,Object*,void*,s32,u16);
+    /*0*/ void (*func0)(Object*,Object*,EnvFxAction*,s32,u16);
     /*1*/ void (*func1)(void);
     /*2*/ void (*func2)(void);
     /*3*/ void (*func3)(Gfx **, Mtx **);
     /*4*/ void (*func4)(void);
-    /*5*/ UnknownDLLFunc func5;
+    /*5*/ void (*func5)(f32, f32, f32, s32);
     /*6*/ void (*func6)(u8);
     /*7*/ void (*func7)(s32);
     /*8*/ void (*func8)(s32);

@@ -1,0 +1,43 @@
+.text = 0x0:
+RobotPatrol_ctor = 0x0;
+RobotPatrol_dtor = 0xC;
+RobotPatrol_obj_Setup = 0x88;
+RobotPatrol_obj_Control = 0x240;
+RobotPatrol_obj_Update = 0x480;
+RobotPatrol_obj_Print = 0x48C;
+RobotPatrol_obj_Free = 0xB14;
+RobotPatrol_obj_GetModelFlags = 0xBBC;
+RobotPatrol_obj_GetDataSize = 0xBCC;
+RobotPatrol_moveAndShoot = 0xBE0;
+RobotPatrol_checkForPlayer = 0x10F8;
+RobotPatrol_initBody = 0x1330;
+RobotPatrol_updateBody = 0x13A8;
+RobotPatrol_move = 0x158C;
+RobotPatrol_func_1608 = 0x1608;
+RobotPatrol_func_18B4 = 0x18B4;
+RobotPatrol_initFx = 0x1B84;
+RobotPatrol_updateFx = 0x1C08;
+RobotPatrol_initGun = 0x1FF4;
+RobotPatrol_animateGun = 0x2020;
+RobotPatrol_fireGun = 0x20EC;
+RobotPatrol_gunPrint = 0x22B0;
+RobotPatrol_aimRaycast = 0x2BCC;
+RobotPatrol_animateDeployedGun = 0x2E68;
+RobotPatrol_setGunMode = 0x3178;
+RobotPatrol_initBeam = 0x3188;
+RobotPatrol_updateBeam = 0x33D4;
+RobotPatrol_freeBeam = 0x378C;
+RobotPatrol_readController = 0x37EC;
+RobotPatrol_curveMove = 0x38D4;
+RobotPatrol_animCallback = 0x39F0;
+
+.rodata = 0x3B80:
+
+.data = 0x3BE0:
+sLaserTris = 0x0; // absolute:0x3BE0
+data_20 = 0x20; // absolute:0x3C00
+data_50 = 0x50; // absolute:0x3C30
+
+.bss = 0x3C40:
+sLaserBeamTexture = 0x0; // absolute:0x3C40
+sNoiseTexture = 0x4; // absolute:0x3C44

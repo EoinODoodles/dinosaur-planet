@@ -214,7 +214,7 @@ void BigScorpionRobot_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, 
             bone = self->def->pAttachPoints->bones[self->modelInstIdx]; // model index as a bone index?
             mtx = (MtxF *)&((f32 **)modelInst->matrices[modelInst->unk34 & 1])[bone << 4];
             projgfx = dllLoad(DLL_ID_193, 1);
-            dll_amSfx->Play(self, SOUND_115_ScorpionRobot_LaserFire, MAX_VOLUME, NULL, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_115_Robot_LaserFire, MAX_VOLUME, NULL, NULL, 0, NULL);
             srcSRT.transl.x = mtx->m[3][0] + gWorldX;
             srcSRT.transl.y = mtx->m[3][1];
             srcSRT.transl.z = mtx->m[3][2] + gWorldZ;
