@@ -191,7 +191,7 @@ void WarpPoint_obj_Control(Object* self) {
             objdata->objSeqPlayed = TRUE;
         }
 
-        //If a a specified gamebit is set and the timer's expired and warpID is provided, unset the gamebit and fade out and warp the player when they're nearby (variable range)
+        //If a specified gamebit is set and the timer's expired and warpID is provided, unset the gamebit and fade out and warp the player when they're nearby (variable range)
         if (mainGetBits(objdata->gamebit) && (objdata->warpDelayTimer == 0) && (dist <= objdata->range) && (setup->warpID > NO_WARP_ID)) {
             mainSetBits(objdata->gamebit, FALSE);
             mapWarpPlayer(setup->warpID, TRUE);
