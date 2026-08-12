@@ -41,7 +41,7 @@ typedef enum {
 typedef enum {
     WarpPoint_MODE_0, //Play an arrival objSeq (fade in); warp when nearby (fade out) (ignores delay timer)
     WarpPoint_MODE_1, //Play arrival objSeq1 (uncurling from ball) (fade in); warp via objSeq0 (no fade out) (use delay timer)
-    WarpPoint_MODE_2, //Play an arrival objSeq if a gamebit it set (no fade in); warp and unset gamebit if arrival objSeq played (no fade out) (checks delay timer, but ignores it in practice by setting it to 0)
+    WarpPoint_MODE_2, //Play an arrival objSeq if a gamebit it set (no fade in); warp and unset gamebit if gamebit set (no fade out) (checks delay timer, but ignores it in practice by setting it to 0)
     WarpPoint_MODE_3, //(Inbound only) Play an arrival objSeq if a gamebit is set (no fade in) and unset the gamebit; no warp away
     WarpPoint_MODE_4  //Play an arrival objSeq if a warpID is specified (fade in); warp if a gamebit is set, unsetting gamebit (fade out) (uses delay timer)
 } WarpPoint_Modes;
