@@ -36,7 +36,7 @@ typedef enum {
     WarpPoint_OBJSEQ_7, //0x382 (inbound) (no fade) Sabre falling through vertical chute and crashing to ground in Lower Dragon Rock
     WarpPoint_OBJSEQ_8, //0x429 (inbound) (fade in) Sabre and Tricky walking towards camera 
     WarpPoint_OBJSEQ_9  //0x447 (inbound) (fade in) Player walks in towards camera, camera cuts behind them
-} WarpPoint_ObjSeqs;
+} WarpPoint_ObjSeqs; //NOTE: SC_WarpPoint, WM_WarpPoint, and RestartPoint have different objSeqs
 
 typedef enum {
     WarpPoint_MODE_0, //Play an arrival objSeq (fade in); warp when nearby (fade out) (ignores delay timer)
