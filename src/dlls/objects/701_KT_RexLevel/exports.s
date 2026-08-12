@@ -8,10 +8,10 @@ _exports:
 .dword KT_RexLevel_dtor
 
 # export table
-.dword KT_RexLevel_setup
-.dword KT_RexLevel_control
-.dword KT_RexLevel_update
-.dword KT_RexLevel_print
-.dword KT_RexLevel_free
-.dword KT_RexLevel_get_model_flags
-.dword KT_RexLevel_get_data_size
+.dword KT_RexLevel_obj_Setup
+.dword KT_RexLevel_obj_Control
+.dword KT_RexLevel_obj_Update
+.dword KT_RexLevel_obj_Print
+.dword KT_RexLevel_obj_Free
+.dword KT_RexLevel_obj_GetModelFlags
+.dword KT_RexLevel_obj_GetDataSize

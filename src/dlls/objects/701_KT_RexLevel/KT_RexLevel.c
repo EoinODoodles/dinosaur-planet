@@ -7,53 +7,56 @@
 #include "sys/envfx.h"
 #include "game/gamebits.h"
 
-/*0x0*/ static u32 _data_0[] = { 0x00000002, 0x00000003, 0x00000000, 0x00000000 };
+/*0x0*/ static u32 _data_0[] = { 2, 3 };
 
-/*0x0*/ static s32 _bss_0;
+/*0x0*/ static s32 sPrevFightProgress;
 
 typedef struct {
 /*00*/ f32 unk0;
 } KT_RexLevel_Data;
 
 // offset: 0x0 | ctor
-void KT_RexLevel_ctor(void *dll) { }
+void KT_RexLevel_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void KT_RexLevel_dtor(void *dll) { }
+void KT_RexLevel_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void KT_RexLevel_setup(Object *self, ObjSetup *setup, s32 arg2) {
-    KT_RexLevel_Data *objdata;
+void KT_RexLevel_obj_Setup(Object* self, ObjSetup* setup, s32 reset) {
+    KT_RexLevel_Data* objdata = self->data;
 
-    objdata = self->data;
     envfxAction(self, self, 0x18E, 0);
     envfxAction(self, self, 0x18F, 0);
     lfxAction(self, self, 0x1FD, 0, 0, 0);
     lfxAction(self, self, 0x1FE, 0, 0, 0);
     gDLL_5_AMSEQ2->vtbl->set(self, 0xD5, 0, 0, 0);
+
     mainSetBits(BIT_572_KT_FightProgress, 0);
     mainSetBits(BIT_56E, 1);
     mainSetBits(BIT_KT_Player_In_Segment_2, 1);
     mainSetBits(BIT_KT_Player_In_Segment_1, 1);
     objdata->unk0 = 600.0f;
+
     mainSetBits(BIT_55A, 1);
     mainSetBits(BIT_54A, 2);
     mainSetBits(BIT_54E, 2);
     mainSetBits(BIT_552, 1);
     mainSetBits(BIT_556, 1);
+
     self->unkDC = 0;
 }
 
 // offset: 0x1FC | func: 1 | export: 1
-void KT_RexLevel_control(Object *self) {
+void KT_RexLevel_obj_Control(Object* self) {
     s32 ktFightProgress;
 
     if (self->unkDC == 0) {
         mainSetBits(BIT_55E, 1);
         self->unkDC = 1;
     }
+
     ktFightProgress = mainGetBits(BIT_572_KT_FightProgress);
-    if (_bss_0 != (ktFightProgress ^ 0)) {
+    if (sPrevFightProgress != (ktFightProgress ^ 0)) {
         if (ktFightProgress & 1) {
             // KTrex is doing a full charge around the arena
             mainSetBits(BIT_54A, 0);
@@ -66,6 +69,7 @@ void KT_RexLevel_control(Object *self) {
             dll_amSfx->Play(self, SOUND_699_KT_RaisingFloorSwitches, MAX_VOLUME, NULL, NULL, 0, NULL);
         }
     }
+
     if (mainGetBits(BIT_55C)) {
         if (mainGetBits(BIT_55A)) {
             mainSetBits(BIT_54A, 2);
@@ -80,31 +84,32 @@ void KT_RexLevel_control(Object *self) {
         }
         mainSetBits(BIT_55C, 0);
     }
-    _bss_0 = ktFightProgress;
+
+    sPrevFightProgress = ktFightProgress;
 }
 
 // offset: 0x470 | func: 2 | export: 2
-void KT_RexLevel_update(Object *self) { }
+void KT_RexLevel_obj_Update(Object* self) { }
 
 // offset: 0x47C | func: 3 | export: 3
-void KT_RexLevel_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
+void KT_RexLevel_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x4D0 | func: 4 | export: 4
-void KT_RexLevel_free(Object *self, s32 arg1) {
+void KT_RexLevel_obj_Free(Object* self, s32 onlySelf) {
     gDLL_5_AMSEQ2->vtbl->set(self, 0xD6, 0, 0, 0);
     gDLL_5_AMSEQ2->vtbl->free(self, 0xD5, 0, 0, 0);
 }
 
 // offset: 0x560 | func: 5 | export: 5
-u32 KT_RexLevel_get_model_flags(Object *self) {
+u32 KT_RexLevel_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x570 | func: 6 | export: 6
-u32 KT_RexLevel_get_data_size(Object *self, u32 arg1) {
+u32 KT_RexLevel_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(KT_RexLevel_Data);
 }
