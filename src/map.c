@@ -40,11 +40,11 @@ DLBuilder sMainDLBuilder;
 DLBuilder sAltDLBuilder; // Used for building DLs other than the main GDL
 s32 D_800B4A50;
 s32 D_800B4A54;
-s8 D_800B4A58; //gStartWarp?
-s8 D_800B4A59;
-s16 D_800B4A5C;
-s16 D_800B4A5E; //gFadeDelayTimerStarted
-Warp D_800B4A60;
+s8 D_800B4A58; //gWarpIsQueued
+s8 D_800B4A59; //gWarpFadeSetting
+s16 D_800B4A5C; //gWarpIDQueued
+s16 D_800B4A5E; //gWarpIDPrevious
+Warp D_800B4A60; //gWarp
 s16 gMobileMapID;
 s16 gMobileMapUnknown;
 Plane gFrustumPlanes[MAP_LAYER_COUNT];
@@ -134,7 +134,7 @@ s32 gMapCurrentStreamCoordsX = 0;
 s32 gMapCurrentStreamCoordsZ = 0;
 f32 gWorldX = 0.0f;
 f32 gWorldZ = 0.0f;
-s8 D_80092A78 = 0; //gFadeDelayTimer
+s8 D_80092A78 = 0; //gWarpFadeDelayTimer
 s32 D_80092A7C[2] = {0};
 s32 D_80092A84[2] = {0};
 s8 gMapLayer = 0;
@@ -619,8 +619,8 @@ void trackInit(void) {
     }
     gNumTotalBlocks--;
     D_800B96B0 = mmAlloc(sizeof(SavedObject) * 100, ALLOC_TAG_TRACK_COL, ALLOC_NAME("objdef_store"));
-    D_800B4A5C = -1;
-    D_800B4A5E = -2;
+    D_800B4A5C = NO_WARP_ID;
+    D_800B4A5E = FADE_IN_INITIAL;
     gBlockTexAnimTable = mmAlloc(sizeof(BlockTextureAnim) * MAX_TEXTURE_ANIMS, ALLOC_TAG_TRACK_COL, ALLOC_NAME("trk:texanim"));
     bzero(gBlockTexAnimTable, sizeof(BlockTextureAnim) * MAX_TEXTURE_ANIMS);
     sBlockTexScrollTable = mmAlloc(sizeof(BlockTextureScroller) * MAX_TEXTURE_SCROLLERS, ALLOC_TAG_TRACK_COL, ALLOC_NAME("trk:texscroll"));
@@ -2762,10 +2762,11 @@ void map_func_8004773C(void) {
     PlayerEnvActions* sp3C;
     s16* sp38;
 
-    if (D_800B4A5E == -1) {
-        D_800B4A5E = -2;
-        D_80092A78 = 8;
+    if (D_800B4A5E == NO_WARP_ID) {
+        D_800B4A5E = FADE_IN_INITIAL;
+        D_80092A78 = WARP_FADE_IN_DELAY;
     }
+
     gDLL_3_Animation->vtbl->init();
     camApplyAlternateTrigger();
     camApplyAlternateTrigger();
@@ -2827,7 +2828,7 @@ void map_func_8004773C(void) {
     gTrackFlags &= ~TRACKFLAG_UNK4;
     trackIntersectTick();
     objLoadPlayer();
-    D_800B4A58 = 0;
+    D_800B4A58 = FALSE;
 
     camera = camGetMain();
     camera->srt.transl.x = savedPlayerLocation->vec.x;
@@ -2835,11 +2836,11 @@ void map_func_8004773C(void) {
     camera->srt.transl.z = savedPlayerLocation->vec.z;
 
     player = objGetPlayer();
-    if ((D_800B4A5E == -2) && (player != NULL) && ((playerno == PLAYER_SABRE) || (playerno == PLAYER_KRYSTAL))) {
+    if ((D_800B4A5E == FADE_IN_INITIAL) && (player != NULL) && ((playerno == PLAYER_SABRE) || (playerno == PLAYER_KRYSTAL))) {
         sp40 = gDLL_29_Gplay->vtbl->get_current_player_lactions();
         sp3C = gDLL_29_Gplay->vtbl->get_current_player_envactions();
         sp38 = gDLL_29_Gplay->vtbl->get_current_player_musicactions()->actionNums;
-        if (D_800B4A5E == -2) {
+        if (D_800B4A5E == FADE_IN_INITIAL) {
             if (sp40->unk0[0] != -1) {
                 lfxRestoreAction(player, player, sp40->unk0[0], 0, 0, 0);
             }
@@ -5361,31 +5362,32 @@ void blockComputeVertexColors(Block* arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
 }
 
-static const char str_8009a930[] = "######  DOING WARP  ########\n";
-
 /** 
-  * Warps the player to coordinates stored in WARPTAB.bin 
+  * Queues warping the player to coordinates stored in WARPTAB.bin.
+  * If fadeToBlack is nonzero, the player will be warped once the screen fade finishes,
+  * or if fadeToBlack is zero, the player will be warped immediately.
   */
 void mapWarpPlayer(s32 warpID, s8 fadeToBlack) {
-    Warp *warp;
-    Warp *mostRecentWarp;
+    Warp* warpData;
+    Warp* queuedWarp;
 
-    warp = (Warp*)gMapReadBuffer;
-    assetRomLoadSection((void*)warp, WARPTAB_BIN, warpID << 4, sizeof(Warp));
-    mostRecentWarp = (Warp*)&D_800B4A60;
+    warpData = (Warp*)gMapReadBuffer;
+    assetRomLoadSection((void*)warpData, WARPTAB_BIN, warpID << 4, sizeof(Warp));
+    queuedWarp = &D_800B4A60;
   
-    mostRecentWarp->coord.x = warp->coord.x;
-    mostRecentWarp->coord.y = warp->coord.y;
-    mostRecentWarp->coord.z = warp->coord.z;
-    mostRecentWarp->layer = warp->layer;
+    queuedWarp->coord.x = warpData->coord.x;
+    queuedWarp->coord.y = warpData->coord.y;
+    queuedWarp->coord.z = warpData->coord.z;
+    queuedWarp->layer = warpData->layer;
     
-    D_800B4A5C = (s16) warpID;
-    D_800B4A58 = 1;
+    D_800B4A5C = warpID;
+    D_800B4A58 = TRUE;
     D_800B4A59 = fadeToBlack;
     
     if (D_800B4A59 != 0) {
-        gDLL_28_ScreenFade->vtbl->fade(0x28, SCREEN_FADE_BLACK);
+        gDLL_28_ScreenFade->vtbl->fade(40, SCREEN_FADE_BLACK);
     }
+
     gDLL_12_Minic->vtbl->func4();
     gDLL_12_Minic->vtbl->func1();
     gDLL_8_newfog->vtbl->func1();
@@ -5394,44 +5396,43 @@ void mapWarpPlayer(s32 warpID, s8 fadeToBlack) {
     gDLL_10_Newstars->vtbl->Init();
 }
 
-/** 
-    Called every frame!
-    Seems to start a fade-out followed by a warp
-*/
 void mapHandleTransition(void) {
     PlayerLocation* playerLocation;
-    Warp* warpLocation;
+    Warp* warp;
     u8 temp2;
     u8 temp1;
 
     playerLocation = gDLL_29_Gplay->vtbl->get_player_saved_location();
     
-    //Start fade?
-    if (D_800B4A5E != -1) { //timer started?
-        D_80092A78 -= 1; //Decrement timer
-        if (D_80092A78 < 0) { //When timer less than zero, fade to black
-            if ((D_800B4A5E >= 0) && (D_800B4A59 != 0)) {
+    //Inbound warp: fade from black after a delay (also handles initial fade-in)
+    if (D_800B4A5E != NO_WARP_ID) {
+        D_80092A78--; //@framerate-dependent
+        if (D_80092A78 < 0) {
+            if ((D_800B4A5E > NO_WARP_ID) && (D_800B4A59 != 0)) {
                 gDLL_28_ScreenFade->vtbl->fade_reversed(30, SCREEN_FADE_BLACK);
             }
-            D_800B4A5E = -1; //stop timer?
+            D_800B4A5E = NO_WARP_ID;
         }
     }
     
-    //Warp after fade?
-    if (D_800B4A58 == 0) {
+    //Bail if a warp isn't queued
+    if (D_800B4A58 == FALSE) {
         return;
     }
         
+    //If a warp is queued, warp when the fade-out is finished (or immediately if the warp isn't using a fade)
     if (gDLL_28_ScreenFade->vtbl->is_complete() || D_800B4A59 == 0){
-        warpLocation = &D_800B4A60;
-        D_800B4A58 = 0;
-        playerLocation->vec.x = warpLocation->coord.x;
-        playerLocation->vec.y = warpLocation->coord.y;
-        playerLocation->vec.z = warpLocation->coord.z;
-        playerLocation->mapLayer = (s8)warpLocation->layer;
+        STUBBED_PRINTF("######  DOING WARP  ########\n");
+
+        warp = &D_800B4A60;
+        D_800B4A58 = FALSE;
+        playerLocation->vec.x = warp->coord.x;
+        playerLocation->vec.y = warp->coord.y;
+        playerLocation->vec.z = warp->coord.z;
+        playerLocation->mapLayer = warp->layer;
         main_func_800143A4();
         D_800B4A5E = D_800B4A5C;
-        D_800B4A5C = -1;
-        D_80092A78 = 8;
+        D_800B4A5C = NO_WARP_ID;
+        D_80092A78 = WARP_FADE_IN_DELAY;
     }
 }
