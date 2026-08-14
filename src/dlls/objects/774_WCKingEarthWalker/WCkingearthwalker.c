@@ -60,7 +60,7 @@ void WCKingEarthWalker_obj_Control(Object* self) {
     objExprEyeIdle(self, &objData->headAnim);
     
     //Return early if a gamebit-driven sequence has yet to play
-    if ((objData->flags & WCKingEarthWalker_FLAG_1_Waiting_for_Sequence)) {
+    if (objData->flags & WCKingEarthWalker_FLAG_1_Waiting_for_Sequence) {
         return;
     }
     
