@@ -42,10 +42,10 @@ void dll_27_init(DLL27_Data *data, s32 flags1, s32 flags2, s32 mode) {
 
 // offset: 0x84 | func: 1 | export: 1
 // setup hits detection
-void dll_27_setup_hits_collider(DLL27_Data *data, s32 testCount, Vec3f *testPoints, f32 *testRadii, s32 a4) {
+void dll_27_setup_hits_collider(DLL27_Data* data, s32 testCount, Vec3f* testPoints, f32* testRadii, s32 maskHitsLineSettingsA) {
     data->numTestPoints &= 0xf0;
     data->numTestPoints |= (testCount & 0xf);
-    data->unk259 = a4;
+    data->unk259 = maskHitsLineSettingsA;
     data->localHitsTestPoints = testPoints;
     data->hitsTestRadii = testRadii;
     data->flags |= DLL27FLAG_HAS_HITS_COLLIDER;

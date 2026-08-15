@@ -15,23 +15,23 @@ typedef struct {
 
 // size: 0x54
 typedef struct TrackLineIntersectResult {
-    struct Object *unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    f32 unk18;
+    struct Object *unk0; //The Object checking the trackLine?
+    f32 unk4; //x
+    f32 unk8; //x
+    f32 unkC; //y
+    f32 unk10; //y
+    f32 unk14; //z
+    f32 unk18; //z
     Vec4f unk1C;
     Vec3f unk2C;
-    Vec3f unk38;
-    f32 unk44;
+    Vec3f unk38; //height-related?
+    f32 unk44; //distance to line (lateral, along direction vector?)
     f32 unk48;
-    s16 unk4C;
-    s16 unk4E;
-    s8 unk50;
-    s8 unk51;
-    s8 unk52;
+    s16 unk4C; //indexC
+    s16 unk4E; //indexD
+    s8 unk50; //settingsB & 0x3F
+    s8 unk51; //animatorID
+    s8 unk52; //settingsA
 } TrackLineIntersectResult;
 
 // size: 0x10

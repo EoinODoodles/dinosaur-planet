@@ -1849,8 +1849,8 @@ void trackIntersectLastLineTick(void) {
 void trackToggleHitLine(s32 animatorID, Object* parentObject, s32 enableLines) {
     s16 lineCount;
     s32 index;
-    ObjDef *objDef;
-    ModLineReencoded*hitsLines;
+    ObjDef* objDef;
+    ModLineReencoded* hitsLines;
 
     hitsLines = gLineList;
 
@@ -1866,13 +1866,13 @@ void trackToggleHitLine(s32 animatorID, Object* parentObject, s32 enableLines) {
     if (enableLines){
         for (index = 0; index < lineCount; hitsLines++, index++){
             if (hitsLines->animatorID == animatorID){
-                hitsLines->settingsB &= ~0x40;
+                hitsLines->settingsB &= ~TrackLine_SETTINGB_40;
             }
         }
     } else {
         for (index = 0; index < lineCount; hitsLines++, index++){
             if (hitsLines->animatorID == animatorID){
-                hitsLines->settingsB |= 0x40;
+                hitsLines->settingsB |= TrackLine_SETTINGB_40;
             }
         }    
     }
@@ -1961,7 +1961,7 @@ void trackIntersectTick(void) {
     do {
         isSorted = TRUE;
         for (var_a0 = 0; var_a0 < gLineListCount - 1; var_a0++) {
-            if ((gLineList[ gLineIndex[var_a0]].settingsB & 0x3F) < (gLineList[gLineIndex[var_a0 + 1]].settingsB & 0x3F)) {
+            if ((gLineList[gLineIndex[var_a0]].settingsB & 0x3F) < (gLineList[gLineIndex[var_a0 + 1]].settingsB & 0x3F)) {
                 var_a1 = gLineIndex[var_a0];
                 gLineIndex[var_a0] = gLineIndex[var_a0 + 1] & 0xFFFF;
                 gLineIndex[var_a0 + 1] = var_a1;
@@ -2282,7 +2282,7 @@ s32 func_8005A2BC(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s16* arg4) {
 s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineIntersectResult* arg4, Object* arg5, s8 arg6, s8 arg7, s8 arg8, Object* arg9) {
     f32 sp1C0[2];
     f32 sp1B8[2];
-    ModLineReencoded* var_a0_2;
+    ModLineReencoded* modLine;
     f32 temp_fa0;
     f32 sp1A8[2];
     f32 sp1A0[2];
@@ -2393,21 +2393,21 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
         for (sp124 = sp104; sp124 < sp100; sp124++) {
             sp190 = -1.0f;
             if (spEC != NULL) {
-                var_a0_2 = &spE8[spEC[sp124]];
+                modLine = &spE8[spEC[sp124]];
             } else {
-                var_a0_2 = &spE8[sp124];
+                modLine = &spE8[sp124];
             }
 
-            if (!(~var_a0_2->settingsA & arg6)) {
+            if (!(~modLine->settingsA & arg6)) {
                 continue;
             }
 
-            if (var_a0_2->settingsB & 0x40) {
+            if (modLine->settingsB & TrackLine_SETTINGB_40) {
                 continue;
             }
-            a1 = var_a0_2->indexA;
-            a2 = var_a0_2->indexB;
-            var_r25 = !(var_a0_2->settingsB & 0x80);
+            a1 = modLine->indexA;
+            a2 = modLine->indexB;
+            var_r25 = !(modLine->settingsB & TrackLine_SETTINGB_80);
             if (spDE) {
                 var_r25 = 1;
             }
@@ -2430,12 +2430,12 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
                 temp_fa0_2 = sp1A0[1];
             }
             temp_fa0_2 -= arg8;
-            if (var_a0_2->settingsA & 0x80) {
-                sp128[0] = ((s16*)var_a0_2)[0]; // should be heightA
+            if (modLine->settingsA & TrackLine_SETTINGA_Unified_Height) {
+                sp128[0] = modLine->heightUnified;
                 sp128[1] = sp128[0];
             } else {
-                sp128[0] = var_a0_2->heightA;
-                sp128[1] = var_a0_2->heightB;
+                sp128[0] = modLine->heightA;
+                sp128[1] = modLine->heightB;
             }
             var_fv0 = sp1A0[0] + sp128[0];
             temp_fa1 = sp1A0[1] + sp128[1];
@@ -2587,19 +2587,21 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
         arg4->unk48 = spA8[var_s1];
         sp124 = spD0[var_s1];
         if (spEC != NULL) {
-            var_a0_2 = &spE8[spEC[sp124]];
+            modLine = &spE8[spEC[sp124]];
         } else {
-            var_a0_2 = &spE8[sp124];
+            modLine = &spE8[sp124];
         }
-        a1 = var_a0_2->indexA;
-        a2 = var_a0_2->indexB;
-        if (var_a0_2->settingsA & 0x80) {
-            sp128[0] = ((s16*)var_a0_2)[0]; // should be heightA
+
+        a1 = modLine->indexA;
+        a2 = modLine->indexB;
+        if (modLine->settingsA & TrackLine_SETTINGA_Unified_Height) {
+            sp128[0] = modLine->heightUnified;
             sp128[1] = sp128[0];
         } else {
-            sp128[0] = var_a0_2->heightA;
-            sp128[1] = var_a0_2->heightB;
+            sp128[0] = modLine->heightA;
+            sp128[1] = modLine->heightB;
         }
+
         arg4->unk4 = spE0[a1].f[0];
         arg4->unkC = spE0[a1].f[1];
         arg4->unk38.f[1] = sp128[0] + arg4->unkC;
@@ -2608,19 +2610,21 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
         arg4->unk10 = spE0[a2].f[1];
         arg4->unk38.f[2] = sp128[1] + arg4->unk10;
         arg4->unk18 = spE0[a2].f[2];
-        arg4->unk50 = var_a0_2->settingsB & 0x3F;
-        arg4->unk52 = var_a0_2->settingsA;
-        arg4->unk51 = var_a0_2->animatorID;
+        arg4->unk50 = modLine->settingsB & 0x3F;
+        arg4->unk52 = modLine->settingsA;
+        arg4->unk51 = modLine->animatorID;
         arg4->unk0 = arg5;
-        arg4->unk4C = var_a0_2->indexC;
-        arg4->unk4E = var_a0_2->indexD;
+        arg4->unk4C = modLine->indexC;
+        arg4->unk4E = modLine->indexD;
     }
+
     if (sp110 != 0) {
         D_800BB53A += 1;
         sp110 = 1;
         arg1->f[0] = sp1C0[1];
         arg1->f[2] = sp1B8[1];
     }
+
     return sp110;
 }
 

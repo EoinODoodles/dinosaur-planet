@@ -96,7 +96,7 @@ typedef struct {
 DLL_INTERFACE(DLL_27) {
 /*:*/ DLL_INTERFACE_BASE(DLL);
 /*0*/ void (*init)(DLL27_Data *data, s32 flags1, s32 flags2, s32 mode);
-/*1*/ void (*setup_hits_collider)(DLL27_Data *data, s32 testCount, Vec3f *testPoints, f32 *testRadii, s32 a4);
+/*1*/ void (*setup_hits_collider)(DLL27_Data* data, s32 testCount, Vec3f* testPoints, f32* testRadii, s32 maskHitsLineSettingsA);
 /*2*/ void (*setup_terrain_collider)(DLL27_Data *data, s32 testCount, Vec3f *testPoints, f32 *arg3, u8 *arg4);
 /*3*/ void (*func_1E8)(Object *obj, DLL27_Data *data, f32 updateRate);
 /*4*/ void (*func_5A8)(Object* arg0, DLL27_Data* arg1);

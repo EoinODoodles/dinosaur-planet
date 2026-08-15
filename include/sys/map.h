@@ -137,8 +137,13 @@ typedef struct{
 /*06*/    s16 By;
 /*08*/    s16 Az;
 /*0a*/    s16 Bz;
-/*0c*/    s8 heightA; //height can be treated as a single value "(heightA << 8) + heightB", depending on top settings bit
-/*0d*/    s8 heightB;
+union { //height can be treated as a single s16 value, using the uppermost bit of settingsA
+    struct {
+    /*0c*/    s8 heightA;
+    /*0d*/    s8 heightB;
+    };
+    /*0c*/    s16 heightUnified;
+};
 /*0e*/    s8 settingsA;
 /*0f*/    s8 settingsB;
 /*10*/    s16 animatorID;
