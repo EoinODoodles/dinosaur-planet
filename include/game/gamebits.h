@@ -569,7 +569,7 @@ typedef enum {
     BIT_232 = 0x232, // len:1 group:0
     BIT_233 = 0x233, // len:1 group:1
     BIT_CC_Activate_Krazoa_Tablet_Slots = 0x234, // len:1 group:2
-    BIT_235 = 0x235, // len:1 group:1
+    BIT_WC_Transporter_Chamber_Opened = 0x235, // len:1 group:1 (Act 2: Central temple's Krazoa Shrine transporter chamber raised)
     BIT_236 = 0x236, // len:1 group:1
     BIT_237 = 0x237, // len:1 group:2 task:135
     BIT_CC_Placed_Krazoa_Tablet_One = 0x238, // len:1 group:2 task:133
@@ -825,7 +825,7 @@ typedef enum {
     BIT_332 = 0x332, // len:1 group:1
     BIT_333 = 0x333, // len:1 group:1
     BIT_334 = 0x334, // len:1 group:1
-    BIT_335 = 0x335, // len:1 group:1
+    BIT_WC_Transporter_Chamber_Rises = 0x335, // len:1 group:1 (Act 2: Central temple's Krazoa Shrine transporter chamber animates upwards, setting BIT_235 when finished)
     BIT_CRF_Treasure_Chest_Key = 0x336, // len:1 group:1    [INVENTORY]
     BIT_CF_Free_Cloudrunner_From_Chest = 0x337, // len:1 group:1
     BIT_338 = 0x338, // len:1 group:1 //Walled City: all timed lasers switched off?
