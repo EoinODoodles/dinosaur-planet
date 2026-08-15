@@ -2752,7 +2752,7 @@ static void dll_210_func_7260(Object* player, Player_Data* arg1) {
 }
 
 // offset: 0x7300 | func: 36
-static s32 dll_210_func_7300(Object* player, Player_Data* arg1, TrackLineIntersectResult* arg2, Player_Data490* arg3, Vec3f* arg4, f32 arg5) {
+static s32 dll_210_func_7300(Object* player, Player_Data* arg1, TrackLineIntersectResult* arg2, Player_Data490* arg3, Vec3f* arg4, f32 distanceToLine) {
     Player_Data *data = player->data;
     f32 f12;
     f32 f0;
@@ -2790,7 +2790,7 @@ static s32 dll_210_func_7300(Object* player, Player_Data* arg1, TrackLineInterse
     arg3->unk46 =  arg2->unk50;
     if (arg2->unk50 == 6) {
         if (data->unk0.unk4.unk25C & 0x10) {
-            if (arg5 < 9.0f) {
+            if (distanceToLine < 9.0f) {
                 if (arg3->unk0 <= 64.0f && arg3->unk0 > 32.0f) {
                     return 2;
                 }
@@ -3023,7 +3023,7 @@ static void dll_210_func_7DA0(Object* player, ObjFSA_Data* fsa, Vec3f* arg2) {
 }
 
 // offset: 0x7E6C | func: 45
-static s32 dll_210_func_7E6C(Object* player, Player_Data* arg1, ObjFSA_Data* fsa, Player_Data3B4* arg3, f32 arg4, s32 arg5) {
+static s32 dll_210_func_7E6C(Object* player, Player_Data* objData, ObjFSA_Data* fsa, Player_Data3B4* arg3, f32 updateRate, s32 mask) {
     Vec3f sp164;
     Vec3f sp158;
     Vec3f sp14C;
@@ -3031,9 +3031,9 @@ static s32 dll_210_func_7E6C(Object* player, Player_Data* arg1, ObjFSA_Data* fsa
     Vec3f sp134;
     Vec3f sp128;
     s32 var_s0_2;
-    TrackLineIntersectResult spD0;
-    f32 spCC;
-    s32 pad2;
+    TrackLineIntersectResult trackLineIntersect;
+    f32 distanceToLine;
+    f32 dotProduct;
     u8 var_v1;
     u8 spB8[15] = {
         0x0b, 0x04, 0x06, 0x0a, 0x0a, 0x03, 0x03, 0x0c,
@@ -3044,13 +3044,13 @@ static s32 dll_210_func_7E6C(Object* player, Player_Data* arg1, ObjFSA_Data* fsa
         0x0040, 0x0080, 0x0100, 0x0200, 0x0400, 0x0080, 0x0001
     };
     u8 pad_sp97;
-    u8 sp96;
+    u8 count;
     u8 sp95;
     s32 pad;
     Vec3f* var_s0;
-    Object* sp88;
+    Object* obj;
     Object** objects;
-    s32 sp80;
+    s32 objCount;
     u8 someFlag;
     s8 sp7E;
     s8 sp7D;
@@ -3058,7 +3058,7 @@ static s32 dll_210_func_7E6C(Object* player, Player_Data* arg1, ObjFSA_Data* fsa
     s32 i;
     f32 sp74;
     f32 sp70;
-    f32 sp6C;
+    f32 objDistance;
 
     dll_210_func_7CF8(fsa, &sp164);
     dll_210_func_7DA0(player, fsa, &sp158);
@@ -3068,14 +3068,15 @@ static s32 dll_210_func_7E6C(Object* player, Player_Data* arg1, ObjFSA_Data* fsa
     sp128.x = sp158.x * 50.0f;
     sp128.y = sp158.y * 50.0f;
     sp128.z = sp158.z * 50.0f;
-    arg1->flags &= ~0x100;
-    sp96 = 15;
-    for (i = 0; i < sp96; i++) {
+    objData->flags &= ~0x100;
+
+    count = ARRAYCOUNT(sp98);
+    for (i = 0; i < count; i++) {
         someFlag = FALSE;
         sp95 = FALSE;
         sp7E = TRUE;
         sp7D = FALSE;
-        if (sp98[i] & arg5) {
+        if (sp98[i] & mask) {
             switch (i) {
             case 1:
             case 8:
@@ -3143,75 +3144,82 @@ static s32 dll_210_func_7E6C(Object* player, Player_Data* arg1, ObjFSA_Data* fsa
                 sp140.y = player->srt.transl.y;
                 sp140.z = player->srt.transl.z;
             }
-            var_v1 = trackGetLineIntersect(&sp14C, &sp140, 0.0f, 3, &spD0, player, fsa->unk4.unk259, spB8[i], 0xFF, 0xA);
+
+            var_v1 = trackGetLineIntersect(&sp14C, &sp140, 0.0f, 3, &trackLineIntersect, player, fsa->unk4.unk259, spB8[i], 0xFF, 0xA);
             if (sp7D != 0 && var_v1 != 0) {
-                arg1->unk7FC = spD0.unk44;
+                objData->unk7FC = trackLineIntersect.unk44;
             }
+
             if (sp7E != 0 && var_v1 != 0) {
-                spCC = (var_s0->z * spD0.unk1C.z) + ((spD0.unk1C.x * var_s0->x) + (spD0.unk1C.y * var_s0->y));
+                dotProduct = (var_s0->z * trackLineIntersect.unk1C.z) + ((trackLineIntersect.unk1C.x * var_s0->x) + (trackLineIntersect.unk1C.y * var_s0->y));
                 switch (i) {
                 case 3:
                 case 5:
-                    if (player->srt.transl.y < (spD0.unkC + 5.0f)) {
+                    if (player->srt.transl.y < (trackLineIntersect.unkC + 5.0f)) {
                         var_v1 = FALSE;
                     }
                     break;
                 case 4:
                 case 6:
                 case 11:
-                    if ((fsa->unk4.unk25C & 0x10) && ((fsa->analogInputPower < 0.1f) || (spCC > -0.8f) || ((spD0.unk38.y - 10.0f) < player->srt.transl.y))) {
+                    if ((fsa->unk4.unk25C & 0x10) && ((fsa->analogInputPower < 0.1f) || (dotProduct > -0.8f) || ((trackLineIntersect.unk38.y - 10.0f) < player->srt.transl.y))) {
                         var_v1 = FALSE;
                     }
                     break;
                 case 2:
-                    if ((fsa->unk4.unk25C & 0x10) && ((fsa->analogInputPower < 0.1f) || (spCC > -0.8f) || ((spD0.unk38.y - 10.0f) < player->srt.transl.y))) {
+                    if ((fsa->unk4.unk25C & 0x10) && ((fsa->analogInputPower < 0.1f) || (dotProduct > -0.8f) || ((trackLineIntersect.unk38.y - 10.0f) < player->srt.transl.y))) {
                         var_v1 = FALSE;
                     }
                     break;
                 case 0:
                 case 14:
-                    if (spCC > -0.8f) {
+                    if (dotProduct > -0.8f) {
                         var_v1 = FALSE;
                     }
                     break;
                 default:
-                    if (spCC > -0.8f) {
+                    if (dotProduct > -0.8f) {
                         var_v1 = FALSE;
                     }
                     break;
                 }
             }
+
             if (sp7E != 0 && var_v1 != 0) {
                 if (!sp95) {
                     sp14C.x = player->srt.transl.x;
                     sp14C.y = player->srt.transl.y;
-                    sp140.x = player->srt.transl.x - (spD0.unk1C.x * 50.0f);
+
+                    sp140.x = player->srt.transl.x - (trackLineIntersect.unk1C.x * 50.0f);
                     sp140.y = player->srt.transl.y;
-                    sp140.z = player->srt.transl.z - (spD0.unk1C.z * 50.0f);
+                    sp140.z = player->srt.transl.z - (trackLineIntersect.unk1C.z * 50.0f);
                 } else {
-                    sp14C.x = player->srt.transl.x + (spD0.unk1C.x * 50.0f);
+                    sp14C.x = player->srt.transl.x + (trackLineIntersect.unk1C.x * 50.0f);
                     sp14C.y = player->srt.transl.y;
-                    sp14C.z = player->srt.transl.z + (spD0.unk1C.z * 50.0f);
+                    sp14C.z = player->srt.transl.z + (trackLineIntersect.unk1C.z * 50.0f);
+
                     sp140.x = player->srt.transl.x;
                     sp140.y = player->srt.transl.y;
                     sp140.z = player->srt.transl.z;
                 }
-                var_v1 = trackGetLineIntersect(&sp14C, &sp140, 0.0f, 3, &spD0, player, fsa->unk4.unk259, spB8[i], 0xFF, 0xA);
+                var_v1 = trackGetLineIntersect(&sp14C, &sp140, 0.0f, 3, &trackLineIntersect, player, fsa->unk4.unk259, spB8[i], 0xFF, 0xA);
             }
+
             if (var_v1 != 0) {
-                spCC = spD0.unk44;
+                distanceToLine = trackLineIntersect.unk44;
                 if (sp95) {
-                    spCC = 50.0f - spD0.unk44;
+                    distanceToLine = 50.0f - trackLineIntersect.unk44;
                 }
+                
                 switch (i) {
                 case 0:
-                    sp88 = spD0.unk0;
-                    if (sp88 == NULL) {
+                    obj = trackLineIntersect.unk0;
+                    if (obj == NULL) {
                         break;
                     }
 
-                    if ((((DLL_Unknown*)sp88->dll)->vtbl->func[10].withOneArgS32((s32)sp88) != 0) && (fsa->analogInputPower >= 0.1f) && (spCC < 10.5f)) {
-                        switch (dll_210_func_7300(player, arg1, &spD0, &arg1->unk490, &sp140, spCC)) {
+                    if ((((DLL_Unknown*)obj->dll)->vtbl->func[10].withOneArgS32((s32)obj) != 0) && (fsa->analogInputPower >= 0.1f) && (distanceToLine < 10.5f)) {
+                        switch (dll_210_func_7300(player, objData, &trackLineIntersect, &objData->unk490, &sp140, distanceToLine)) {
                         case 2:
                             return 4;
                         case 3:
@@ -3221,39 +3229,39 @@ static s32 dll_210_func_7E6C(Object* player, Player_Data* arg1, ObjFSA_Data* fsa
                         do { break; } while (0);
                     }
 
-                    if (spCC < 15.0f) {
-                        arg1->flags |= 0x100;
-                        if ((fsa->unk310 & 0x8000) && (dll_210_func_77DC(player, &spD0, &arg1->unk680, &sp140) != 0)) {
+                    if (distanceToLine < 15.0f) {
+                        objData->flags |= 0x100;
+                        if ((fsa->unk310 & A_BUTTON) && (dll_210_func_77DC(player, &trackLineIntersect, &objData->unk680, &sp140) != 0)) {
                             return 8;
                         }
                     }
                     break;
                 case 14:
-                    if ((spCC < 18.0f) && (fsa->unk310 & 0x8000)) {
-                        dll_210_func_77DC(player, &spD0, &arg1->unk680, &sp140);
-                        return 0x12;
+                    if ((distanceToLine < 18.0f) && (fsa->unk310 & A_BUTTON)) {
+                        dll_210_func_77DC(player, &trackLineIntersect, &objData->unk680, &sp140);
+                        return 18;
                     }
                     break;
                 case 3:
                 case 4:
-                    if ((spCC < 14.0f) && (dll_210_func_78A8(player, arg1, &spD0, &arg1->unk3CC, i == 3))) {
+                    if ((distanceToLine < 14.0f) && (dll_210_func_78A8(player, objData, &trackLineIntersect, &objData->unk3CC, i == 3))) {
                         return 0;
                     }
                     break;
                 case 5:
                 case 6:
-                    if ((spCC < 14.0f) && (dll_210_func_7AAC(player, arg1, &spD0, &sp140, &arg1->unk430, i == 5))) {
-                        return 0xC;
+                    if ((distanceToLine < 14.0f) && (dll_210_func_7AAC(player, objData, &trackLineIntersect, &sp140, &objData->unk430, i == 5))) {
+                        return 12;
                     }
                     break;
                 case 1:
                 case 8:
                 case 9:
                 case 13:
-                    if (spCC < 15.0f) {
-                        switch (dll_210_func_75B0(player, &spD0, &arg1->unk490, &sp140, spCC, arg4)) {
+                    if (distanceToLine < 15.0f) {
+                        switch (dll_210_func_75B0(player, &trackLineIntersect, &objData->unk490, &sp140, distanceToLine, updateRate)) {
                         case 4:
-                            return 0xA;
+                            return 10;
                         case 5:
                             return 9;
                         }
@@ -3261,70 +3269,73 @@ static s32 dll_210_func_7E6C(Object* player, Player_Data* arg1, ObjFSA_Data* fsa
                     break;
                 case 2:
                 case 12:
-                    if (spCC < 20.0f) {
-                        switch (dll_210_func_7300(player, arg1, &spD0, &arg1->unk490, &sp140, spCC)) {
+                    if (distanceToLine < 20.0f) {
+                        switch (dll_210_func_7300(player, objData, &trackLineIntersect, &objData->unk490, &sp140, distanceToLine)) {
                         case 2:
                             return 4;
                         case 3:
                             return 5;
                         case 6:
-                            return 0x11;
+                            return 17; //Grab from jump
                         }
                     }
                     break;
                 case 10:
-                    if (spCC < 14.0f) {
-                        sp6C = 50.0f;
-                        sp88 = objGetNearestTypeTo(OBJTYPE_WallAnimator, player, &sp6C);
+                    if (distanceToLine < 14.0f) {
+                        objDistance = 50.0f;
+                        obj = objGetNearestTypeTo(OBJTYPE_WallAnimator, player, &objDistance);
                         var_s0_2 = TRUE;
-                        if ((sp88 != NULL) && (((DLL_Unknown*)sp88->dll)->vtbl->func[8].withOneArgS32((s32)sp88) == 0)) {
+                        if ((obj != NULL) && (((DLL_Unknown*)obj->dll)->vtbl->func[8].withOneArgS32((s32)obj) == 0)) {
                             var_s0_2 = FALSE;
                         }
                         if (var_s0_2) {
-                            dll_210_func_7B98(player, &spD0, &arg1->unk4D8);
-                            return 0xE;
+                            dll_210_func_7B98(player, &trackLineIntersect, &objData->unk4D8);
+                            return 14;
                         }
                         break;
                     }
                     break;
                 case 11:
-                    if (spCC < 14.0f) {
-                        return 0xF;
+                    if (distanceToLine < 14.0f) {
+                        return 15;
                     }
                     break;
                 }
             }
         }
     }
-    if (fsa->unk310 & 0x8000) {
-        if (arg5 & 0x800) {
-            objects = objGetAllOfType(OBJTYPE_Vehicle, &sp80);
-            for (i = 0; i < sp80; i++) {
-                sp88 = objects[i];
-                if (dll_vehicle(sp88)->CanMount(sp88, player) != 0) {
-                    arg1->vehicle = sp88;
-                    return 0xD;
+
+    if (fsa->unk310 & A_BUTTON) {
+        if (mask & 0x800) {
+            objects = objGetAllOfType(OBJTYPE_Vehicle, &objCount);
+            for (i = 0; i < objCount; i++) {
+                obj = objects[i];
+                if (dll_vehicle(obj)->CanMount(obj, player)) {
+                    objData->vehicle = obj;
+                    return 13;
                 }
             }
         }
-        if ((arg5 & 0x1000) && (mainGetBits(BIT_880) != 0)) {
-            objects = objGetAllOfType(OBJTYPE_RopeNode, &sp80);
-            arg1->unk6B0.unk34 = NULL;
-            arg1->unk6B0.unk3C = 200.0f;
-            for (i = 0; i < sp80; i++) {
-                sp88 = objects[i];
-                if (((DLL_Unknown*)sp88->dll)->vtbl->func[14].withOneArgS32((s32)sp88) != 0) {
-                    sp88 = objects[i];
-                    if ((((DLL_Unknown*)sp88->dll)->vtbl->func[11].withSevenArgsCustom(sp88, player->srt.transl.x, player->srt.transl.y, player->srt.transl.z, &sp74, &sp70, &sp7C) != 0) && (sp74 < arg1->unk6B0.unk3C)) {
-                        arg1->unk6B0.unk34 = objects[i];
-                        arg1->unk6B0.unk3C = sp74;
-                        arg1->unk6B0.unk40 = sp70;
+
+        if ((mask & 0x1000) && mainGetBits(BIT_880)) {
+            objects = objGetAllOfType(OBJTYPE_RopeNode, &objCount);
+            objData->unk6B0.unk34 = NULL;
+            objData->unk6B0.unk3C = 200.0f;
+            for (i = 0; i < objCount; i++) {
+                obj = objects[i];
+                if (((DLL_Unknown*)obj->dll)->vtbl->func[14].withOneArgS32((s32)obj) != 0) {
+                    obj = objects[i];
+                    if ((((DLL_Unknown*)obj->dll)->vtbl->func[11].withSevenArgsCustom(obj, player->srt.transl.x, player->srt.transl.y, player->srt.transl.z, &sp74, &sp70, &sp7C) != 0) && (sp74 < objData->unk6B0.unk3C)) {
+                        objData->unk6B0.unk34 = objects[i];
+                        objData->unk6B0.unk3C = sp74;
+                        objData->unk6B0.unk40 = sp70;
                     }
                 }
             }
-            if (arg1->unk6B0.unk34 != NULL) {
-                arg1->unk6B0.unk38 = arg1->unk6B0.unk34;
-                arg1->unk6B0.unk48 = arg1->unk6B0.unk40;
+
+            if (objData->unk6B0.unk34 != NULL) {
+                objData->unk6B0.unk38 = objData->unk6B0.unk34;
+                objData->unk6B0.unk48 = objData->unk6B0.unk40;
                 return 7;
             }
         }
@@ -4621,10 +4632,10 @@ s32 dll_210_func_C3D0(Object* player, ObjFSA_Data* fsa, f32 arg2);
 #pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/210_player/dll_210_func_C3D0.s")
 #else
 // Matches but we can't match statics in funcs yet
-s32 dll_210_func_C3D0(Object* player, ObjFSA_Data* fsa, f32 arg2) {
+s32 dll_210_func_C3D0(Object* player, ObjFSA_Data* fsa, f32 updateRate) {
     static f32 _bss_4;
     static f32 _bss_8;
-    Player_Data* spAC;
+    Player_Data* objData;
     f32 temp_ft2;
     f32 spA4;
     f32 spA0;
@@ -4634,29 +4645,32 @@ s32 dll_210_func_C3D0(Object* player, ObjFSA_Data* fsa, f32 arg2) {
     f32 var_fa0;
     f32 var_fv0;
     s32 temp_v1;
-    s32 temp_v0;
+    s32 nextState;
     s32 pad;
     Player_Data3B4 sp44;
 
-    spAC = player->data;
+    objData = player->data;
     if (fsa->enteredAnimState != 0) {
         fsa->unk270 = PLAYER_ASTATE_Falling;
     }
-    temp_v0 = dll_210_func_7E6C(player, spAC, fsa, &sp44, arg2, 0x14);
-    if (temp_v0 == 0x11) {
-        return 0x11;
+
+    nextState = dll_210_func_7E6C(player, objData, fsa, &sp44, updateRate, 0x14);
+    if (nextState == FSA_NEXTSTATE_SYNC(PLAYER_ASTATE_Ledge_Grab_From_Jump)) {
+        return FSA_NEXTSTATE_SYNC(PLAYER_ASTATE_Ledge_Grab_From_Jump);
     }
-    if (temp_v0 == 0xC) {
-        var_fv0 = spAC->unk430.unk8 + 30.0f;
-        var_fa0 = spAC->unk430.unk4 - 5.0f;
+
+    if (nextState == FSA_NEXTSTATE_SYNC(PLAYER_ASTATE_Falling)) {
+        var_fv0 = objData->unk430.unk8 + 30.0f;
+        var_fa0 = objData->unk430.unk4 - 5.0f;
         temp_fv1 = player->srt.transl.f[1] + 26.0f;
         if (var_fv0 <= temp_fv1 && temp_fv1 <= var_fa0) {
-            return 0x1B;
+            return FSA_NEXTSTATE_SYNC(PLAYER_ASTATE_Wall_Clambering_Start);
         }
     }
-    spAC->unk8B8 = 1;
+
+    objData->unk8B8 = 1;
     fsa->flags |= 0x200000;
-    dll_210_func_D510(fsa, arg2);
+    dll_210_func_D510(fsa, updateRate);
     switch (player->curModAnimId) {
         case 0x417:
             fsa->animTickDelta = 0.1f;
@@ -4670,7 +4684,7 @@ s32 dll_210_func_C3D0(Object* player, ObjFSA_Data* fsa, f32 arg2) {
                 _bss_4 = 0.0f;
                 player->velocity.f[1] = 0.1f * _bss_8;
                 _bss_8 = _bss_8 + _bss_8;
-                dll_amSfx->Play(player, spAC->unk3B8[0x8], MAX_VOLUME, NULL, NULL, 0, NULL);
+                dll_amSfx->Play(player, objData->unk3B8[0x8], MAX_VOLUME, NULL, NULL, 0, NULL);
                 if (*_bss_14 != 0) {
                     player->velocity.f[1] *= *_data_8;
                     fsa->unk278 *= *_data_8;
@@ -4678,16 +4692,16 @@ s32 dll_210_func_C3D0(Object* player, ObjFSA_Data* fsa, f32 arg2) {
             }
             break;
         case 0x12:
-            player->velocity.f[1] += -0.1f * arg2;
-            _bss_4 += arg2;
+            player->velocity.f[1] += -0.1f * updateRate;
+            _bss_4 += updateRate;
             objAnimSetProgress(player, _bss_4 / _bss_8);
             if ((_bss_4 > 10.0f) && (fsa->unk4.unk25C & 0x10)) {
                 objAnimSet(player, 0x11, 0.0f, 0U);
                 fsa->unk278 = 0.0f;
                 fsa->unk27C = 0.0f;
                 fsa->animTickDelta = 0.045f;
-                dll_amSfx->Play(player, spAC->unk898[objAnim_func_80025CD4(fsa->unk4.unk68.unk50[0])], MAX_VOLUME, NULL, NULL, 0, NULL);
-                dll_amSfx->Play(player, spAC->unk3B8[0x16], MAX_VOLUME, NULL, NULL, 0, NULL);
+                dll_amSfx->Play(player, objData->unk898[objAnim_func_80025CD4(fsa->unk4.unk68.unk50[0])], MAX_VOLUME, NULL, NULL, 0, NULL);
+                dll_amSfx->Play(player, objData->unk3B8[0x16], MAX_VOLUME, NULL, NULL, 0, NULL);
             } else {
                 if ((_bss_8 + 2.0f) < _bss_4) {
                     return 0xE;
@@ -4715,9 +4729,9 @@ s32 dll_210_func_C3D0(Object* player, ObjFSA_Data* fsa, f32 arg2) {
             if (fsa->unk32A > 0) {
                 temp_fv0 = -temp_fv0;
             }
-            fsa->unk27C += (temp_fv0 - fsa->unk27C) * 0.05f * arg2;
+            fsa->unk27C += (temp_fv0 - fsa->unk27C) * 0.05f * updateRate;
             fsa->unk27C *= 0.98f;
-            fsa->unk27C += (temp_fv0 - fsa->unk27C) * 0.015f * arg2;
+            fsa->unk27C += (temp_fv0 - fsa->unk27C) * 0.015f * updateRate;
             if (fsa->unk27C > 0.3f) {
                 fsa->unk27C = 0.3f;
             } else if (fsa->unk27C < -0.3f) {
@@ -4727,7 +4741,7 @@ s32 dll_210_func_C3D0(Object* player, ObjFSA_Data* fsa, f32 arg2) {
             break;
         case 0x11:
             gDLL_18_objfsa->vtbl->func7(player, fsa, 1.0f, 1);
-            player->velocity.f[1] += -0.1f * arg2;
+            player->velocity.f[1] += -0.1f * updateRate;
             if (player->animProgress > 0.99f) {
                 player->velocity.f[1] = 0.0f;
                 return 2;
