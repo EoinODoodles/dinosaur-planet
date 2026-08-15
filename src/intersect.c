@@ -1866,13 +1866,13 @@ void trackToggleHitLine(s32 animatorID, Object* parentObject, s32 enableLines) {
     if (enableLines){
         for (index = 0; index < lineCount; hitsLines++, index++){
             if (hitsLines->animatorID == animatorID){
-                hitsLines->settingsB &= ~TrackLine_SETTINGB_40;
+                hitsLines->settingsB &= ~TrackLine_SETTINGB_Deactivated;
             }
         }
     } else {
         for (index = 0; index < lineCount; hitsLines++, index++){
             if (hitsLines->animatorID == animatorID){
-                hitsLines->settingsB |= TrackLine_SETTINGB_40;
+                hitsLines->settingsB |= TrackLine_SETTINGB_Deactivated;
             }
         }    
     }
@@ -2402,12 +2402,12 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
                 continue;
             }
 
-            if (modLine->settingsB & TrackLine_SETTINGB_40) {
+            if (modLine->settingsB & TrackLine_SETTINGB_Deactivated) {
                 continue;
             }
             a1 = modLine->indexA;
             a2 = modLine->indexB;
-            var_r25 = !(modLine->settingsB & TrackLine_SETTINGB_80);
+            var_r25 = !(modLine->settingsB & TrackLine_SETTINGB_Nonsolid);
             if (spDE) {
                 var_r25 = 1;
             }

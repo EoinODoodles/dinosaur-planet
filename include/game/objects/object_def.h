@@ -163,8 +163,8 @@ typedef enum {
 } TrackLineSettingsA;
 
 typedef enum {
-    TrackLine_SETTINGB_40 = 0x40, //Deactivated (can be toggled via HitAnimator)
-    TrackLine_SETTINGB_80 = 0x80
+    TrackLine_SETTINGB_Deactivated = 0x40, //Line currently has no effect (can be toggled via HitAnimator)
+    TrackLine_SETTINGB_Nonsolid = 0x80     //Player can pass through
 } TrackLineSettingsB;
 
 typedef struct {
