@@ -1575,7 +1575,7 @@ static s32 anim_process_event(Object* animObj, ModelInstance* animObjModelInst, 
             } else {
                 var_v0 = 0;
             }
-            objAnimSet(actor, st->modAnimIdx, st->modAnimStartFrame * 0.00390625f, var_v0);
+            objAnimSet(actor, st->modAnimIdx, st->modAnimStartFrame / 256.0f, var_v0);
             st->unk20 = 1.0f;
         }
         break;
@@ -3629,6 +3629,8 @@ s32 anim_start_obj_sequence(s32 seqno, Object* object, s32 enabledActors) {
     _bss_4C0[object->seqSlot] = 0;
     sSlotObjID[object->seqSlot] = object->id;
     for (i = 0; i < numActors; i++) {
+
+        
         if ((1 << i) & enabledActors) {
             actorSetup = objAllocSetup(sizeof(AnimObj_Setup), OBJ_Override);
             actorObjID = actors[i].objID;
