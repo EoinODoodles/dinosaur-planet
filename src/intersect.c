@@ -2110,7 +2110,7 @@ void trackIntersectModLineBuild(ObjDef* objdef) {
             }
         }
         bcopy(&gLineList[var_t0], objdef->pIntersectPoints + (var_s3), sizeof(ModLineReencoded));
-        gLineList[var_t0].settingsB = 0x13;
+        gLineList[var_t0].settingsB = 19;
     }
     if (var_s2_3 != -1) {
         objdef->nextIntersectPoint[var_s2_3 * 2 + 1] = (s8) gLineListCount;
@@ -2279,7 +2279,7 @@ s32 func_8005A2BC(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s16* arg4) {
     return gPointListCount - 1;
 }
 
-s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineIntersectResult* arg4, Object* arg5, s8 arg6, s8 arg7, s8 arg8, Object* arg9) {
+s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineIntersectResult* arg4, Object* arg5, s8 filterSettingsA, s8 arg7, s8 arg8, Object* arg9) {
     f32 sp1C0[2];
     f32 sp1B8[2];
     ModLineReencoded* modLine;
@@ -2398,7 +2398,7 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
                 modLine = &spE8[sp124];
             }
 
-            if (!(~modLine->settingsA & arg6)) {
+            if (!(~modLine->settingsA & filterSettingsA)) {
                 continue;
             }
 

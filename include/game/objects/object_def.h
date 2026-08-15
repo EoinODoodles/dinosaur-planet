@@ -159,12 +159,12 @@ union {
 
 //TO-DO: maybe move TrackLine (HitsLine/ModLine) realted structs/enums to a different header (intersect.h/map.h?)
 typedef enum {
-    TrackLine_SETTINGA_Unified_Height = 0x80
+    TrackLine_SETTINGA_Unified_Height = 0x80 //The line's height is read as a single s16 value, instead of separate s8 heights above pointA/pointB
 } TrackLineSettingsA;
 
 typedef enum {
-    TrackLine_SETTINGB_Deactivated = 0x40, //Line currently has no effect (can be toggled via HitAnimator)
-    TrackLine_SETTINGB_Nonsolid = 0x80     //Player can pass through
+    TrackLine_SETTINGB_Deactivated = 0x40,   //Line currently has no effect (can be toggled via HitAnimator)
+    TrackLine_SETTINGB_Nonsolid = 0x80       //Player can pass through
 } TrackLineSettingsB;
 
 typedef struct {
