@@ -2324,10 +2324,10 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
     ModLineReencoded* spE8;
     s32 i;
     Vec3f* spE0;
-    s8 var_r25;
+    s8 isSolid;
     s8 var_s0;
     s8 spDF;
-    s8 spDE;
+    s8 forceAsSolid;
     s16 spD0[5];
     f32 spBC[5];
     f32 spA8[5];
@@ -2359,7 +2359,7 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
         spE0 = gPointList;
     }
     spDF = !(arg3 & 1);
-    spDE = arg3 & 2;
+    forceAsSolid = arg3 & 2;
     sp1C0[0] = arg0->f[0];
     sp1B8[0] = arg0->f[2];
     sp1C0[1] = arg1->f[0];
@@ -2407,10 +2407,12 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
             }
             a1 = modLine->indexA;
             a2 = modLine->indexB;
-            var_r25 = !(modLine->settingsB & TrackLine_SETTINGB_Nonsolid);
-            if (spDE) {
-                var_r25 = 1;
+
+            isSolid = !(modLine->settingsB & TrackLine_SETTINGB_Nonsolid);
+            if (forceAsSolid) {
+                isSolid = TRUE;
             }
+
             sp1A8[0] = spE0[a1].f[0];
             sp1A0[0] = spE0[a1].f[1];
             sp198[0] = spE0[a1].f[2];
@@ -2485,22 +2487,22 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
             sp190 = 1.0f;
             if ((spF8[0] & 0xC) == 0xC) {
                 if (spF8[0] & 1) {
-                    var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[0], sp198[0], arg2, var_r25);
+                    var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[0], sp198[0], arg2, isSolid);
                     sp190 = 0.0f;
                 } else if (spF8[0] & 2) {
-                    var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[1], sp198[1], arg2, var_r25);
+                    var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[1], sp198[1], arg2, isSolid);
                     sp190 = 1.0f;
-                } else if (var_r25 != 0) {
+                } else if (isSolid) {
                     sp1C0[1] += D_800BB530;
                     sp1B8[1] += D_800BB534;
                 }
             } else {
                 if (var_v1_2 & 0xC) {
                     if (var_v1_4 & 1) {
-                        var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[0], sp198[0], arg2, var_r25);
+                        var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[0], sp198[0], arg2, isSolid);
                         sp190 = 0.0f;
                     } else if (var_v1_4 & 2) {
-                        var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[1], sp198[1], arg2, var_r25);
+                        var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[1], sp198[1], arg2, isSolid);
                         sp190 = 1.0f;
                     } else if (spF8[0] & 4) {
                         temp_fs0 = (sp1C0[1] - sp1C0[0]);
@@ -2518,19 +2520,19 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
                         var_s0 = TRUE;
                         var_fv0 = (temp_fs0_2 * sp178[0]) + (temp_fs1_2 * sp168[0]) + sp158[0];
                         if (var_fv0 < 0.0f) {
-                            var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[0], sp198[0], arg2, var_r25);
+                            var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[0], sp198[0], arg2, isSolid);
                             var_s0 = FALSE;
                             sp190 = 0.0f;
                         }
                         var_fv0 = (temp_fs0_2 * sp178[1]) + (temp_fs1_2 * sp168[1]) + sp158[1];
                         if (var_fv0 < 0.0f) {
-                            var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[1], sp198[1], arg2, var_r25);
+                            var_s3 = func_8005B274(sp1C0, sp1B8, sp1A8[1], sp198[1], arg2, isSolid);
                             var_s0 = FALSE;
                             sp190 = 1.0f;
                         }
                         if (var_s0 != FALSE) {
                             var_s3 = 1;
-                            if (var_r25 != 0) {
+                            if (isSolid) {
                                 if (spDF) {
                                     temp_fa1 = (sp1C0[1] * sp178[3]) + (sp1B8[1] * sp168[3]) + sp158[3];
                                     sp1C0[1] -= temp_fa1 * sp178[3];
@@ -2567,7 +2569,7 @@ s32 func_8005A3F8(Vec3f* arg0, Vec3f* arg1, f32 arg2, s32 arg3, TrackLineInterse
             sp110++;
             if (sp110 > 4) {
                 var_s3 = 0;
-                if (var_r25 != 0) {
+                if (isSolid) {
                     sp1C0[1] = sp1C0[0];
                     sp1B8[1] = sp1B8[0];
                 }
