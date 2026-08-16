@@ -122,8 +122,13 @@ union { //height can be treated as a single s16 value, using the uppermost bit o
     };
     /*0c*/    s16 heightUnified;
 };
+#ifndef AVOID_UB
 /*0e*/    s8 settingsA;
 /*0f*/    s8 settingsB;
+#else
+/*0e*/    u8 settingsA;
+/*0f*/    u8 settingsB;
+#endif
 /*10*/    s16 animatorID;
 /*12*/    s16 pad;
 } ModLine;
@@ -142,8 +147,13 @@ union { //height can be treated as a single s16 value, using the uppermost bit o
     };
     /*00*/    s16 heightUnified;
 };
+#ifndef AVOID_UB
 /*02*/    s8 settingsA;
 /*03*/    s8 settingsB;
+#else
+/*02*/    u8 settingsA;
+/*03*/    u8 settingsB;
+#endif
 union {
     struct {
     /*04*/    s16 indexA; 
