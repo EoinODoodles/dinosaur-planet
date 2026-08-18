@@ -468,7 +468,7 @@
 772 = objects/772_SPitembeam
 774 = objects/774_WCKingEarthWalker
 775 = objects/775_WCTrex
-776 = objects/776_WCbouncycrate
+776 = objects/776_WCBouncyCrate
 777 = objects/777_WCTrexChase
 778 = objects/778_WCSabreChase
 779 = objects/779_WCLevelControl

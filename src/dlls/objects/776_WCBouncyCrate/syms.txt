@@ -1,0 +1,13 @@
+.text = 0x0:
+WCBouncyCrate_ctor = 0x0;
+WCBouncyCrate_dtor = 0xC;
+WCBouncyCrate_obj_Setup = 0x18;
+WCBouncyCrate_obj_Control = 0x38;
+WCBouncyCrate_obj_Update = 0x190;
+WCBouncyCrate_obj_Print = 0x19C;
+WCBouncyCrate_obj_Free = 0x1F0;
+WCBouncyCrate_obj_GetModelFlags = 0x200;
+WCBouncyCrate_obj_GetDataSize = 0x210;
+WCBouncyCrate_getInitialVelocityY = 0x224;
+
+.rodata = 0x324:
