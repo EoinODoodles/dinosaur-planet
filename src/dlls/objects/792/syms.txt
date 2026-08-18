@@ -1,0 +1,15 @@
+.text = 0x0:
+DLL792_ctor = 0x0;
+DLL792_dtor = 0xC;
+DLL792_obj_Setup = 0x18;
+DLL792_obj_Control = 0x170;
+DLL792_obj_Update = 0x298;
+DLL792_obj_Print = 0x2A4;
+DLL792_obj_Free = 0x2BC;
+DLL792_obj_GetModelFlags = 0x340;
+DLL792_obj_GetDataSize = 0x350;
+
+.rodata = 0x3B0:
+
+.data = 0x3B0:
+dModGfxDLL = 0x0; // absolute:0x3B0
