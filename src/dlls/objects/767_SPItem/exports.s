@@ -8,10 +8,10 @@ _exports:
 .dword SPItem_dtor
 
 # export table
-/*0*/ .dword SPItem_setup
-/*1*/ .dword SPItem_control
+/*0*/ .dword SPItem_obj_Setup
+/*1*/ .dword SPItem_obj_Control
 /*2*/ .dword SPItem_update
-/*3*/ .dword SPItem_print
-/*4*/ .dword SPItem_free
-/*5*/ .dword SPItem_get_model_flags
-/*6*/ .dword SPItem_get_data_size
+/*3*/ .dword SPItem_obj_Print
+/*4*/ .dword SPItem_obj_Free
+/*5*/ .dword SPItem_obj_GetModelFlags
+/*6*/ .dword SPItem_obj_GetDataSize

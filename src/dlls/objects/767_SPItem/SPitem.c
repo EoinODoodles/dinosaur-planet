@@ -1,9 +1,9 @@
 #include "common.h"
-#include "game/objects/interaction_arrow.h"
-#include "sys/gfx/model.h"
-
+#include "dlls/objects/210_player.h"
 #include "dlls/objects/768_SPshop.h"
+#include "game/objects/interaction_arrow.h"
 #include "sys/gfx/animseq.h"
+#include "sys/gfx/model.h"
 #include "sys/objanim.h"
 #include "sys/objtype.h"
 
@@ -20,19 +20,19 @@ typedef struct {
     u8 pitch;
 } SPItem_Setup;
 
-static int SPItem_anim_callback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 arg3);
-static void SPItem_bought_callback(Object* self, Object *override, AnimObj_Data* animObjData);
+static int SPItem_animCallback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 arg3);
+static void SPItem_boughtCallback(Object* self, Object* override, AnimObj_Data* animObjData);
 
 // offset: 0x0 | ctor
-void SPItem_ctor(void *dll) { }
+void SPItem_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void SPItem_dtor(void *dll) { }
+void SPItem_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void SPItem_setup(Object* self, SPItem_Setup* objSetup, s32 arg2) {
+void SPItem_obj_Setup(Object* self, SPItem_Setup* objSetup, s32 reset) {
     self->stateFlags |= OBJSTATE_UPDATE_DISABLED;
-    self->animCallback = SPItem_anim_callback;
+    self->animCallback = SPItem_animCallback;
 
     self->modelInstIdx = objSetup->modelIndex;
     self->srt.yaw = objSetup->yaw << 8;
@@ -44,7 +44,7 @@ void SPItem_setup(Object* self, SPItem_Setup* objSetup, s32 arg2) {
 }
 
 // offset: 0x84 | func: 1 | export: 1
-void SPItem_control(Object* self) {
+void SPItem_obj_Control(Object* self) {
     s32 scarabCount;
     s32 initialPrice;
     SPItem_Setup* objSetup;
@@ -65,7 +65,7 @@ void SPItem_control(Object* self) {
             if (((DLL_768_SPShop*)objData->shop->dll)->vtbl->is_item_shown(objData->shop, objSetup->itemIndex) == FALSE || 
                 (((DLL_768_SPShop*)objData->shop->dll)->vtbl->is_item_hidden(objData->shop, objSetup->itemIndex))) {
                 self->srt.flags |= OBJFLAG_INVISIBLE;
-                self->stateFlags |= OBJSTATE_CONTROL_DISABLED;    //don't animate
+                self->stateFlags |= OBJSTATE_CONTROL_DISABLED;
                 self->unkAF |= ARROW_FLAG_8_No_Targetting;
             }
             //Get gametext line index
@@ -73,7 +73,7 @@ void SPItem_control(Object* self) {
         }
     //Check if A pressed while target overhead
     } else if (self->unkAF & ARROW_FLAG_1_Interacted) {
-        scarabCount = ((DLL_Unknown*)player->dll)->vtbl->func[20].withOneArgS32((s32)player);
+        scarabCount = ((DLL_210_Player*)player->dll)->vtbl->get_scarabs(player);
         initialPrice = ((DLL_768_SPShop*)objData->shop->dll)->vtbl->get_initial_price(objData->shop, objSetup->itemIndex);
         ((DLL_768_SPShop*)objData->shop->dll)->vtbl->set_current_item_index(objData->shop, objSetup->itemIndex);
         
@@ -97,10 +97,10 @@ void SPItem_control(Object* self) {
 }
 
 // offset: 0x350 | func: 2 | export: 2
-void SPItem_update(Object *self) { }
+void SPItem_update(Object* self) { }
 
 // offset: 0x35C | func: 3 | export: 3
-void SPItem_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+void SPItem_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     SRT trans;
 
     if (!visibility) {
@@ -125,40 +125,40 @@ void SPItem_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle**
 
 
 // offset: 0x440 | func: 4 | export: 4
-void SPItem_free(Object *self, s32 a1) { }
+void SPItem_obj_Free(Object* self, s32 onlySelf) { }
 
 // offset: 0x450 | func: 5 | export: 5
-s32 SPItem_get_model_flags(Object* self) {
+s32 SPItem_obj_GetModelFlags(Object* self) {
     SPItem_Setup* objSetup = (SPItem_Setup*)self->setup;
-    return (objSetup->modelIndex << 11) | MODFLAGS_LOAD_SINGLE_MODEL;
+    return MODFLAGS_MODEL_INDEX(objSetup->modelIndex) | MODFLAGS_LOAD_SINGLE_MODEL;
 }
 
 // offset: 0x468 | func: 6 | export: 6
-u32 SPItem_get_data_size(Object *self, u32 a1) {
+u32 SPItem_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(SPItem_Data);
 }
 
 // offset: 0x47C | func: 7
-static int SPItem_anim_callback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 arg3) {
+static int SPItem_animCallback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 prevCallbackValue) {
     //Set end-of-sequence callback
-    animObjData->unkF4 = &SPItem_bought_callback; 
+    animObjData->unkF4 = SPItem_boughtCallback; 
     return 0;
 }
 
 // offset: 0x4AC | func: 8
-void SPItem_bought_callback(Object* self, Object *override, AnimObj_Data* animObjData) {
-    SPItem_Data *objData;
-    SPItem_Setup *objSetup;
-    Object *shop;
+void SPItem_boughtCallback(Object* self, Object* override, AnimObj_Data* animObjData) {
+    SPItem_Data* objData;
+    SPItem_Setup* objSetup;
+    Object* shop;
         
     objData = self->data;
     objSetup = (SPItem_Setup*)self->setup;
     shop = objData->shop;
 
     //Check if object should be hidden
-    if (((DLL_768_SPShop*) shop->dll)->vtbl->is_item_hidden(shop, objSetup->itemIndex)){
+    if (((DLL_768_SPShop*)shop->dll)->vtbl->is_item_hidden(shop, objSetup->itemIndex)){
         self->srt.flags |= OBJFLAG_INVISIBLE;
-        self->stateFlags |= OBJSTATE_CONTROL_DISABLED;    //don't update animation
+        self->stateFlags |= OBJSTATE_CONTROL_DISABLED;
         self->unkAF |= ARROW_FLAG_8_No_Targetting;
     }
     
