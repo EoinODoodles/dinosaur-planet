@@ -7,16 +7,16 @@ typedef struct {
     ObjSetup base;
     s16 unused18;
     s16 itemIndex; //The kind of shop item being highlighted (see `ShopItemIndices`)
-} SPitembeam_Setup;
+} SPItemBeam_Setup;
 
 // offset: 0x0 | ctor
-void SPitembeam_ctor(void *dll) { }
+void SPItemBeam_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void SPitembeam_dtor(void *dll) { }
+void SPItemBeam_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void SPitembeam_setup(Object* self, SPitembeam_Setup* setup, s32 arg2) {
+void SPItemBeam_obj_Setup(Object* self, SPItemBeam_Setup* setup, s32 reset) {
     f32 distance;
 
     distance = 10000.0f;
@@ -27,13 +27,13 @@ void SPitembeam_setup(Object* self, SPitembeam_Setup* setup, s32 arg2) {
 }
 
 // offset: 0x88 | func: 1 | export: 1
-void SPitembeam_control(Object* self) {
+void SPItemBeam_obj_Control(Object* self) {
     s32 pad[2];
     Object* shop;
-    SPitembeam_Setup* objSetup;
+    SPItemBeam_Setup* objSetup;
     TextureAnimator* texAnim;
 
-    objSetup = (SPitembeam_Setup*)self->setup;
+    objSetup = (SPItemBeam_Setup*)self->setup;
     shop = (Object*)self->unkDC;
 
     //@bug: no NULL check for the SPShop object
@@ -57,20 +57,20 @@ void SPitembeam_control(Object* self) {
 }
 
 // offset: 0x170 | func: 2 | export: 2
-void SPitembeam_update(Object *self) { }
+void SPItemBeam_obj_Update(Object* self) { }
 
 // offset: 0x17C | func: 3 | export: 3
-void SPitembeam_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) { }
+void SPItemBeam_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) { }
 
 // offset: 0x194 | func: 4 | export: 4
-void SPitembeam_free(Object *self, s32 a1) { }
+void SPItemBeam_obj_Free(Object* self, s32 onlySelf) { }
 
 // offset: 0x1A4 | func: 5 | export: 5
-u32 SPitembeam_get_model_flags(Object *self) {
+u32 SPItemBeam_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x1B4 | func: 6 | export: 6
-s32 SPitembeam_get_data_size(s32 arg0, s32 arg1) {
+s32 SPItemBeam_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return 0;
 }

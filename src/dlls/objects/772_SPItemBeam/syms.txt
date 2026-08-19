@@ -1,0 +1,12 @@
+.text = 0x0:
+SPItemBeam_ctor = 0x0;
+SPItemBeam_dtor = 0xC;
+SPItemBeam_obj_Setup = 0x18;
+SPItemBeam_obj_Control = 0x88;
+SPItemBeam_obj_Update = 0x170;
+SPItemBeam_obj_Print = 0x17C;
+SPItemBeam_obj_Free = 0x194;
+SPItemBeam_obj_GetModelFlags = 0x1A4;
+SPItemBeam_obj_GetDataSize = 0x1B4;
+
+.rodata = 0x1FC:
