@@ -26,6 +26,6 @@ _exports:
 /*15*/ .dword SPShop_SetCurrentItemIndex
 /*16*/ .dword SPShop_GetCurrentItemIndex
 /*17*/ .dword SPShop_BuyItem
-/*18*/ .dword SPShop_Func_884
-/*19*/ .dword SPShop_Func_89C
-/*20*/ .dword SPShop_Func_8C0
+/*18*/ .dword SPShop_InitMinigameStats
+/*19*/ .dword SPShop_UpdateMinigameStats
+/*20*/ .dword SPShop_GetMinigameStats

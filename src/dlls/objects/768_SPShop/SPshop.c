@@ -31,11 +31,11 @@ typedef struct {
 } ShopItem;
 
 typedef struct {
-    s8 unk0;
+    s8 seqValue;
     u8 itemIndex;
-    s8 unk2;
-    s8 unk3;
-    s8 unk4;
+    s8 unk2; //Scarab minigame-related: Scarabs collected?
+    s8 unk3; //Scarab minigame-related: Scarabs deducted?
+    s8 unk4; //Scarab minigame-related: Scarabs wagered?
 } SPShop_Data;
 
 static void SPShop_randomisePrices(void);
@@ -186,14 +186,14 @@ u32 SPShop_obj_GetDataSize(Object* self, u32 offsetAddr) {
 // offset: 0x398 | func: 7 | export: 7
 u8 SPShop_GetUnk0(Object* self) {
     SPShop_Data* objData = self->data;
-    return objData->unk0;
+    return objData->seqValue;
 }
 
 // offset: 0x3A8 | func: 8 | export: 8
 void SPShop_PlaySequence(Object* self, s32 playSequence, s32 sequenceIndex) {
     SPShop_Data* objData = self->data;
     
-    objData->unk0 = playSequence;
+    objData->seqValue = playSequence;
     if (playSequence) {
         gDLL_3_Animation->vtbl->start_obj_sequence(sequenceIndex, self, -1);
     }
@@ -346,7 +346,7 @@ void SPShop_BuyItem(Object* self, s32 cost) {
 }
 
 // offset: 0x884 | func: 18 | export: 18
-void SPShop_Func_884(Object* self, s32 unk4) {
+void SPShop_InitMinigameStats(Object* self, s32 unk4) {
     SPShop_Data* objData = self->data;
 
     objData->unk2 = 0;
@@ -355,7 +355,7 @@ void SPShop_Func_884(Object* self, s32 unk4) {
 }
 
 // offset: 0x89C | func: 19 | export: 19
-void SPShop_Func_89C(Object* self, s32 dUnk3, s32 dUnk2) {
+void SPShop_UpdateMinigameStats(Object* self, s32 dUnk3, s32 dUnk2) {
     SPShop_Data* objData = self->data;
 
     objData->unk2 += dUnk2;
@@ -363,7 +363,7 @@ void SPShop_Func_89C(Object* self, s32 dUnk3, s32 dUnk2) {
 }
 
 // offset: 0x8C0 | func: 20 | export: 20
-void SPShop_Func_8C0(Object* self, s32* getUnk3, s32* getUnk2, s32* getUnk4) {
+void SPShop_GetMinigameStats(Object* self, s32* getUnk3, s32* getUnk2, s32* getUnk4) {
     SPShop_Data* objData = self->data;
 
     *getUnk2 = objData->unk2;

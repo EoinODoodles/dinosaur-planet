@@ -39,8 +39,8 @@ void SPitembeam_control(Object* self) {
     //@bug: no NULL check for the SPShop object
 
     //Check if the beam's item isn't visible (and shouldn't be spotlighted)
-    if ((((DLL_768_SPShop*)shop->dll)->vtbl->is_item_shown(shop, objSetup->itemIndex) == FALSE) ||
-        (((DLL_768_SPShop*)shop->dll)->vtbl->is_item_hidden(shop, objSetup->itemIndex))
+    if ((dll_shop(shop)->IsItemShown(shop, objSetup->itemIndex) == FALSE) ||
+        dll_shop(shop)->IsItemHidden(shop, objSetup->itemIndex)
     ) {
         self->srt.flags |= OBJFLAG_INVISIBLE;
         self->stateFlags |= OBJSTATE_CONTROL_DISABLED;

@@ -2,11 +2,12 @@
 #include "PR/ultratypes.h"
 #include "game/objects/object.h"
 #include "sys/fonts.h"
-#include "sys/vi.h"
+#include "sys/gfx/textable.h"
 #include "sys/gfx/texture.h"
 #include "sys/menu.h"
 #include "sys/objects.h"
 #include "sys/objtype.h"
+#include "sys/vi.h"
 #include "dlls/objects/768_SPshop.h"
 #include "sys/rcp.h"
 
@@ -14,7 +15,7 @@
 
 // offset: 0x0 | ctor
 void dll_77_ctor(void *dll) {
-    scarabTexture = texLoadTexture(1146);
+    scarabTexture = texLoadTexture(TEXTABLE_47A);
 }
 
 // offset: 0x44 | dtor
@@ -31,31 +32,30 @@ s32 dll_77_update1(void) {
 void dll_77_update2(void) { }
 
 // offset: 0x98 | func: 2 | export: 2
-/** Possibly unused? The UI doesn't call this for the scarab counter, and the Scarab objects don't seem to either */
 void dll_77_draw(Gfx **gdl, Mtx **mtxs, Vertex **vtxs) {
     char scarabCountString[3];
     f32 distance;
-    Object* object;
+    Object* shop;
     s32 sp40;
     s32 scarabCount;
-    s32 sp38;
+    s32 total;
 
     scarabCount = 0;
     sp40 = 0;
-    sp38 = 0;
+    total = 0;
     distance = 10000.0f;
     if (D_800A7D94 != 0) {
         menu_func_8000FB2C(gdl);
     }
     
-    object = objGetNearestTypeTo(OBJTYPE_LevelControl, objGetPlayer(), &distance);
-    if (object) {
-        ((DLL_768_SPShop*)object->dll)->vtbl->func20(object, &sp40, &scarabCount, &sp38);
+    shop = objGetNearestTypeTo(OBJTYPE_LevelControl, objGetPlayer(), &distance);
+    if (shop) {
+        dll_shop(shop)->GetMinigameStats(shop, &sp40, &scarabCount, &total);
     }
     
-    rcpScreenFullWrite(gdl, scarabTexture, 0xFC, 0xC6, 0, 0, 0xFF, SCREEN_WRITE_TRANSLUCENT);
+    rcpScreenFullWrite(gdl, scarabTexture, 252, 198, 0, 0, 0xFF, SCREEN_WRITE_TRANSLUCENT);
     
-    scarabCount = (sp38 - scarabCount) + sp40;
+    scarabCount = (total - scarabCount) + sp40;
     if (scarabCount < 0) {
         scarabCount = 0;
     }

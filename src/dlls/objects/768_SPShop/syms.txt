@@ -19,9 +19,9 @@ SPShop_GetItemGametextIndex = 0x670;
 SPShop_SetCurrentItemIndex = 0x6B4;
 SPShop_GetCurrentItemIndex = 0x6C4;
 SPShop_BuyItem = 0x6D4;
-SPShop_Func_884 = 0x884;
-SPShop_Func_89C = 0x89C;
-SPShop_Func_8C0 = 0x8C0;
+SPShop_InitMinigameStats = 0x884;
+SPShop_UpdateMinigameStats = 0x89C;
+SPShop_GetMinigameStats = 0x8C0;
 SPShop_randomisePrices = 0x8E4;
 
 .rodata = 0x9E8:

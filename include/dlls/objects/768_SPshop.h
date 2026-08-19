@@ -79,20 +79,22 @@ typedef enum {
 
 DLL_INTERFACE(DLL_768_SPShop) {
     /*:*/ DLL_INTERFACE_BASE(DLL_IObject);
-    /*7*/ u8 (*return_unk0)(Object* self);
-    /*8*/ void (*play_sequence)(Object* self, s32 playSequence, s32 sequenceIndex);
-    /*9*/ int (*is_item_shown)(Object* self, s32 itemIndex);
-    /*10*/ int (*is_item_hidden)(Object* self, s32 itemIndex);
-    /*11*/ u8 (*get_minimum_price)(Object* self, s32 itemIndex);
-    /*12*/ u8 (*get_special_price)(Object* self, s32 itemIndex);
-    /*13*/ u8 (*get_initial_price)(Object* self, s32 itemIndex);
-    /*14*/ s16 (*get_item_gametext_index)(Object* self, s32 itemIndex);
-    /*15*/ void (*set_current_item_index)(Object* self, s32 itemIndex);
-    /*16*/ u8 (*get_current_item_index)(Object* self);
-    /*17*/ void (*buy_item)(Object* self, s32 cost);
-    /*18*/ void (*func18)(Object* self, s32 unk4);
-    /*19*/ void (*func19)(Object* self, s32 dUnk3, s32 dUnk2);
-    /*20*/ void (*func20)(Object* self, s32* getUnk3, s32* getUnk2, s32* getUnk4);
+    /*7*/ u8 (*GetUnk0)(Object* self);
+    /*8*/ void (*PlaySequence)(Object* self, s32 playSequence, s32 sequenceIndex);
+    /*9*/ int (*IsItemShown)(Object* self, s32 itemIndex);
+    /*10*/ int (*IsItemHidden)(Object* self, s32 itemIndex);
+    /*11*/ u8 (*GetMinimumPrice)(Object* self, s32 itemIndex);
+    /*12*/ u8 (*GetSpecialPrice)(Object* self, s32 itemIndex);
+    /*13*/ u8 (*GetInitialPrice)(Object* self, s32 itemIndex);
+    /*14*/ s16 (*GetItemGametextIndex)(Object* self, s32 itemIndex);
+    /*15*/ void (*SetCurrentItemIndex)(Object* self, s32 itemIndex);
+    /*16*/ u8 (*GetCurrentItemIndex)(Object* self);
+    /*17*/ void (*BuyItem)(Object* self, s32 cost);
+    /*18*/ void (*InitMinigameStats)(Object* self, s32 unk4);
+    /*19*/ void (*UpdateMinigameStats)(Object* self, s32 dUnk3, s32 dUnk2);
+    /*20*/ void (*GetMinigameStats)(Object* self, s32* getUnk3, s32* getUnk2, s32* getUnk4);
 };
+
+#define dll_shop(obj) (((DLL_768_SPShop*)obj->dll)->vtbl)
 
 #endif //_DLLS_768_H

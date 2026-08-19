@@ -62,20 +62,20 @@ void SPItem_obj_Control(Object* self) {
         objData->shop = objGetNearestTypeTo(OBJTYPE_LevelControl, self, &distance);
         if (objData->shop) {
             //Hide item if not in stock or already purchased
-            if (((DLL_768_SPShop*)objData->shop->dll)->vtbl->is_item_shown(objData->shop, objSetup->itemIndex) == FALSE || 
-                (((DLL_768_SPShop*)objData->shop->dll)->vtbl->is_item_hidden(objData->shop, objSetup->itemIndex))) {
+            if (dll_shop(objData->shop)->IsItemShown(objData->shop, objSetup->itemIndex) == FALSE || 
+                (dll_shop(objData->shop)->IsItemHidden(objData->shop, objSetup->itemIndex))) {
                 self->srt.flags |= OBJFLAG_INVISIBLE;
                 self->stateFlags |= OBJSTATE_CONTROL_DISABLED;
                 self->unkAF |= ARROW_FLAG_8_No_Targetting;
             }
             //Get gametext line index
-            objData->gametextLineIdx = ((DLL_768_SPShop*)objData->shop->dll)->vtbl->get_item_gametext_index(objData->shop, objSetup->itemIndex);
+            objData->gametextLineIdx = dll_shop(objData->shop)->GetItemGametextIndex(objData->shop, objSetup->itemIndex);
         }
     //Check if A pressed while target overhead
     } else if (self->unkAF & ARROW_FLAG_1_Interacted) {
         scarabCount = ((DLL_210_Player*)player->dll)->vtbl->get_scarabs(player);
-        initialPrice = ((DLL_768_SPShop*)objData->shop->dll)->vtbl->get_initial_price(objData->shop, objSetup->itemIndex);
-        ((DLL_768_SPShop*)objData->shop->dll)->vtbl->set_current_item_index(objData->shop, objSetup->itemIndex);
+        initialPrice = dll_shop(objData->shop)->GetInitialPrice(objData->shop, objSetup->itemIndex);
+        dll_shop(objData->shop)->SetCurrentItemIndex(objData->shop, objSetup->itemIndex);
         
         //Play sequence: "Yoooouuu pay this much!"
         if (scarabCount >= initialPrice) {
@@ -156,7 +156,7 @@ void SPItem_boughtCallback(Object* self, Object* override, AnimObj_Data* animObj
     shop = objData->shop;
 
     //Check if object should be hidden
-    if (((DLL_768_SPShop*)shop->dll)->vtbl->is_item_hidden(shop, objSetup->itemIndex)){
+    if (dll_shop(shop)->IsItemHidden(shop, objSetup->itemIndex)){
         self->srt.flags |= OBJFLAG_INVISIBLE;
         self->stateFlags |= OBJSTATE_CONTROL_DISABLED;
         self->unkAF |= ARROW_FLAG_8_No_Targetting;
@@ -164,5 +164,5 @@ void SPItem_boughtCallback(Object* self, Object* override, AnimObj_Data* animObj
     
     //Clear SPShop DLL's current item index
     shop = objData->shop;
-    ((DLL_768_SPShop*)shop->dll)->vtbl->set_current_item_index(shop, -1);
+    dll_shop(shop)->SetCurrentItemIndex(shop, -1);
 }
