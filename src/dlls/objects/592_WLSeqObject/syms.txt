@@ -1,0 +1,16 @@
+.text = 0x0:
+WLSeqObject_ctor = 0x0;
+WLSeqObject_dtor = 0xC;
+WLSeqObject_obj_Setup = 0x18;
+WLSeqObject_obj_Control = 0x50;
+WLSeqObject_obj_Update = 0x294;
+WLSeqObject_obj_Print = 0x2A0;
+WLSeqObject_obj_Free = 0x2F4;
+WLSeqObject_obj_GetModelFlags = 0x304;
+WLSeqObject_obj_GetDataSize = 0x314;
+WLSeqObject_animCallback = 0x328;
+
+.rodata = 0x3E4:
+
+.data = 0x3E4:
+dAnimBool = 0x0; // absolute:0x3E4

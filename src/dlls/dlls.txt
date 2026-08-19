@@ -371,6 +371,7 @@
 588 = objects/588_SB_ShipFlag
 589 = objects/589_SB_ShipGunBroke
 590 = objects/590_WL_Galleon
+592 = objects/592_WLSeqObject
 593 = objects/593_WL_DeadDino
 595 = objects/595_WL_LaserTarget
 596 = objects/596_WL_PressureSwitch
