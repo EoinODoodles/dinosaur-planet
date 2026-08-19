@@ -156,7 +156,7 @@ void WL_Column_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Tri
 void WL_Column_obj_Free(Object* self, s32 onlySelf) { }
 
 // offset: 0x3F0 | func: 5 | export: 5
-s32 WL_Column_obj_getModelFlags(Object* self) {
+s32 WL_Column_obj_GetModelFlags(Object* self) {
     //This suggests this DLL was once used by `WL_Column` and `WL_Column_Top` (they use DLL 313 now instead)
     if (self->id == OBJ_WL_Column_Top) {
         return MODFLAGS_SHADOW;
@@ -168,7 +168,7 @@ s32 WL_Column_obj_getModelFlags(Object* self) {
 
 
 // offset: 0x414 | func: 6 | export: 6
-u32 WL_Column_obj_getDataSize(Object* self, u32 offsetAddr) {
+u32 WL_Column_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(WL_Column_Data);
 }
 

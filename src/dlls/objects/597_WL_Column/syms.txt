@@ -6,8 +6,8 @@ WL_Column_obj_Control = 0x38;
 WL_Column_obj_Update = 0x314;
 WL_Column_obj_Print = 0x320;
 WL_Column_obj_Free = 0x3E0;
-WL_Column_obj_getModelFlags = 0x3F0;
-WL_Column_obj_getDataSize = 0x414;
+WL_Column_obj_GetModelFlags = 0x3F0;
+WL_Column_obj_GetDataSize = 0x414;
 WL_Column_handlePlayerInteraction = 0x428;
 
 .rodata = 0x4F0:

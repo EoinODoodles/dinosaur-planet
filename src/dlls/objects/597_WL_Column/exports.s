@@ -13,5 +13,5 @@ _exports:
 /*2*/ .dword WL_Column_obj_Update
 /*3*/ .dword WL_Column_obj_Print
 /*4*/ .dword WL_Column_obj_Free
-/*5*/ .dword WL_Column_obj_getModelFlags
-/*6*/ .dword WL_Column_obj_getDataSize
+/*5*/ .dword WL_Column_obj_GetModelFlags
+/*6*/ .dword WL_Column_obj_GetDataSize
