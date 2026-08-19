@@ -1,14 +1,13 @@
 #include "common.h"
-#include "game/gamebits.h"
+#include "dlls/objects/210_player.h"
+#include "dlls/objects/768_SPshop.h"
 #include "game/objects/object_id.h"
-#include "sys/map.h"
-#include "sys/objtype.h"
+#include "game/gamebits.h"
+#include "sys/envfx.h"
 #include "sys/lighting.h"
 #include "sys/lfx.h"
-#include "sys/envfx.h"
-#include "dlls/objects/210_player.h"
-
-#include "dlls/objects/768_SPshop.h"
+#include "sys/map.h"
+#include "sys/objtype.h"
 
 #define TOTAL_ITEMS 60
 
@@ -39,7 +38,7 @@ typedef struct {
     s8 unk4;
 } SPShop_Data;
 
-static void SPShop_set_random_prices(void);
+static void SPShop_randomisePrices(void);
 
 #define NONE 0xffff
 #define EMPTY_ITEM {{0, {0, 0, 0}, 0, 0}, {NONE, NONE}, {NONE, NONE}, NONE}
@@ -113,20 +112,20 @@ static void SPShop_set_random_prices(void);
 };
 
 // offset: 0x0 | ctor
-void SPShop_ctor(void *dll) { }
+void SPShop_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void SPShop_dtor(void *dll) { }
+void SPShop_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void SPShop_setup(Object* self, ObjSetup* setup, s32 arg2) {
+void SPShop_obj_Setup(Object* self, ObjSetup* setup, s32 reset) {
     objAddObjectType(self, OBJTYPE_LevelControl);
-    mainSetBits(BIT_SP_Exiting_Shop, 0);
-    SPShop_set_random_prices();
+    mainSetBits(BIT_SP_Exiting_Shop, FALSE);
+    SPShop_randomisePrices();
 }
 
 // offset: 0x88 | func: 1 | export: 1
-void SPShop_control(Object* self) {
+void SPShop_obj_Control(Object* self) {
     Object* player;
 
     player = objGetPlayer();
@@ -160,38 +159,38 @@ void SPShop_control(Object* self) {
 }
 
 // offset: 0x2D4 | func: 2 | export: 2
-void SPShop_update(Object *self) { }
+void SPShop_obj_Update(Object* self) { }
 
 // offset: 0x2E0 | func: 3 | export: 3
-void SPShop_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+void SPShop_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x334 | func: 4 | export: 4
-void SPShop_free(Object* self, s32 arg1) {
+void SPShop_obj_Free(Object* self, s32 onlySelf) {
     objFreeObjectType(self, OBJTYPE_LevelControl);
 }
 
 // offset: 0x374 | func: 5 | export: 5
-u32 SPShop_get_model_flags(Object *self) {
+u32 SPShop_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x384 | func: 6 | export: 6
-u32 SPShop_get_data_size(Object *self, u32 a1) {
+u32 SPShop_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(SPShop_Data);
 }
 
 // offset: 0x398 | func: 7 | export: 7
-u8 SPShop_return_unk0(Object* self) {
+u8 SPShop_GetUnk0(Object* self) {
     SPShop_Data* objData = self->data;
     return objData->unk0;
 }
 
 // offset: 0x3A8 | func: 8 | export: 8
-void SPShop_play_sequence(Object* self, s32 playSequence, s32 sequenceIndex) {
+void SPShop_PlaySequence(Object* self, s32 playSequence, s32 sequenceIndex) {
     SPShop_Data* objData = self->data;
     
     objData->unk0 = playSequence;
@@ -208,7 +207,7 @@ void SPShop_play_sequence(Object* self, s32 playSequence, s32 sequenceIndex) {
     Items will appear if a "show" gamebitID isn't specified (e.g. 0xFFFF),
     or by checking the value of the gamebit when a gamebitID is specified. 
 */
-int SPShop_is_item_shown(Object* self, s32 itemIndex) {
+int SPShop_IsItemShown(Object* self, s32 itemIndex) {
     s16 gamebitID;
     ShopItem* item;
 
@@ -231,7 +230,7 @@ int SPShop_is_item_shown(Object* self, s32 itemIndex) {
     Uses gamebits to track whether or not to hide it. Items will disappear
     if a "hide" gamebitID specified and the gamebit's value is currently nonzero. 
 */
-int SPShop_is_item_hidden(Object* self, s32 itemIndex) {
+int SPShop_IsItemHidden(Object* self, s32 itemIndex) {
     s16 gamebitID;
     ShopItem* item;
 
@@ -248,7 +247,7 @@ int SPShop_is_item_hidden(Object* self, s32 itemIndex) {
 
 // offset: 0x5A4 | func: 11 | export: 11
 /** Returns the ShopKeeper's minimum accepted price for a particular item */
-u8 SPShop_get_minimum_price(Object* self, s32 itemIndex) {
+u8 SPShop_GetMinimumPrice(Object* self, s32 itemIndex) {
     if (itemIndex >= 0 && itemIndex < TOTAL_ITEMS) {
         return shopItemData[itemIndex].price.min;
     }
@@ -257,7 +256,7 @@ u8 SPShop_get_minimum_price(Object* self, s32 itemIndex) {
 
 // offset: 0x5E8 | func: 12 | export: 12
 /** Returns the ShopKeeper's special offer price for a particular item (unused?) */
-u8 SPShop_get_special_price(Object* self, s32 itemIndex) {
+u8 SPShop_GetSpecialPrice(Object* self, s32 itemIndex) {
     if (itemIndex >= 0 && itemIndex < TOTAL_ITEMS) {
         return shopItemData[itemIndex].price.specialOffer;
     }
@@ -266,7 +265,7 @@ u8 SPShop_get_special_price(Object* self, s32 itemIndex) {
 
 // offset: 0x62C | func: 13 | export: 13
 /** Returns the ShopKeeper's (randomised) starting offer for a particular item */
-u8 SPShop_get_initial_price(Object* self, s32 itemIndex) {
+u8 SPShop_GetInitialPrice(Object* self, s32 itemIndex) {
     if (itemIndex >= 0 && itemIndex < TOTAL_ITEMS) {
         return shopItemData[itemIndex].price.initial;
     }
@@ -275,7 +274,7 @@ u8 SPShop_get_initial_price(Object* self, s32 itemIndex) {
 
 // offset: 0x670 | func: 14 | export: 14
 /** Returns the line index (in Gametext file #3) for a particular item's description */
-s16 SPShop_get_item_gametext_index(Object* self, s32 itemIndex) {
+s16 SPShop_GetItemGametextIndex(Object* self, s32 itemIndex) {
     if (itemIndex >= 0 && itemIndex < TOTAL_ITEMS) {
         return shopItemData[itemIndex].gametextLine;
     }
@@ -283,19 +282,19 @@ s16 SPShop_get_item_gametext_index(Object* self, s32 itemIndex) {
 }
 
 // offset: 0x6B4 | func: 15 | export: 15
-void SPShop_set_current_item_index(Object* self, s32 itemIndex) {
+void SPShop_SetCurrentItemIndex(Object* self, s32 itemIndex) {
     SPShop_Data* objData = self->data;
     objData->itemIndex = itemIndex;
 }
 
 // offset: 0x6C4 | func: 16 | export: 16
-u8 SPShop_get_current_item_index(Object* self) {
+u8 SPShop_GetCurrentItemIndex(Object* self) {
     SPShop_Data* objData = self->data;
     return objData->itemIndex;
 }
 
 // offset: 0x6D4 | func: 17 | export: 17
-void SPShop_buy_item(Object* self, s32 cost) {
+void SPShop_BuyItem(Object* self, s32 cost) {
     Object* player = objGetPlayer();
     SPShop_Data* objData;
     s32 itemIndex;
@@ -347,7 +346,7 @@ void SPShop_buy_item(Object* self, s32 cost) {
 }
 
 // offset: 0x884 | func: 18 | export: 18
-void SPShop_func_884(Object* self, s32 unk4) {
+void SPShop_Func_884(Object* self, s32 unk4) {
     SPShop_Data* objData = self->data;
 
     objData->unk2 = 0;
@@ -356,7 +355,7 @@ void SPShop_func_884(Object* self, s32 unk4) {
 }
 
 // offset: 0x89C | func: 19 | export: 19
-void SPShop_func_89C(Object* self, s32 dUnk3, s32 dUnk2) {
+void SPShop_Func_89C(Object* self, s32 dUnk3, s32 dUnk2) {
     SPShop_Data* objData = self->data;
 
     objData->unk2 += dUnk2;
@@ -364,7 +363,7 @@ void SPShop_func_89C(Object* self, s32 dUnk3, s32 dUnk2) {
 }
 
 // offset: 0x8C0 | func: 20 | export: 20
-void SPShop_func_8C0(Object* self, s32* getUnk3, s32* getUnk2, s32* getUnk4) {
+void SPShop_Func_8C0(Object* self, s32* getUnk3, s32* getUnk2, s32* getUnk4) {
     SPShop_Data* objData = self->data;
 
     *getUnk2 = objData->unk2;
@@ -374,7 +373,7 @@ void SPShop_func_8C0(Object* self, s32* getUnk3, s32* getUnk2, s32* getUnk4) {
 
 // offset: 0x8E4 | func: 21
 /** Randomises the ShopKeeper's initial asking price for each item, picking one of 3 preset offers */
-void SPShop_set_random_prices(void) {
+void SPShop_randomisePrices(void) {
     ShopItem* shopItem;
     s32 index;
 
