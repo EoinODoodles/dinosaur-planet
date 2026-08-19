@@ -9,7 +9,7 @@
 #include "dll.h"
 #include "sys/joypad.h"
 
-enum UseObjFlags {
+typedef enum  {
     USEOBJ_HideIfAlreadyUsed = 0x1,
     USEOBJ_SeqControlsUsedBit = 0x4,
     USEOBJ_DisableAfterUse = 0x8,
@@ -17,11 +17,7 @@ enum UseObjFlags {
     USEOBJ_ReplayIncludeActor2 = 0x20,
     USEOBJ_ReplayIncludeActor3 = 0x40,
     USEOBJ_ReplayIncludeActor4 = 0x80
-};
-
-typedef struct {
-    u8 used;
-} UseObj_Data;
+} UseObjFlags;
 
 typedef struct {
 /*00*/ ObjSetup base;
@@ -37,22 +33,27 @@ typedef struct {
 /*24*/ s16 replayStartTime; // if not zero, the sequence will be replayed if the object was already used
 } UseObj_Setup;
 
-static int UseObj_anim_callback(Object *self, Object *animObj, AnimObj_Data *animObjData, s8 arg3);
+typedef struct {
+    u8 used;
+} UseObj_Data;
+
+static int UseObj_animCallback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 prevCallbackValue);
 
 // offset: 0x0 | ctor
-void UseObj_ctor(void *dll) { }
+void UseObj_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void UseObj_dtor(void *dll) { }
+void UseObj_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void UseObj_setup(Object *self, UseObj_Setup *setup, s32 reset) {
-    UseObj_Data *objdata;
+void UseObj_obj_Setup(Object* self, UseObj_Setup* setup, s32 reset) {
+    UseObj_Data* objdata;
 
     self->srt.yaw = setup->yaw << 8;
     self->srt.pitch = setup->pitch << 8;
     self->srt.roll = setup->roll << 8;
-    self->animCallback = UseObj_anim_callback;
+    self->animCallback = UseObj_animCallback;
+
     self->modelInstIdx = setup->modelInstIdx;
     if (self->modelInstIdx >= self->def->numModels) {
         STUBBED_PRINTF("USEOBJ.c: modelno out of range romdefno=%d\n", self->modelInstIdx);
@@ -69,9 +70,9 @@ void UseObj_setup(Object *self, UseObj_Setup *setup, s32 reset) {
 }
 
 // offset: 0x110 | func: 1 | export: 1
-void UseObj_control(Object *self) {
-    UseObj_Data *objdata;
-    UseObj_Setup *setup;
+void UseObj_obj_Control(Object* self) {
+    UseObj_Data* objdata;
+    UseObj_Setup* setup;
     s32 actorMask;
 
     objdata = self->data;
@@ -136,37 +137,37 @@ void UseObj_control(Object *self) {
 }
 
 // offset: 0x3B8 | func: 2 | export: 2
-void UseObj_update(Object *self) {
+void UseObj_obj_Update(Object* self) {
     if ((self->def->flags & OBJDEF_INVISIBLE) && self->unk74) {
         objprintUpdateLockIconCoords(self);
     }
 }
 
 // offset: 0x410 | func: 3 | export: 3
-void UseObj_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
+void UseObj_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x464 | func: 4 | export: 4
-void UseObj_free(Object *self, s32 onlySelf) {
+void UseObj_obj_Free(Object* self, s32 onlySelf) {
     objFreeObjectType(self, OBJTYPE_UseObj);
 }
 
 // offset: 0x4A4 | func: 5 | export: 5
-u32 UseObj_get_model_flags(Object *self) {
+u32 UseObj_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x4B4 | func: 6 | export: 6
-u32 UseObj_get_data_size(Object *self, u32 offsetAddr) {
+u32 UseObj_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(UseObj_Data);
 }
 
 // offset: 0x4C8 | func: 7
-static int UseObj_anim_callback(Object *self, Object *animObj, AnimObj_Data *animObjData, s8 arg3) {
-    UseObj_Setup *setup;
+static int UseObj_animCallback(Object* self, Object* animObj, AnimObj_Data* animObjData, s8 prevCallbackValue) {
+    UseObj_Setup* setup;
 
     setup = (UseObj_Setup*)self->setup;
     self->unkAF |= ARROW_FLAG_8_No_Targetting;
@@ -181,6 +182,7 @@ static int UseObj_anim_callback(Object *self, Object *animObj, AnimObj_Data *ani
         }
         animObjData->lastMessage = 0;
     }
+    
     return 0;
 }
 
