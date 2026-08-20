@@ -237,7 +237,7 @@ void WCTempleDial_setBlockIconFrames(Object* self, u8 iconStates) {
         bTexAnimInstance = blockTexanimGetInstance(block, i);
         if (bTexAnimInstance != NULL) {
             bTexAnim = blockTexanimGet(bTexAnimInstance->texanimID);
-            if (iconStates & (1 << (i + 31))) { //TODO: is this correct? iconStates is u8, so wouldn't this be reading out of bounds...?
+            if (iconStates & (1 << (i - 1))) {
                 bTexAnim->unk4 = 0x100; //Use frame 1 (glowing symbol)
             } else {
                 bTexAnim->unk4 = 0; //Use frame 0 (unlit symbol)
