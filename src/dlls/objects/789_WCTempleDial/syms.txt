@@ -1,0 +1,19 @@
+.text = 0x0:
+WCTempleDial_ctor = 0x0;
+WCTempleDial_dtor = 0xC;
+WCTempleDial_obj_Setup = 0x18;
+WCTempleDial_obj_Control = 0x1BC;
+WCTempleDial_obj_Update = 0x464;
+WCTempleDial_obj_Print = 0x470;
+WCTempleDial_obj_Free = 0x4C4;
+WCTempleDial_obj_GetModelFlags = 0x4D4;
+WCTempleDial_obj_GetDataSize = 0x508;
+WCTempleDial_setBlockIconFrames = 0x51C;
+
+.rodata = 0x670:
+
+.data = 0x680:
+dSunGamebits = 0x0; // absolute:0x680
+dMoonGamebits = 0x8; // absolute:0x688
+dSunRotateSpeedGoals = 0x10; // absolute:0x690
+dMoonRotateSpeedGoals = 0x1C; // absolute:0x69C

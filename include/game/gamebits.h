@@ -519,7 +519,7 @@ typedef enum {
     BIT_Dino_Foodbag_Place = 0x200, // len:1 group:1   set by sidefoodbag during setup
     BIT_WC_Sun_Stone = 0x201, // len:1 group:1          [INVENTORY]
     BIT_WC_Used_Sun_Stone = 0x202, // len:1 group:1     [INVENTORY - HIDE]
-    BIT_203 = 0x203, // len:1 group:1
+    BIT_WC_Moon_Temple_Dial_Hit_Crescent_Moon_Switch = 0x203, // len:1 group:1
     BIT_204 = 0x204, // len:1 group:1
     BIT_205 = 0x205, // len:1 group:1
     BIT_206 = 0x206, // len:1 group:1
@@ -725,8 +725,8 @@ typedef enum {
     BIT_SC_Beacon_Added_Twigs_2 = 0x2CE, // len:1 group:2 (SC_beacon near the pond with the serpent-head island)
     BIT_SC_Beacon_Added_Twigs_3 = 0x2CF, // len:1 group:2 (SC_beacon near the entrance to Discovery Falls)
     BIT_2D0 = 0x2D0, // len:1 group:2
-    BIT_2D1 = 0x2D1, // len:1 group:1
-    BIT_2D2 = 0x2D2, // len:1 group:1
+    BIT_WC_Sun_Temple_Dial_Hit_Midday_Switch = 0x2D1, // len:1 group:1
+    BIT_WC_Sun_Temple_Dial_Hit_Sunset_Switch = 0x2D2, // len:1 group:1
     BIT_2D3 = 0x2D3, // len:1 group:1
     BIT_2D4 = 0x2D4, // len:1 group:1
     BIT_2D5 = 0x2D5, // len:1 group:1
@@ -752,10 +752,10 @@ typedef enum {
     BIT_WM_Act5_Sabre_Dock_Rounded_Corner = 0x2E9, // len:1 group:0
     BIT_Krystal_Fishing_Net = 0x2EA, // len:1 group:1 (Krystal bought/found a fishing net - known via the fish DLL, plus the `fishingnetColle` object in the old Level Select's "Energy Demo" setting this gamebit when collected.)
     BIT_2EB = 0x2EB, // len:1 group:1
-    BIT_2EC = 0x2EC, // len:1 group:1
+    BIT_WC_Moon_Temple_Dial_Hit_Half_Moon_Switch = 0x2EC, // len:1 group:1
     BIT_WM_Act5_Sabre_Entered_Hall_Antechamber = 0x2ED, // len:1 group:1
     BIT_WM_Act5_Sabre_Entered_GuardClaw_Hall = 0x2EE, // len:1 group:0 (Entered Sabre's equivalent of Randorn's room)
-    BIT_2EF = 0x2EF, // len:1 group:1
+    BIT_WC_Moon_Temple_Dial_Hit_Full_Moon_Switch = 0x2EF, // len:1 group:1
     BIT_2F0 = 0x2F0, // len:1 group:1
     BIT_2F1 = 0x2F1, // len:1 group:1
     BIT_Play_Seq_01CC_WM_Sabre_Fools_GuardClaw = 0x2F2, // len:1 group:1 (Plays seq 0x1CC "Well done soldier, a prisoner!")
@@ -764,7 +764,7 @@ typedef enum {
     BIT_2F5 = 0x2F5, // len:1 group:0
     BIT_2F6 = 0x2F6, // len:1 group:0
     BIT_WM_Act5_Sabre_Hall_Delete_Claws = 0x2F7, // len:1 group:0
-    BIT_2F8 = 0x2F8, // len:1 group:1
+    BIT_WC_Sun_Temple_Dial_Hit_Sunrise_Switch = 0x2F8, // len:1 group:1
     BIT_2F9 = 0x2F9, // len:1 group:1
     BIT_WM_Act5_Sabre_Hall_GuardClaw_Gone = 0x2FA, // len:1 group:0
     BIT_WM_Act6_Randorn_Sitting_Up = 0x2FB, // len:1 group:1
