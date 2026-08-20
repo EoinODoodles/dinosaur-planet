@@ -102,15 +102,17 @@ void WCTempleDial_obj_Setup(Object* self, WCTempleDial_Setup* objSetup, s32 rese
         objData->dialFlags |= WCTempleDial_FLAG_Stopped;
     }
     
-    if (objData->switchFlags & 2) {
+    //Restore rotation speed based on how many switches have been lit
+    if (objData->switchFlags & WCTempleDial_SWITCH_2) {
         objData->rotateSpeed = objData->rotateSpeedGoals[2];
-    } else if (objData->switchFlags & 1) {
+    } else if (objData->switchFlags & WCTempleDial_SWITCH_1) {
         objData->rotateSpeed = objData->rotateSpeedGoals[1];
     } else {
         objData->rotateSpeed = objData->rotateSpeedGoals[0];
     }
     objData->rotateSpeedGoal = objData->rotateSpeed;
     
+    //Update block's sun/moon icons
     WCTempleDial_setBlockIconFrames(self, objData->switchFlags);
 }
 
@@ -236,9 +238,9 @@ void WCTempleDial_setBlockIconFrames(Object* self, u8 iconStates) {
         if (bTexAnimInstance != NULL) {
             bTexAnim = blockTexanimGet(bTexAnimInstance->texanimID);
             if (iconStates & (1 << (i + 31))) { //TODO: is this correct? iconStates is u8, so wouldn't this be reading out of bounds...?
-                bTexAnim->unk4 = 0x100;
+                bTexAnim->unk4 = 0x100; //Use frame 1 (glowing symbol)
             } else {
-                bTexAnim->unk4 = 0;
+                bTexAnim->unk4 = 0; //Use frame 0 (unlit symbol)
             }
         }
     }
