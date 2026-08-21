@@ -32,8 +32,7 @@ typedef enum {
     FLAG_8_Moon_Beacon_Lit = 0x8,
     FLAG_10_Sun_Aperture_Opened = 0x10,
     FLAG_20_Moon_Aperture_Opened = 0x20,
-    FLAG_40 = 0x40, //Related to Sun Temple maze?
-    FLAG_80 = 0x80  //Related to Moon Temple maze?
+    FLAG_40_Sun_Temple_Maze_Solved = 0x40
 } WCLevelControl_Flags;
 
 typedef enum {
@@ -45,9 +44,9 @@ typedef enum {
     STATE_3_WCSlabDoor_Opened,
 
     //Act 2 states
-    STATE_4,
-    STATE_5,
-    STATE_6
+    STATE_4_Sun_Maze_Timed_Challenge,
+    STATE_5_Unused, //Maybe a placeholder for a challenge in the Moon Temple room with the hole in the wall?
+    STATE_6_Sun_Maze_Setup
 } WCLevelControl_States;
 
 /*0x0*/ static u8 dSunPuzzleInitial[8][8] = {
@@ -128,16 +127,16 @@ void WCLevelControl_obj_Setup(Object* self, ObjSetup* setup, s32 reset) {
     if (mainGetBits(BIT_WC_Sun_Aperture_Opened)) {
         objdata->flags |= FLAG_10_Sun_Aperture_Opened;
     }
-    if (mainGetBits(BIT_2A5)) {
-        objdata->flags |= FLAG_40;
+    if (mainGetBits(BIT_WC_Sun_Temple_Maze_Solved)) {
+        objdata->flags |= FLAG_40_Sun_Temple_Maze_Solved;
     }
 
     objAddObjectType(self, OBJTYPE_LevelControl);
 
-    mainSetBits(BIT_226, 1);
-    mainSetBits(BIT_2A6, 1);
-    mainSetBits(BIT_206, 1);
-    mainSetBits(BIT_25F, 1);
+    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_1_Shown, TRUE);
+    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_2_Hidden, TRUE);
+    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_3_Hidden, TRUE);
+    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_4_Hidden, TRUE);
 }
 
 // offset: 0x1B4 | func: 1 | export: 1
@@ -507,7 +506,7 @@ static int WCLevelControl_animCallback(Object* self, Object* overrideObj, AnimOb
     for (i = 0; i < animData->messageCount; i++) {
         switch (animData->messages[i]) {
             case 1:
-                objdata->state = STATE_6;
+                objdata->state = STATE_6_Sun_Maze_Setup;
                 break;
             default:
                 break;
@@ -618,37 +617,44 @@ static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata
     isNightTime = gDLL_7_Newday->vtbl->func8(&time);
 
     switch (objdata->state) {
-        case STATE_6:
+        case STATE_6_Sun_Maze_Setup:
+            //Start a 60 second timed challenge
             gDLL_5_AMSEQ2->vtbl->set(NULL, 0x106, 0, 0, 0);
             menu_func_8000F64C(0x11, 60);
             menu_func_8000F6CC();
-            objdata->state = STATE_4;
+            objdata->state = STATE_4_Sun_Maze_Timed_Challenge;
             break;
-        case STATE_4:
+        case STATE_4_Sun_Maze_Timed_Challenge:
+            //Check if the timer ended
             if (menu_func_8000FB1C()) {
                 gDLL_5_AMSEQ2->vtbl->set(NULL, 0x104, 0, 0, 0);
-                if (mainGetBits(BIT_2A5)) {
-                    objdata->flags |= FLAG_40;
+                if (mainGetBits(BIT_WC_Sun_Temple_Maze_Solved)) {
+                    //Success!
+                    objdata->flags |= FLAG_40_Sun_Temple_Maze_Solved;
                 } else {
-                    mainSetBits(BIT_274, 0);
-                    mainSetBits(BIT_2B1, 0);
-                    mainSetBits(BIT_226, 1);
-                    mainSetBits(BIT_2A6, 1);
-                    mainSetBits(BIT_206, 1);
-                    mainSetBits(BIT_25F, 1);
+                    //Failure...
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Timed_Challenge_Door_Opened, FALSE);
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Switch_1_Pressed, FALSE);
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_1_Shown, TRUE);
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_2_Hidden, TRUE);
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_3_Hidden, TRUE);
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_4_Hidden, TRUE);
                 }
                 objdata->state = STATE_0_Idle;
             }
             break;
         default:
-            if (!(objdata->flags & FLAG_40)) {
-                if (mainGetBits(BIT_2B1) && mainGetBits(BIT_204)) {
-                    mainSetBits(BIT_226, 0);
-                    mainSetBits(BIT_2A6, 0);
-                    mainSetBits(BIT_206, 0);
-                    mainSetBits(BIT_25F, 0);
-                    mainSetBits(BIT_274, 1);
-                    objdata->state = STATE_6;
+            if ((objdata->flags & FLAG_40_Sun_Temple_Maze_Solved) == FALSE) {
+                //Start the maze's timed challenge when the wall switch is pressed (just to the left when entering)
+                if (mainGetBits(BIT_WC_Sun_Temple_Maze_Switch_1_Pressed) && 
+                    mainGetBits(BIT_WC_Played_Seq_179_Sun_Temple_Maze_Timed_Challenge_Intro)
+                ) {
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_1_Shown, FALSE);
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_2_Hidden, FALSE);
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_3_Hidden, FALSE);
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_4_Hidden, FALSE);
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Timed_Challenge_Door_Opened, TRUE);
+                    objdata->state = STATE_6_Sun_Maze_Setup;
                 }
             }
             break;
