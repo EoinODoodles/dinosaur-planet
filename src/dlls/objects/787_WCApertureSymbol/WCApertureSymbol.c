@@ -12,124 +12,162 @@
 typedef struct {
 /*0*/ s16 targetOpacity;
 /*2*/ u8 state;
-/*3*/ u8 unk3;
+/*3*/ u8 flags;
 } WCApertureSymbol_Data;
 
 typedef struct {
 /*00*/ ObjSetup base;
-/*18*/ s8 unk18;
-/*19*/ s8 unk19;
-/*1A*/ s16 unk1A;
+/*18*/ s8 yaw;
+/*19*/ s8 modelIdx;
+/*1A*/ s16 opacityThreshold;
 /*1C*/ u8 _unk1C[0x1E - 0x1C];
-/*1E*/ s16 unk1E;
-/*20*/ s16 unk20;
+/*1E*/ s16 gamebitViewed;
+/*20*/ s16 gamebitEnabled;
 } WCApertureSymbol_Setup;
 
-static int dll_787_func_43C(Object *self, Object *a1, AnimObj_Data *a2, s8 a3);
-static s16 dll_787_func_490(Object *self, WCApertureSymbol_Data *objdata, f32 arg2, f32 arg3, f32 arg4);
+typedef enum {
+    STATE_Inactive,
+    STATE_Waiting_for_View,
+    STATE_Viewed
+} WCApertureSymbol_States;
+
+typedef enum {
+    WCApertureSymbol_MODELIDX_Sun,
+    WCApertureSymbol_MODELIDX_Moon
+} WCApertureSymbol_ModelIndices;
+
+typedef enum {
+    WCApertureSymbol_FLAG_Visible = 1
+} WCApertureSymbol_Flags;
+
+#define VIEWING_TERRAIN_TYPE 0x21
+#define VIEWING_DURATION_SUN 8000
+#define VIEWING_DURATION_MOON 4500
+#define PEAK_SUN 70000
+#define PEAK_MOON 79250
+
+static int WCApertureSymbol_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static s16 WCApertureSymbol_getTargetOpacity(Object* self, WCApertureSymbol_Data* objdata, f32 minTimeOfDay, f32 maxTimeOfDay, f32 timeOfDay);
 
 // offset: 0x0 | ctor
-void dll_787_ctor(void *dll) { }
+void WCApertureSymbol_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void dll_787_dtor(void *dll) { }
+void WCApertureSymbol_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void dll_787_setup(Object *self, WCApertureSymbol_Setup *setup, s32 arg2) {
-    WCApertureSymbol_Data *objdata = self->data;
+void WCApertureSymbol_setup(Object* self, WCApertureSymbol_Setup* setup, s32 reset) {
+    WCApertureSymbol_Data* objdata = self->data;
 
-    self->srt.yaw = setup->unk18 << 8;
-    self->animCallback = dll_787_func_43C;
-    self->modelInstIdx = setup->unk19;
+    self->srt.yaw = setup->yaw << 8;
+    self->animCallback = WCApertureSymbol_animCallback;
+
+    self->modelInstIdx = setup->modelIdx;
     if (self->modelInstIdx >= self->def->numModels) {
-        self->modelInstIdx = 0;
+        self->modelInstIdx = WCApertureSymbol_MODELIDX_Sun;
     }
-    if (mainGetBits(setup->unk20) != 0) {
-        if (mainGetBits(setup->unk1E) != 0) {
-            objdata->state = 2;
+
+    if (mainGetBits(setup->gamebitEnabled)) {
+        if (mainGetBits(setup->gamebitViewed)) {
+            objdata->state = STATE_Viewed;
         } else {
-            objdata->state = 1;
+            objdata->state = STATE_Waiting_for_View;
         }
     }
+
     self->opacity = 1;
     objdata->targetOpacity = 0;
 }
 
 // offset: 0xFC | func: 1 | export: 1
-void dll_787_control(Object *self) {
-    WCApertureSymbol_Setup *setup;
-    f32 sp48;
-    WCApertureSymbol_Data *objdata;
-    s32 var_v1;
-    Object *player;
+void WCApertureSymbol_control(Object* self) {
+    WCApertureSymbol_Setup* setup;
+    f32 time;
+    WCApertureSymbol_Data* objdata;
+    s32 opacity;
+    Object* player;
 
     setup = (WCApertureSymbol_Setup*)self->setup;
     objdata = self->data;
+    
     player = objGetPlayer();
     objdata->targetOpacity = 0;
+    
     switch (objdata->state) {
-    case 2:
-        objdata->targetOpacity = 0xFF;
+    case STATE_Viewed:
+        objdata->targetOpacity = OBJECT_OPACITY_MAX;
         break;
-    case 0:
+    case STATE_Inactive:
         break;
-    case 1:
+    case STATE_Waiting_for_View:
         if (gDLL_2_Camera->vtbl->get_dll_ID() == DLL_ID_CAM1STPERSON) {
-            if ((((DLL_210_Player*)player->dll)->vtbl->func70(player) == 0x21) && (vec3Distance(&player->globalPosition, &self->globalPosition) < 200.0f)) {
-                gDLL_7_Newday->vtbl->func4(&sp48);
-                if (setup->unk19 == 0) {
-                    objdata->targetOpacity = dll_787_func_490(self, objdata, 66000.0f, 74000.0f, sp48);
+            if ((((DLL_210_Player*)player->dll)->vtbl->func70(player) == VIEWING_TERRAIN_TYPE) && (vec3Distance(&player->globalPosition, &self->globalPosition) < 200.0f)) {
+                gDLL_7_Newday->vtbl->func4(&time);
+
+                if (setup->modelIdx == WCApertureSymbol_MODELIDX_Sun) {
+                    objdata->targetOpacity = WCApertureSymbol_getTargetOpacity(self, objdata, 
+                        PEAK_SUN - VIEWING_DURATION_SUN/2, 
+                        PEAK_SUN + VIEWING_DURATION_SUN/2, 
+                        time
+                    );
                 } else {
-                    objdata->targetOpacity = dll_787_func_490(self, objdata, 77000.0f, 81500.0f, sp48);
+                    objdata->targetOpacity = WCApertureSymbol_getTargetOpacity(self, objdata, 
+                        PEAK_MOON - VIEWING_DURATION_MOON/2, 
+                        PEAK_MOON + VIEWING_DURATION_MOON/2, 
+                        time
+                    );
                 }
-                if (setup->unk1A < (s32) self->opacity) {
-                    mainSetBits(setup->unk1E, 1);
-                    objdata->state = 2;
+
+                if (self->opacity > setup->opacityThreshold) {
+                    mainSetBits(setup->gamebitViewed, TRUE);
+                    objdata->state = STATE_Viewed;
                     objdata->targetOpacity = OBJECT_OPACITY_MAX;
                 }
             }
         }
         break;
     }
+
     if (self->opacity < objdata->targetOpacity) {
-        var_v1 = self->opacity + (gUpdateRate * 4);
-        if (objdata->targetOpacity < var_v1) {
-            var_v1 = objdata->targetOpacity;
+        opacity = self->opacity + (gUpdateRate * 4);
+        if (objdata->targetOpacity < opacity) {
+            opacity = objdata->targetOpacity;
         }
-        self->opacity = (u8) var_v1;
-    } else if (objdata->targetOpacity < self->opacity) {
-        var_v1 = self->opacity - (gUpdateRate * 4);
-        if (var_v1 < objdata->targetOpacity) {
-            var_v1 = objdata->targetOpacity;
+        self->opacity = opacity;
+    } else if (self->opacity > objdata->targetOpacity) {
+        opacity = self->opacity - (gUpdateRate * 4);
+        if (opacity < objdata->targetOpacity) {
+            opacity = objdata->targetOpacity;
         }
-        self->opacity = (u8) var_v1;
+        self->opacity = opacity;
     }
 }
 
 // offset: 0x358 | func: 2 | export: 2
-void dll_787_update(Object *self) { }
+void WCApertureSymbol_update(Object* self) { }
 
 // offset: 0x364 | func: 3 | export: 3
-void dll_787_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
-    WCApertureSymbol_Data *objdata = self->data;
+void WCApertureSymbol_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+    WCApertureSymbol_Data* objdata = self->data;
 
-    if (visibility != 0) {
-        objdata->unk3 |= 0x1;
+    if (visibility) {
+        objdata->flags |= WCApertureSymbol_FLAG_Visible;
     } else {
-        objdata->unk3 &= ~0x1;
+        objdata->flags &= ~WCApertureSymbol_FLAG_Visible;
     }
-    if (visibility != 0) {
+
+    if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x3E4 | func: 4 | export: 4
-void dll_787_free(Object *self, s32 a1) { }
+void WCApertureSymbol_free(Object* self, s32 onlySelf) { }
 
 // offset: 0x3F4 | func: 5 | export: 5
-u32 dll_787_get_model_flags(Object *self) {
-    WCApertureSymbol_Setup *setup = (WCApertureSymbol_Setup*)self->setup;
-    s8 modelIdx = setup->unk19;
+u32 WCApertureSymbol_get_model_flags(Object* self) {
+    WCApertureSymbol_Setup* setup = (WCApertureSymbol_Setup*)self->setup;
+    s8 modelIdx = setup->modelIdx;
 
     if (modelIdx >= self->def->numModels) {
         modelIdx = 0;
@@ -139,20 +177,20 @@ u32 dll_787_get_model_flags(Object *self) {
 
 
 // offset: 0x428 | func: 6 | export: 6
-u32 dll_787_get_data_size(Object *self, u32 a1) {
+u32 WCApertureSymbol_get_data_size(Object* self, u32 offsetAddr) {
     return sizeof(WCApertureSymbol_Data);
 }
 
 // offset: 0x43C | func: 7
-static int dll_787_func_43C(Object *self, Object *a1, AnimObj_Data *a2, s8 a3) {
-    WCApertureSymbol_Data *objdata;
+static int WCApertureSymbol_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
+    WCApertureSymbol_Data* objdata;
     s32 i;
 
     objdata = self->data;
 
-    for (i = 0; i < a2->messageCount; i++) {
-        if (a2->messages[i] == 1) {
-            objdata->state = 1;
+    for (i = 0; i < animData->messageCount; i++) {
+        if (animData->messages[i] == 1) {
+            objdata->state = STATE_Waiting_for_View;
         }
     }
 
@@ -160,83 +198,104 @@ static int dll_787_func_43C(Object *self, Object *a1, AnimObj_Data *a2, s8 a3) {
 }
 
 // offset: 0x490 | func: 8
-static s16 dll_787_func_490(Object *self, WCApertureSymbol_Data *objdata, f32 arg2, f32 arg3, f32 arg4) {
-    s32 sp74;
-    s32 sp70;
-    f32 sp6C;
-    f32 sp68;
-    f32 sp64;
-    f32 temp_fa0;
-    f32 temp_fa0_3;
-    f32 temp_ft4;
-    f32 temp_fv0;
-    f32 temp_ft5;
-    f32 temp_fv1;
-    u32 temp_a0;
-    f32 temp_fv1_2;
-    u32 temp_v0;
-    u32 temp_v1;
-    f32 var_fv0_2;
+static s16 WCApertureSymbol_getTargetOpacity(Object* self, WCApertureSymbol_Data* objdata, f32 minTimeOfDay, f32 maxTimeOfDay, f32 timeOfDay) {
+    s32 screenX;
+    s32 screenY;
+    f32 projectedX;
+    f32 projectedY;
+    f32 projectedZ;
+    f32 halfWidth;
+    f32 halfHeight;
+    f32 halfDuration;
+    f32 dpos;
+    f32 dposY;
+    f32 x;
+    f32 z;
+    f32 dt;
+    u32 screenDimensions;
+    u32 screenWidth;
+    u32 screenHeight;
 
-    var_fv0_2 = self->srt.transl.x - gWorldX;
-    temp_fa0_3 = self->srt.transl.z - gWorldZ;
+    x = self->srt.transl.x - gWorldX;
+    z = self->srt.transl.z - gWorldZ;
 
-    camProjectPoint(var_fv0_2, self->srt.transl.y, temp_fa0_3, &sp6C, &sp68, &sp64);
-    camClipToScreen(sp6C, sp68, sp64, &sp74, &sp70, NULL);
-    if (viContainsPoint(sp74, sp70) == 0) {
+    //Return with 0 opacity if the symbol is off-screen
+    camProjectPoint(x, self->srt.transl.y, z, &projectedX, &projectedY, &projectedZ);
+    camClipToScreen(projectedX, projectedY, projectedZ, &screenX, &screenY, NULL);
+    if (viContainsPoint(screenX, screenY) == FALSE) {
         return 0;
     }
-    if ((arg4 < arg2) || (arg3 < arg4)) {
+
+    //Return with 0 opacity if the current time-of-day is outside viewing hours
+    if (timeOfDay < minTimeOfDay || timeOfDay > maxTimeOfDay) {
         return 0;
     }
-    temp_v0 = viGetCurrentSize();
-    temp_v1 = GET_VIDEO_HEIGHT(temp_v0);
-    temp_a0 = GET_VIDEO_WIDTH(temp_v0);
-    if ((temp_a0 < (u32) sp74) || (sp74 < 0)) {
+
+    screenDimensions = viGetCurrentSize();
+    screenHeight = GET_VIDEO_HEIGHT(screenDimensions);
+    screenWidth = GET_VIDEO_WIDTH(screenDimensions);
+
+    //Return with 0 opacity if the symbol is off-screen
+    if ((u32)screenX > screenWidth || screenX < 0) {
         return 0;
     }
-    if ((temp_v1 < (u32) sp70) || (sp70 < 0)) {
+    if ((u32)screenY > screenHeight || screenY < 0) {
         return 0;
     }
-    temp_ft4 = (f32) (temp_a0 >> 1);
-    temp_fa0 = (f32) (temp_v1 >> 1);
-    temp_fv0 = (f32) sp74 - temp_ft4;
-    temp_ft5 = (f32) sp70 - temp_fa0;
-    if (temp_fv0 < 0.0f) {
-        temp_fv0 = -temp_fv0;
+
+    //Get a position tValue expressing how close the symbol is to the centre of screen (1 at screen centre, 0 at edges)
+    {
+        halfWidth = screenWidth/2;
+        halfHeight = screenHeight/2;
+
+        dpos = screenX - halfWidth;
+        if (dpos < 0.0f) {
+            dpos = -dpos;
+        }
+
+        dposY = screenY - halfHeight;
+        if (screenY < halfHeight) {
+            dposY = -(screenY - halfHeight);
+        }
+
+        dpos = halfWidth - dpos;
+        dposY = halfHeight - dposY;
+        dpos *= dpos;
+        dposY *= dposY;
+        halfHeight *= halfHeight;
+        halfWidth *= halfWidth;
+        dpos /= halfWidth;
+        dposY /= halfHeight;
+
+        dpos += dposY;
+        dpos *= 0.5f;
+        if (dpos > 1.0f) {
+            dpos = 1.0f;
+        } else if (dpos < 0) {
+            dpos = 0;
+        }
     }
-    temp_fv1 = temp_ft5;
-    if ((f32) sp70 < temp_fa0) {
-        temp_fv1 = -temp_ft5;
+
+    //Get a time tValue based around the peak viewing hour
+    {
+        //Get the difference between current time-of-day and the min/max viewing hours' halfway time
+        dt = timeOfDay - ((maxTimeOfDay + minTimeOfDay) * 0.5f);
+        if (dt < 0.0f) { //Use absolute value
+            dt = -dt;
+        }
+
+        //Get a tValue: 0 at min/max viewing time, 1 at the halfway/peak viewing time 
+        halfDuration = ((maxTimeOfDay + minTimeOfDay) * 0.5f) - minTimeOfDay;
+        dt = halfDuration - dt;
+        dt /= halfDuration;
+        if (dt > 1.0f) {
+            dt = 1.0f;
+        } else if (dt < 0) {
+            dt = 0;
+        }
     }
-    temp_fv0 = temp_ft4 - temp_fv0;
-    temp_fv1 = temp_fa0 - temp_fv1;
-    temp_fv0 *= temp_fv0;
-    temp_fv1 *= temp_fv1;
-    temp_fa0 *= temp_fa0;
-    temp_ft4 *= temp_ft4;
-    temp_fv0 /= temp_ft4;
-    temp_fv1 /= temp_fa0;
-    temp_fv0 += temp_fv1;
-    temp_fv0 *= 0.5f;
-    if (temp_fv0 > 1.0f) {
-        temp_fv0 = 1.0f;
-    } else if (temp_fv0 < 0) {
-        temp_fv0 = 0;
-    }
-    temp_fa0_3 = (arg3 + arg2) * 0.5f;
-    temp_fv1_2 = arg4 - temp_fa0_3;
-    if (temp_fv1_2 < 0.0f) {
-        temp_fv1_2 = -temp_fv1_2;
-    }
-    var_fv0_2 = temp_fa0_3 - arg2;
-    temp_fv1_2 = (var_fv0_2 - temp_fv1_2);
-    temp_fv1_2 /= var_fv0_2;
-    if (temp_fv1_2 > 1.0f) {
-        temp_fv1_2 = 1.0f;
-    } else if (temp_fv1_2 < 0) {
-        temp_fv1_2 = 0;
-    }
-    diPrintf("dpos=%f dt=%f\n", &temp_fv0, &temp_fv1_2);
-    return (s16) (s32) (temp_fv0 * temp_fv1_2 * 255.0f);
+
+    diPrintf("dpos=%f dt=%f\n", &dpos, &dt);
+
+    return (dpos * dt * OBJECT_OPACITY_MAX);
 }

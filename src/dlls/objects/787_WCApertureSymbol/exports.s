@@ -4,14 +4,14 @@
 _exports:
 
 # ctor/dtor
-.dword dll_787_ctor
-.dword dll_787_dtor
+.dword WCApertureSymbol_ctor
+.dword WCApertureSymbol_dtor
 
 # export table
-/*0*/ .dword dll_787_setup
-/*1*/ .dword dll_787_control
-/*2*/ .dword dll_787_update
-/*3*/ .dword dll_787_print
-/*4*/ .dword dll_787_free
-/*5*/ .dword dll_787_get_model_flags
-/*6*/ .dword dll_787_get_data_size
+/*0*/ .dword WCApertureSymbol_setup
+/*1*/ .dword WCApertureSymbol_control
+/*2*/ .dword WCApertureSymbol_update
+/*3*/ .dword WCApertureSymbol_print
+/*4*/ .dword WCApertureSymbol_free
+/*5*/ .dword WCApertureSymbol_get_model_flags
+/*6*/ .dword WCApertureSymbol_get_data_size
