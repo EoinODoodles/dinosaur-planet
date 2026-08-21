@@ -25,16 +25,16 @@ typedef enum {
     Switch_FLAG_Resets_After_Delay = 2          //Switch resets resets to its unpressed state after a number of seconds (specified by `objData->resetDelay`)
 } ProjectileSwitch_Flags;
 
-static void ProjectileSwitch_change_state(Object* self, int switchPressed, int playSound);
+static void ProjectileSwitch_changeState(Object* self, int switchPressed, int playSound);
 
 // offset: 0x0 | ctor
-void ProjectileSwitch_ctor(void *dll) { }
+void ProjectileSwitch_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void ProjectileSwitch_dtor(void *dll) { }
+void ProjectileSwitch_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void ProjectileSwitch_setup(Object* self, ProjectileSwitch_Setup* objSetup, s32 arg2) {
+void ProjectileSwitch_obj_Setup(Object* self, ProjectileSwitch_Setup* objSetup, s32 reset) {
     ProjectileSwitch_Data* objData = self->data;
     
     self->srt.yaw = objSetup->yaw << 8;
@@ -57,9 +57,9 @@ void ProjectileSwitch_setup(Object* self, ProjectileSwitch_Setup* objSetup, s32 
     //Check if the switch is already pressed
     objData->switchPressed = mainGetBits(objSetup->gamebit);
     if (objData->switchPressed) {
-        ProjectileSwitch_change_state(self, TRUE, FALSE);
+        ProjectileSwitch_changeState(self, TRUE, FALSE);
     } else {
-        ProjectileSwitch_change_state(self, FALSE, FALSE);
+        ProjectileSwitch_changeState(self, FALSE, FALSE);
     }
     
     if (objSetup->enableTint == FALSE) {
@@ -69,7 +69,7 @@ void ProjectileSwitch_setup(Object* self, ProjectileSwitch_Setup* objSetup, s32 
 }
 
 // offset: 0x1B0 | func: 1 | export: 1
-void ProjectileSwitch_control(Object* self) {
+void ProjectileSwitch_obj_Control(Object* self) {
     ProjectileSwitch_Setup* objSetup;
     ProjectileSwitch_Data* objData;
 
@@ -77,7 +77,7 @@ void ProjectileSwitch_control(Object* self) {
     objSetup = (ProjectileSwitch_Setup*)self->setup;
     
     if (objData->switchPressed && (mainGetBits(objSetup->gamebit) == FALSE)) {
-        ProjectileSwitch_change_state(self, FALSE, TRUE);
+        ProjectileSwitch_changeState(self, FALSE, TRUE);
     }
     
     //If the switch has an active delay timer, wait for it to expire
@@ -95,11 +95,11 @@ void ProjectileSwitch_control(Object* self) {
     if (func_80025F40(self, NULL, NULL, NULL) == Damage_Type_Projectile) {
         if (objData->switchPressed) {
             if ((objSetup->modelIndexAndFlags & 3) == Switch_FLAG_Can_Be_Toggled_Via_Attacks) {
-                ProjectileSwitch_change_state(self, FALSE, TRUE);
+                ProjectileSwitch_changeState(self, FALSE, TRUE);
                 mainSetBits(objSetup->gamebit, 0);
             }
         } else {
-            ProjectileSwitch_change_state(self, TRUE, TRUE);
+            ProjectileSwitch_changeState(self, TRUE, TRUE);
             mainSetBits(objSetup->gamebit, 1);
             if ((objSetup->modelIndexAndFlags & 3) == Switch_FLAG_Resets_After_Delay) {
                 objData->resetTimer = objSetup->resetDelay * 0.1f * 60.0f;
@@ -109,10 +109,10 @@ void ProjectileSwitch_control(Object* self) {
 }
 
 // offset: 0x398 | func: 2 | export: 2
-void ProjectileSwitch_update(Object *self) { }
+void ProjectileSwitch_obj_Update(Object* self) { }
 
 // offset: 0x3A4 | func: 3 | export: 3
-void ProjectileSwitch_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+void ProjectileSwitch_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     ProjectileSwitch_Setup* objSetup = (ProjectileSwitch_Setup*)self->setup;
     
     if (visibility) {
@@ -124,10 +124,10 @@ void ProjectileSwitch_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, 
 }
 
 // offset: 0x440 | func: 4 | export: 4
-void ProjectileSwitch_free(Object *self, s32 a1) { }
+void ProjectileSwitch_obj_Free(Object* self, s32 onlySelf) { }
 
 // offset: 0x450 | func: 5 | export: 5
-u32 ProjectileSwitch_get_model_flags(Object* self) {
+u32 ProjectileSwitch_obj_GetModelFlags(Object* self) {
     ProjectileSwitch_Setup* objSetup;
     s32 modelIndex;
 
@@ -138,16 +138,16 @@ u32 ProjectileSwitch_get_model_flags(Object* self) {
         modelIndex = 0;
     }
     
-    return (modelIndex << 0xB) | MODFLAGS_LOAD_SINGLE_MODEL;
+    return MODFLAGS_MODEL_INDEX(modelIndex) | MODFLAGS_LOAD_SINGLE_MODEL;
 }
 
 // offset: 0x488 | func: 6 | export: 6
-u32 ProjectileSwitch_get_data_size(Object *self, u32 a1) {
+u32 ProjectileSwitch_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(ProjectileSwitch_Data);
 }
 
 // offset: 0x49C | func: 7
-void ProjectileSwitch_change_state(Object* self, int switchPressed, int playSound) {
+void ProjectileSwitch_changeState(Object* self, int switchPressed, int playSound) {
     ProjectileSwitch_Data* objData;
     TextureAnimator* texAnim;
     s32 soundID;

@@ -8,10 +8,10 @@ _exports:
 .dword ProjectileSwitch_dtor
 
 # export table
-/*0*/ .dword ProjectileSwitch_setup
-/*1*/ .dword ProjectileSwitch_control
-/*2*/ .dword ProjectileSwitch_update
-/*3*/ .dword ProjectileSwitch_print
-/*4*/ .dword ProjectileSwitch_free
-/*5*/ .dword ProjectileSwitch_get_model_flags
-/*6*/ .dword ProjectileSwitch_get_data_size
+/*0*/ .dword ProjectileSwitch_obj_Setup
+/*1*/ .dword ProjectileSwitch_obj_Control
+/*2*/ .dword ProjectileSwitch_obj_Update
+/*3*/ .dword ProjectileSwitch_obj_Print
+/*4*/ .dword ProjectileSwitch_obj_Free
+/*5*/ .dword ProjectileSwitch_obj_GetModelFlags
+/*6*/ .dword ProjectileSwitch_obj_GetDataSize
