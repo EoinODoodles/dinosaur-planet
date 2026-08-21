@@ -728,8 +728,8 @@ typedef enum {
     BIT_WC_Sun_Temple_Dial_Hit_Midday_Switch = 0x2D1, // len:1 group:1
     BIT_WC_Sun_Temple_Dial_Hit_Sunset_Switch = 0x2D2, // len:1 group:1
     BIT_2D3 = 0x2D3, // len:1 group:1
-    BIT_2D4 = 0x2D4, // len:1 group:1
-    BIT_2D5 = 0x2D5, // len:1 group:1
+    BIT_WC_Sun_Temple_Magic_Bridge_Visible = 0x2D4, // len:1 group:1
+    BIT_WC_Moon_Temple_Magic_Bridge_Visible = 0x2D5, // len:1 group:1
     BIT_Inventory_Corrupt_Item = 0x2D6, // len:1 group:1    [INVENTORY]
     BIT_SC_All_Beacons_Lit = 0x2D7, // len:1 group:2
     BIT_2D8 = 0x2D8, // len:1 group:2

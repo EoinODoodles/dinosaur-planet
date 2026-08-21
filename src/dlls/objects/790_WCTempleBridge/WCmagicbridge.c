@@ -48,7 +48,6 @@ void WCTempleBridge_obj_Setup(Object* self, WCTempleBridge_Setup* objSetup, s32 
     s32 vertZ;
     int stop;
     int nearbyVertFound;
-    f32 temp;
     s32 i;
     s32 j;
     
