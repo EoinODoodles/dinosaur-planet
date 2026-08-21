@@ -1,0 +1,18 @@
+.text = 0x0:
+DBMagicBridge_ctor = 0x0;
+DBMagicBridge_dtor = 0xC;
+DBMagicBridge_obj_Setup = 0x18;
+DBMagicBridge_obj_Control = 0x2B8;
+DBMagicBridge_obj_Update = 0x420;
+DBMagicBridge_obj_Print = 0x42C;
+DBMagicBridge_obj_Free = 0x480;
+DBMagicBridge_obj_GetModelFlags = 0x490;
+DBMagicBridge_obj_GetDataSize = 0x4A0;
+DBMagicBridge_animCallback = 0x4B4;
+DBMagicBridge_advanceAnimation = 0x620;
+DBMagicBridge_updateVertices = 0x780;
+
+.rodata = 0xAE4:
+
+.data = 0xAF4:
+data_0 = 0x0; // absolute:0xAF4

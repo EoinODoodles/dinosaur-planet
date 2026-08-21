@@ -5,10 +5,11 @@ typedef struct {
     ObjSetup base;
     s8 yaw;
     s8 modelIdx;                    //Which bridge model to use
-    s16 unk1A;
+    s16 gamebit1A;
     s16 unk1C;
     s16 gamebitVisible;             //Stores the bridge's visibility state
-} DIMMagicBridge_Setup;
+    s16 gamebit20;
+} DBMagicBridge_Setup;
 
 typedef struct {
     f32 minZ;                       //The position of the vertex furthest from the model's origin along Z (will be negative, and effectively bridge's length)
@@ -19,41 +20,45 @@ typedef struct {
     u8 visible;                     //The bridge is drawn when this is set
     u16 phaseAngleA;                //Angle value for the vertices' sinusoidal waving animation
     u16 phaseAngleB;                //Advances, but not used for anything
-    s16 fadeInWaveTimer;            //Used to progressively fade in the bridge's vertices in a wave along the bridge (DBMagicBridge, DIMMagicBridge)
+    s16 fadeInWaveTimer;            //Used to progressively fade in the bridge's vertices in a wave along the bridge (DBMagicBridge, DIMMagicBridge) 
     u8 flags;                       //Tracks whether the gamebit has been set
-} DIMMagicBridge_Data;
+} DBMagicBridge_Data;
 
 typedef enum {
     WCTempleBridge_FLAG_Visibility_Gamebit_Set = 1
 } WCTempleBridge_Flags;
 
 #define MAX_OPACITY 0xFF
-#define DIM_MAGIC_BRIDGE_HITS_ANIMATOR 0x11
+#define DB_MAGIC_BRIDGE_HITS_ANIMATOR 0x11
 
-static void DIMMagicBridge_advanceAnimation(Object* self, DIMMagicBridge_Data* objData);
-static void DIMMagicBridge_updateVertices(Object* self, DIMMagicBridge_Data* objData);
-static int DIMMagicBridge_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
+/*0x0*/ static u32 data_0[] = {
+    0xff0f002b, 0x79ff0000, 0x00000000, 0x00000000
+};
+
+static void DBMagicBridge_advanceAnimation(Object* self, DBMagicBridge_Data* objData);
+static void DBMagicBridge_updateVertices(Object* self, DBMagicBridge_Data* objData);
+static int DBMagicBridge_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
 
 // offset: 0x0 | ctor
-void DIMMagicBridge_ctor(void* dll) { }
+void DBMagicBridge_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void DIMMagicBridge_dtor(void* dll) { }
+void DBMagicBridge_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void DIMMagicBridge_obj_Setup(Object* self, DIMMagicBridge_Setup* objSetup, s32 reset) {
+void DBMagicBridge_obj_Setup(Object* self, DBMagicBridge_Setup* objSetup, s32 reset) {
     s32 i;
     int stop;
     s32 minZ;
     s32 vertZ;
     s32 j;
     int nearbyVertFound;
-    DIMMagicBridge_Data* objData;
+    DBMagicBridge_Data* objData;
     ModelInstance* modelInst;
     Model* model;
     
     self->srt.yaw = objSetup->yaw << 8;
-    self->animCallback = DIMMagicBridge_animCallback;
+    self->animCallback = DBMagicBridge_animCallback;
     
     objData = self->data;
     
@@ -109,7 +114,7 @@ void DIMMagicBridge_obj_Setup(Object* self, DIMMagicBridge_Setup* objSetup, s32 
     objData->minZ = minZ;
 
     //Restore visibility state
-    if (mainGetBits(BIT_DIM_Magic_Bridge_Visible)) {
+    if (mainGetBits(objSetup->gamebitVisible)) {
         objData->visible = TRUE;
     }
 
@@ -119,67 +124,67 @@ void DIMMagicBridge_obj_Setup(Object* self, DIMMagicBridge_Setup* objSetup, s32 
             objData->vertexFadeIn[i] = TRUE;
 
             //@bug: shouldn't this be outside the loop?
-            trackToggleHitLine(DIM_MAGIC_BRIDGE_HITS_ANIMATOR, NULL, FALSE);
+            trackToggleHitLine(DB_MAGIC_BRIDGE_HITS_ANIMATOR, NULL, FALSE);
         }
     }
-    
-    self->stateFlags |= OBJSTATE_UPDATE_DISABLED | OBJSTATE_PRINT_DISABLED;
 }
 
-// offset: 0x2CC | func: 1 | export: 1
-void DIMMagicBridge_obj_Control(Object* self) {
-    DIMMagicBridge_Data* objData;
+// offset: 0x2B8 | func: 1 | export: 1
+void DBMagicBridge_obj_Control(Object* self) {
+    DBMagicBridge_Setup* objSetup;
+    DBMagicBridge_Data* objData;
     Object* player;
     s32 sp24;
     f32 sp20;
 
+    objSetup = (DBMagicBridge_Setup*)self->setup;
     player = objGetPlayer();
     objData = self->data;
     
-    DIMMagicBridge_advanceAnimation(self, objData);
-    DIMMagicBridge_updateVertices(self, objData);
+    DBMagicBridge_advanceAnimation(self, objData);
+    DBMagicBridge_updateVertices(self, objData);
     
     if (objData->visible == FALSE) {
         sp24 = dll_player(player)->func36(player, &sp20);
 
-        if (mainGetBits(BIT_1EF) && (sp24 != 1) && dll_player(player)->func42(player)) {
+        if (mainGetBits(objSetup->gamebit1A) && (sp24 != 1)) {
             dll_player(player)->func37(player, 1);
         }
 
         if ((sp24 == 1) && (sp20 < 0.1f)) {
-            mainSetBits(BIT_1E8, TRUE);
+            mainSetBits(objSetup->gamebit20, TRUE);
         }
     } else {
-        trackToggleHitLine(DIM_MAGIC_BRIDGE_HITS_ANIMATOR, NULL, FALSE);
+        trackToggleHitLine(DB_MAGIC_BRIDGE_HITS_ANIMATOR, NULL, FALSE);
     }
 }
 
-// offset: 0x448 | func: 2 | export: 2
-void DIMMagicBridge_obj_Update(Object* self) { }
+// offset: 0x420 | func: 2 | export: 2
+void DBMagicBridge_obj_Update(Object* self) { }
 
-// offset: 0x454 | func: 3 | export: 3
-void DIMMagicBridge_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+// offset: 0x42C | func: 3 | export: 3
+void DBMagicBridge_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
-// offset: 0x4A8 | func: 4 | export: 4
-void DIMMagicBridge_obj_Free(Object* self, s32 onlySelf) { }
+// offset: 0x480 | func: 4 | export: 4
+void DBMagicBridge_obj_Free(Object* self, s32 onlySelf) { }
 
-// offset: 0x4B8 | func: 5 | export: 5
-u32 DIMMagicBridge_obj_GetModelFlags(Object* self) {
+// offset: 0x490 | func: 5 | export: 5
+u32 DBMagicBridge_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
-// offset: 0x4C8 | func: 6 | export: 6
-u32 DIMMagicBridge_obj_GetDataSize(Object* self, u32 offsetAddr) {
-    return sizeof(DIMMagicBridge_Data);
+// offset: 0x4A0 | func: 6 | export: 6
+u32 DBMagicBridge_obj_GetDataSize(Object* self, u32 offsetAddr) {
+    return sizeof(DBMagicBridge_Data);
 }
 
-// offset: 0x4DC | func: 7
-int DIMMagicBridge_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
-    DIMMagicBridge_Data* objData;
+// offset: 0x4B4 | func: 7
+int DBMagicBridge_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
+    DBMagicBridge_Data* objData;
     s32 i;
     s32 opacity;
 
@@ -187,7 +192,7 @@ int DIMMagicBridge_animCallback(Object* self, Object* animObj, AnimObj_Data* ani
 
     animData->unk62 = 0;
 
-    DIMMagicBridge_advanceAnimation(self, objData);
+    DBMagicBridge_advanceAnimation(self, objData);
 
     //Become visible via an objSeq message
     if (animData->lastMessage == 1) {
@@ -219,13 +224,13 @@ int DIMMagicBridge_animCallback(Object* self, Object* animObj, AnimObj_Data* ani
         }
     }
     
-    DIMMagicBridge_updateVertices(self, objData);
+    DBMagicBridge_updateVertices(self, objData);
     
     return 0;
 }
 
-// offset: 0x648 | func: 8
-void DIMMagicBridge_advanceAnimation(Object* self, DIMMagicBridge_Data* objData) {
+// offset: 0x620 | func: 8
+void DBMagicBridge_advanceAnimation(Object* self, DBMagicBridge_Data* objData) {
     TextureAnimator* texAnim;
     s32 angle;
     s32 i;
@@ -271,8 +276,8 @@ void DIMMagicBridge_advanceAnimation(Object* self, DIMMagicBridge_Data* objData)
     objData->phaseAngleB = angle;
 }
 
-// offset: 0x7A8 | func: 9
-void DIMMagicBridge_updateVertices(Object* self, DIMMagicBridge_Data* objData) {
+// offset: 0x780 | func: 9
+void DBMagicBridge_updateVertices(Object* self, DBMagicBridge_Data* objData) {
     ModelInstance* modelInst;
     Model* model;
     Vtx* vertices;
