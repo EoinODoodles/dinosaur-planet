@@ -493,7 +493,7 @@ typedef enum {
     BIT_1E6 = 0x1E6, // len:1 group:1
     BIT_1E7 = 0x1E7, // len:1 group:0
     BIT_1E8 = 0x1E8, // len:1 group:1
-    BIT_1E9 = 0x1E9, // len:1 group:1
+    BIT_DIM_Magic_Bridge_Visible = 0x1E9, // len:1 group:1
     BIT_Tutorial_Fire_Crystal = 0x1EA, // len:1 group:1 [TUTORIAL]
     BIT_CC_SandWormBoss_SharpClaw_Solo_Defeated = 0x1EB, // len:1 group:2
     BIT_CC_SandWormBoss_SharpClaw_Pair_Defeated_1 = 0x1EC, // len:1 group:2

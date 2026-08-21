@@ -1,0 +1,15 @@
+.text = 0x0:
+DIMMagicBridge_ctor = 0x0;
+DIMMagicBridge_dtor = 0xC;
+DIMMagicBridge_obj_Setup = 0x18;
+DIMMagicBridge_obj_Control = 0x2CC;
+DIMMagicBridge_obj_Update = 0x448;
+DIMMagicBridge_obj_Print = 0x454;
+DIMMagicBridge_obj_Free = 0x4A8;
+DIMMagicBridge_obj_GetModelFlags = 0x4B8;
+DIMMagicBridge_obj_GetDataSize = 0x4C8;
+DIMMagicBridge_animCallback = 0x4DC;
+DIMMagicBridge_advanceAnimation = 0x648;
+DIMMagicBridge_updateVertices = 0x7A8;
+
+.rodata = 0xB04:

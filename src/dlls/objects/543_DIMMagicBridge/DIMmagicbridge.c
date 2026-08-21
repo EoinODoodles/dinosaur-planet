@@ -1,5 +1,5 @@
 #include "common.h"
-#include "game/objects/object.h"
+#include "dlls/objects/210_player.h"
 
 typedef struct {
     ObjSetup base;
@@ -8,7 +8,7 @@ typedef struct {
     s16 unk1A;
     s16 unk1C;
     s16 gamebitVisible;             //Stores the bridge's visibility state
-} WCTempleBridge_Setup;
+} DIMMagicBridge_Setup;
 
 typedef struct {
     f32 minZ;                       //The position of the vertex furthest from the model's origin along Z (will be negative, and effectively bridge's length)
@@ -19,46 +19,44 @@ typedef struct {
     u8 visible;                     //The bridge is drawn when this is set
     u16 phaseAngleA;                //Angle value for the vertices' sinusoidal waving animation
     u16 phaseAngleB;                //Advances, but not used for anything
-    s16 unk64;                      //Unused
+    s16 fadeInWaveTimer;           //
     u8 flags;                       //Tracks whether the gamebit has been set
-} WCTempleBridge_Data;
+} DIMMagicBridge_Data;
 
 typedef enum {
     WCTempleBridge_FLAG_Visibility_Gamebit_Set = 1
 } WCTempleBridge_Flags;
 
 #define MAX_OPACITY 0xFF
+#define DIM_MAGIC_BRIDGE_HITS_ANIMATOR 0x11
 
-static void WCTempleBridge_advanceAnimation(Object* self, WCTempleBridge_Data* objData);
-static void WCTempleBridge_updateVertices(Object* self, WCTempleBridge_Data* objData);
-static int WCTempleBridge_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static void DIMMagicBridge_advanceAnimation(Object* self, DIMMagicBridge_Data* objData);
+static void DIMMagicBridge_updateVertices(Object* self, DIMMagicBridge_Data* objData);
+static int DIMMagicBridge_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
 
 // offset: 0x0 | ctor
-void WCTempleBridge_ctor(void* dll) { }
+void DIMMagicBridge_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void WCTempleBridge_dtor(void* dll) { }
+void DIMMagicBridge_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void WCTempleBridge_obj_Setup(Object* self, WCTempleBridge_Setup* objSetup, s32 reset) {
-    WCTempleBridge_Data* objData;
-    ModelInstance* modelInst;
-    Model* model;
+void DIMMagicBridge_obj_Setup(Object* self, DIMMagicBridge_Setup* objSetup, s32 reset) {
+    s32 i;
+    int stop;
     s32 minZ;
     s32 vertZ;
-    int stop;
-    int nearbyVertFound;
-    s32 i;
     s32 j;
+    int nearbyVertFound;
+    DIMMagicBridge_Data* objData;
+    ModelInstance* modelInst;
+    Model* model;
     
     self->srt.yaw = objSetup->yaw << 8;
-    self->modelInstIdx = objSetup->modelIdx;
-    if (self->modelInstIdx >= self->def->numModels) {
-        self->modelInstIdx = 0;
-    }
-    self->animCallback = WCTempleBridge_animCallback;
+    self->animCallback = DIMMagicBridge_animCallback;
     
     objData = self->data;
+    
     modelInst = self->modelInsts[self->modelInstIdx];
     model = modelInst->model;
     
@@ -111,140 +109,123 @@ void WCTempleBridge_obj_Setup(Object* self, WCTempleBridge_Setup* objSetup, s32 
     objData->minZ = minZ;
 
     //Restore visibility state
-    if (mainGetBits(objSetup->gamebitVisible)) {
+    if (mainGetBits(BIT_DIM_Magic_Bridge_Visible)) {
         objData->visible = TRUE;
-        objData->flags |= WCTempleBridge_FLAG_Visibility_Gamebit_Set;
     }
 
     if (objData->visible) {
         for (i = 0; i < objData->vertexZCount; i++) {
             objData->vertexAlphas[i] = MAX_OPACITY;
             objData->vertexFadeIn[i] = TRUE;
+
+            //@bug: shouldn't this be outside the loop?
+            trackToggleHitLine(DIM_MAGIC_BRIDGE_HITS_ANIMATOR, NULL, FALSE);
         }
-    } else {
-        func_800267A4(self);
     }
     
     self->stateFlags |= OBJSTATE_UPDATE_DISABLED | OBJSTATE_PRINT_DISABLED;
 }
 
-// offset: 0x300 | func: 1 | export: 1
-void WCTempleBridge_obj_Control(Object* self) {
-    WCTempleBridge_Data* objData;
-    s32 opacity;
-    s32 i;
-    WCTempleBridge_Setup* objSetup;
+// offset: 0x2CC | func: 1 | export: 1
+void DIMMagicBridge_obj_Control(Object* self) {
+    DIMMagicBridge_Data* objData;
+    Object* player;
+    s32 sp24;
+    f32 sp20;
 
+    player = objGetPlayer();
     objData = self->data;
-    objSetup = (WCTempleBridge_Setup*)self->setup;
     
-    WCTempleBridge_advanceAnimation(self, objData);
+    DIMMagicBridge_advanceAnimation(self, objData);
+    DIMMagicBridge_updateVertices(self, objData);
+    
+    if (objData->visible == FALSE) {
+        sp24 = dll_player(player)->func36(player, &sp20);
 
-    if (objData->visible) {
-        if ((objData->flags & WCTempleBridge_FLAG_Visibility_Gamebit_Set) == FALSE) {
-            objData->flags |= WCTempleBridge_FLAG_Visibility_Gamebit_Set;
-            mainSetBits(objSetup->gamebitVisible, TRUE);
+        if (mainGetBits(BIT_1EF) && (sp24 != 1) && dll_player(player)->func42(player)) {
+            dll_player(player)->func37(player, 1);
         }
 
-        for (i = 0; i < objData->vertexZCount; i++) {
-            objData->vertexFadeIn[i] = TRUE;
-            if (objData->vertexFadeIn[i]) {
-                    opacity = objData->vertexAlphas[i] + gUpdateRate;
-                    if (opacity > MAX_OPACITY) {
-                        opacity = MAX_OPACITY;
-                    }
-                objData->vertexAlphas[i] = opacity;
-            }
+        if ((sp24 == 1) && (sp20 < 0.1f)) {
+            mainSetBits(BIT_1E8, TRUE);
         }
-        
-        func_8002674C(self);
     } else {
-        func_800267A4(self);
+        trackToggleHitLine(DIM_MAGIC_BRIDGE_HITS_ANIMATOR, NULL, FALSE);
     }
-    
-    WCTempleBridge_updateVertices(self, objData);
 }
 
-// offset: 0x438 | func: 2 | export: 2
-void WCTempleBridge_obj_Update(Object* self) { }
+// offset: 0x448 | func: 2 | export: 2
+void DIMMagicBridge_obj_Update(Object* self) { }
 
-// offset: 0x444 | func: 3 | export: 3
-void WCTempleBridge_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
-    WCTempleBridge_Data* objData = self->data;
-    if (visibility && objData->visible) {
+// offset: 0x454 | func: 3 | export: 3
+void DIMMagicBridge_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+    if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x4A8 | func: 4 | export: 4
-void WCTempleBridge_obj_Free(Object* self, s32 onlySelf) { }
+void DIMMagicBridge_obj_Free(Object* self, s32 onlySelf) { }
 
 // offset: 0x4B8 | func: 5 | export: 5
-u32 WCTempleBridge_obj_GetModelFlags(Object* self) {
-    WCTempleBridge_Setup* objSetup;
-    s8 modelIdx;
-
-    objSetup = (WCTempleBridge_Setup*)self->setup;
-    
-    modelIdx = objSetup->modelIdx;
-    if (modelIdx >= self->def->numModels) {
-        modelIdx = 0;
-    }
-    
-    return MODFLAGS_MODEL_INDEX(modelIdx) | MODFLAGS_LOAD_SINGLE_MODEL;
+u32 DIMMagicBridge_obj_GetModelFlags(Object* self) {
+    return MODFLAGS_NONE;
 }
 
-// offset: 0x4EC | func: 6 | export: 6
-u32 WCTempleBridge_obj_GetDataSize(Object* self, u32 offsetAddr) {
-    return sizeof(WCTempleBridge_Data);
+// offset: 0x4C8 | func: 6 | export: 6
+u32 DIMMagicBridge_obj_GetDataSize(Object* self, u32 offsetAddr) {
+    return sizeof(DIMMagicBridge_Data);
 }
 
-// offset: 0x500 | func: 7
-int WCTempleBridge_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
-    WCTempleBridge_Data* objData;
+// offset: 0x4DC | func: 7
+int DIMMagicBridge_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
+    DIMMagicBridge_Data* objData;
     s32 i;
     s32 opacity;
-    WCTempleBridge_Setup* objSetup;
 
-    objSetup = (WCTempleBridge_Setup*)self->setup;
     objData = self->data;
-    
+
     animData->unk62 = 0;
 
-    WCTempleBridge_advanceAnimation(self, objData);
-    
+    DIMMagicBridge_advanceAnimation(self, objData);
+
     //Become visible via an objSeq message
     if (animData->lastMessage == 1) {
+        animData->lastMessage = 0;
         objData->visible = TRUE;
     }
     
     if (objData->visible) {
-        //Store visibility state
-        if ((objData->flags & WCTempleBridge_FLAG_Visibility_Gamebit_Set) == FALSE) {
-            objData->flags |= WCTempleBridge_FLAG_Visibility_Gamebit_Set;
-            mainSetBits(objSetup->gamebitVisible, TRUE);
+        //Gradually add vertices to the fade effect by depth-sorted index, 
+        //so the fade ripples down the bridge in a wave
+        objData->fadeInWaveTimer -= gUpdateRate;
+        if (objData->fadeInWaveTimer <= 0) {
+            objData->fadeInWaveTimer = 16;
+
+            for (i = 1; objData->vertexFadeIn[i] && i < objData->vertexZCount; i++);
+
+            objData->vertexFadeIn[i] = TRUE;
         }
         
         //Fade in vertices
-        for (i = 0; i < objData->vertexZCount; i++) {
-            objData->vertexFadeIn[i] = TRUE;
+        for (i = 1; i < objData->vertexZCount; i++) {
             if (objData->vertexFadeIn[i]) {
-                    opacity = objData->vertexAlphas[i] + gUpdateRate;
-                    if (opacity > MAX_OPACITY) {
-                        opacity = MAX_OPACITY;
-                    }
+                opacity = objData->vertexAlphas[i] + gUpdateRate;
+                if (opacity > MAX_OPACITY) {
+                    opacity = MAX_OPACITY;
+                }
                 objData->vertexAlphas[i] = opacity;
             }
         }
     }
     
-    WCTempleBridge_updateVertices(self, objData);
+    DIMMagicBridge_updateVertices(self, objData);
     
     return 0;
 }
 
-// offset: 0x644 | func: 8
-void WCTempleBridge_advanceAnimation(Object* self, WCTempleBridge_Data* objData) {
+// offset: 0x648 | func: 8
+void DIMMagicBridge_advanceAnimation(Object* self, DIMMagicBridge_Data* objData) {
     TextureAnimator* texAnim;
     s32 angle;
     s32 i;
@@ -290,8 +271,8 @@ void WCTempleBridge_advanceAnimation(Object* self, WCTempleBridge_Data* objData)
     objData->phaseAngleB = angle;
 }
 
-// offset: 0x7A4 | func: 9
-void WCTempleBridge_updateVertices(Object* self, WCTempleBridge_Data* objData) {
+// offset: 0x7A8 | func: 9
+void DIMMagicBridge_updateVertices(Object* self, DIMMagicBridge_Data* objData) {
     ModelInstance* modelInst;
     Model* model;
     Vtx* vertices;
@@ -313,9 +294,9 @@ void WCTempleBridge_updateVertices(Object* self, WCTempleBridge_Data* objData) {
             
             //Oscillate the vertex along X axis (mirrored across X)
             if (model->vertices[vertexIdx].v.ob[0] > 0) {
-                vertices[vertexIdx].v.ob[0] = model->vertices[vertexIdx].v.ob[0] + (mathSinfInterp(phase) * 20.0f);
+                vertices[vertexIdx].v.ob[0] = model->vertices[vertexIdx].v.ob[0] + (mathSinfInterp(phase) * 15.0f);
             } else {
-                vertices[vertexIdx].v.ob[0] = model->vertices[vertexIdx].v.ob[0] - (mathSinfInterp(phase) * 20.0f);
+                vertices[vertexIdx].v.ob[0] = model->vertices[vertexIdx].v.ob[0] - (mathSinfInterp(phase) * 15.0f);
             }
             
             //Animate vertex opacity (only on vertices with nonzero initial alpha)
