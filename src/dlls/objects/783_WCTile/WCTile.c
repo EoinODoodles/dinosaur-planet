@@ -18,17 +18,22 @@ typedef struct {
 /*00*/ ObjSetup base;
 /*18*/ s8 _unk18;
 /*19*/ s8 modelIdx;
-/*1A*/ s16 unk1A;
+/*1A*/ s16 puzzlePieceID;
 } WCTile_Setup;
 
 typedef enum {
-    WCTile_STATE_0,
-    WCTile_STATE_1,
-    WCTile_STATE_2,
-    WCTile_STATE_3,
+    WCTile_STATE_0_Initialising,
+    WCTile_STATE_1_Ready,
+    WCTile_STATE_2_Covered_With_Block,
+    WCTile_STATE_3_Fading_Out,
     WCTile_STATE_4_Fading_In,
-    WCTile_STATE_5
+    WCTile_STATE_5_Puzzle_Finished
 } WCTile_States;
+
+typedef enum {
+    WCTile_MODELIDX_Moon,
+    WCTile_MODELIDX_Sun
+} WCTile_ModelIndices;
 
 // offset: 0x0 | ctor
 void WCTile_ctor(void* dll) { }
@@ -44,10 +49,10 @@ void WCTile_obj_Setup(Object* self, WCTile_Setup* setup, s32 reset) {
 
     self->modelInstIdx = setup->modelIdx;
     if (self->modelInstIdx >= self->def->numModels) {
-        self->modelInstIdx = 0;
+        self->modelInstIdx = WCTile_MODELIDX_Moon;
     }
 
-    objdata->puzzlePieceID = setup->unk1A;
+    objdata->puzzlePieceID = setup->puzzlePieceID;
 
     self->shadow->flags |= (OBJ_SHADOW_FLAG_TOP_DOWN | OBJ_SHADOW_FLAG_CUSTOM_DIR);
     
@@ -73,41 +78,41 @@ void WCTile_obj_Control(Object* self) {
 
     self->srt.yaw += (s16) (gUpdateRateF * 180.0f);
 
-    if (objdata->state != WCTile_STATE_5) {
+    if (objdata->state != WCTile_STATE_5_Puzzle_Finished) {
         isNight = gDLL_7_Newday->vtbl->func8(&time);
-        if (self->modelInstIdx == 1) {
+        if (self->modelInstIdx == WCTile_MODELIDX_Sun) {
             if (mainGetBits(BIT_WC_Sun_Aperture_Opened)) {  //Completed Sun Block Puzzle
-                objdata->state = WCTile_STATE_5;
+                objdata->state = WCTile_STATE_5_Puzzle_Finished;
             } else if (isNight) {
-                objdata->state = WCTile_STATE_3;
+                objdata->state = WCTile_STATE_3_Fading_Out;
             }
         } else {
             if (mainGetBits(BIT_WC_Moon_Aperture_Opened)) { //Completed Moon Block Puzzle
-                objdata->state = WCTile_STATE_5;
+                objdata->state = WCTile_STATE_5_Puzzle_Finished;
             } else if (!isNight) {
-                objdata->state = WCTile_STATE_3;
+                objdata->state = WCTile_STATE_3_Fading_Out;
             }
         }
     }
 
     switch (objdata->state) {
-    case WCTile_STATE_0:
-        if (self->modelInstIdx == 1) {
+    case WCTile_STATE_0_Initialising:
+        if (self->modelInstIdx == WCTile_MODELIDX_Sun) {
             dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
             dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
         } else {
             dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
             dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
         }
-        objdata->state = WCTile_STATE_1;
+        objdata->state = WCTile_STATE_1_Ready;
         break;
-    case WCTile_STATE_2:
+    case WCTile_STATE_2_Covered_With_Block:
         self->opacity = 0;
         break;
-    case WCTile_STATE_5:
+    case WCTile_STATE_5_Puzzle_Finished:
         self->opacity = 0;
         break;
-    case WCTile_STATE_3:
+    case WCTile_STATE_3_Fading_Out:
         opacity = self->opacity - (gUpdateRate * 8);
         if (opacity < 0) {
             opacity = 0;
@@ -115,7 +120,7 @@ void WCTile_obj_Control(Object* self) {
         self->opacity = opacity;
 
         if (self->opacity == 0) {
-            if (self->modelInstIdx == 1) {
+            if (self->modelInstIdx == WCTile_MODELIDX_Sun) {
                 if (!isNight) {
                     dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
                     dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
@@ -136,24 +141,28 @@ void WCTile_obj_Control(Object* self) {
             opacity = 200;
         }
         self->opacity = opacity;
+
         if (self->opacity >= 200) {
-            objdata->state = WCTile_STATE_1;
+            objdata->state = WCTile_STATE_1_Ready;
         }
         break;
-    case WCTile_STATE_1:
+    case WCTile_STATE_1_Ready:
     default:
+        //Continue fading in
         opacity = self->opacity + (gUpdateRate * 8);
         if (opacity > 200) {
             opacity = 200;
         }
         self->opacity = opacity;
-        if (self->modelInstIdx == 1) {
+
+        //Change state when covered up by a pushblock
+        if (self->modelInstIdx == WCTile_MODELIDX_Sun) {
             if (objdata->puzzlePieceID != dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleGetCell(objdata->puzzleGridX, objdata->puzzleGridZ)) {
-                objdata->state = WCTile_STATE_2;
+                objdata->state = WCTile_STATE_2_Covered_With_Block;
             }
         } else {
             if (objdata->puzzlePieceID != dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleGetCell(objdata->puzzleGridX, objdata->puzzleGridZ)) {
-                objdata->state = WCTile_STATE_2;
+                objdata->state = WCTile_STATE_2_Covered_With_Block;
             }
         }
         break;
