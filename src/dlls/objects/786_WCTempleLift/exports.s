@@ -4,14 +4,14 @@
 _exports:
 
 # ctor/dtor
-.dword dll_786_ctor
-.dword dll_786_dtor
+.dword WCTempleLift_ctor
+.dword WCTempleLift_dtor
 
 # export table
-/*0*/ .dword dll_786_setup
-/*1*/ .dword dll_786_control
-/*2*/ .dword dll_786_update
-/*3*/ .dword dll_786_print
-/*4*/ .dword dll_786_free
-/*5*/ .dword dll_786_get_model_flags
-/*6*/ .dword dll_786_get_data_size
+/*0*/ .dword WCTempleLift_obj_Setup
+/*1*/ .dword WCTempleLift_obj_Control
+/*2*/ .dword WCTempleLift_obj_Update
+/*3*/ .dword WCTempleLift_obj_Print
+/*4*/ .dword WCTempleLift_obj_Free
+/*5*/ .dword WCTempleLift_obj_GetModelFlags
+/*6*/ .dword WCTempleLift_obj_GetDataSize
