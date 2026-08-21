@@ -482,6 +482,7 @@
 787 = objects/787_WCApertureSymbol
 788 = objects/788_WCSunTempleLaser
 789 = objects/789_WCTempleDial
+790 = objects/790_WCTempleBridge
 792 = objects/792
 793 = objects/793_BWlog
 795 = objects/795_BWLevelControl

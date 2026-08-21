@@ -156,7 +156,7 @@ typedef struct{
 /*006C*/    s16 displayListLength; //f3dex2 command count
 /*006E*/    u8 hitSphereCount; //hitsphere_count
 /*006F*/    u8 jointCount; //joints_count
-/*0070*/    u8 unk70; //mesh settings bitfield (bit0 allows simultaneous eye/mouth blendshapes, bit3 involved in texturing?)
+/*0070*/    u8 unk70; //mesh settings bitfield (bit0 allows simultaneous eye/mouth blendshapes, bit3 involved in texturing?) (shape_count in some situations?)
 /*0071*/    u8 unk71; //animation-related bitfield?
 /*0072*/    u8 refCount; 
 /*0073*/    u8 textureCount; //material_count

@@ -1,0 +1,15 @@
+.text = 0x0:
+WCTempleBridge_ctor = 0x0;
+WCTempleBridge_dtor = 0xC;
+WCTempleBridge_obj_Setup = 0x18;
+WCTempleBridge_obj_Control = 0x300;
+WCTempleBridge_obj_Update = 0x438;
+WCTempleBridge_obj_Print = 0x444;
+WCTempleBridge_obj_Free = 0x4A8;
+WCTempleBridge_obj_GetModelFlags = 0x4B8;
+WCTempleBridge_obj_GetDataSize = 0x4EC;
+WCTempleBridge_animCallback = 0x500;
+WCTempleBridge_advanceAnimation = 0x644;
+WCTempleBridge_updateVertices = 0x7A4;
+
+.rodata = 0xB04:
