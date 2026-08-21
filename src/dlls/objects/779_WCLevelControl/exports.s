@@ -19,13 +19,13 @@ _exports:
 /*8*/ .dword WCLevelControl_SunPuzzleSetGridPositionFromCoords
 /*9*/ .dword WCLevelControl_SunPuzzleSetCell
 /*10*/ .dword WCLevelControl_SunPuzzleGetCell
-/*11*/ .dword WCLevelControl_SunPuzzleSetupPositionHard
-/*12*/ .dword WCLevelControl_SunPuzzleSetupPositionEasy
+/*11*/ .dword WCLevelControl_SunPuzzleSetupPositionInitial
+/*12*/ .dword WCLevelControl_SunPuzzleSetupPositionFinished
 /*13*/ .dword WCLevelControl_SunPuzzleMove
 /*14*/ .dword WCLevelControl_MoonPuzzleSetCoordsFromGridPosition
 /*15*/ .dword WCLevelControl_MoonPuzzleSetGridPositionFromCoords
 /*16*/ .dword WCLevelControl_MoonPuzzleSetCell
 /*17*/ .dword WCLevelControl_MoonPuzzleGetCell
-/*18*/ .dword WCLevelControl_MoonPuzzleSetupPositionHard
-/*19*/ .dword WCLevelControl_MoonPuzzleSetupPositionEasy
+/*18*/ .dword WCLevelControl_MoonPuzzleSetupPositionInitial
+/*19*/ .dword WCLevelControl_MoonPuzzleSetupPositionFinished
 /*20*/ .dword WCLevelControl_MoonPuzzleMove

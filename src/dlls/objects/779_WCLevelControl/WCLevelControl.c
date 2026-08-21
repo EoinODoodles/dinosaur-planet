@@ -50,7 +50,7 @@ typedef enum {
     STATE_6
 } WCLevelControl_States;
 
-/*0x0*/ static u8 dSunPuzzleHard[8][8] = {
+/*0x0*/ static u8 dSunPuzzleInitial[8][8] = {
     {0, 0, 0, 0, 0, 0, 8, 0}, 
     {0, 0, 0, 0, 0, 0, 0, 0}, 
     {0, 0, 0, 0, 4, 0, 0, 0}, 
@@ -60,7 +60,7 @@ typedef enum {
     {0, 0, 0, 0, 6, 0, 0, 0}, 
     {0, 5, 0, 0, 1, 0, 0, 0}
 };
-/*0x40*/ static u8 dSunPuzzleEasy[8][8] = {
+/*0x40*/ static u8 dSunPuzzleFinished[8][8] = {
     {0, 0, 0, 0, 0, 0, 4, 0}, 
     {0, 0, 0, 0, 0, 0, 0, 0}, 
     {0, 0, 0, 0, 0, 0, 0, 0}, 
@@ -70,7 +70,7 @@ typedef enum {
     {0, 0, 0, 0, 2, 0, 0, 0}, 
     {0, 1, 0, 0, 0, 0, 0, 0}
 };
-/*0x80*/ static u8 dMoonPuzzleHard[8][8] = {
+/*0x80*/ static u8 dMoonPuzzleInitial[8][8] = {
     {0, 0, 0, 0, 0, 0, 0, 0}, 
     {0, 1, 5, 0, 0, 2, 0, 0}, 
     {0, 0, 0, 0, 0, 0, 0, 3}, 
@@ -80,7 +80,7 @@ typedef enum {
     {0, 8, 0, 0, 4, 0, 0, 0}, 
     {0, 0, 0, 0, 0, 0, 0, 0}
 };
-/*0xC0*/ static u8 dMoonPuzzleEasy[8][8] = {
+/*0xC0*/ static u8 dMoonPuzzleFinished[8][8] = {
     {0, 0, 0, 0, 0, 0, 0, 0}, 
     {0, 0, 1, 0, 0, 0, 0, 0}, 
     {0, 0, 0, 0, 0, 0, 0, 0}, 
@@ -97,8 +97,8 @@ typedef enum {
 static int WCLevelControl_animCallback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 prevCallbackValue);
 static void WCLevelControl_handleAct1(Object* self, WCLevelControl_Data* objdata);
 static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata);
-static void WCLevelControl_sunPuzzleInitHard(void);
-static void WCLevelControl_moonPuzzleInitHard(void);
+static void WCLevelControl_sunPuzzleReset(void);
+static void WCLevelControl_moonPuzzleReset(void);
 
 // offset: 0x0 | ctor
 void WCLevelControl_ctor(void* dll) { }
@@ -113,8 +113,8 @@ void WCLevelControl_obj_Setup(Object* self, ObjSetup* setup, s32 reset) {
     objdata = self->data;
     self->animCallback = WCLevelControl_animCallback;
 
-    WCLevelControl_sunPuzzleInitHard();
-    WCLevelControl_moonPuzzleInitHard();
+    WCLevelControl_sunPuzzleReset();
+    WCLevelControl_moonPuzzleReset();
 
     if (mainGetBits(BIT_WC_Moon_Beacon_Lit)) {
         objdata->flags |= FLAG_8_Moon_Beacon_Lit;
@@ -239,13 +239,16 @@ u8 WCLevelControl_SunPuzzleGetCell(s16 x, s16 z) {
 }
 
 // offset: 0x730 | func: 11 | export: 11
-void WCLevelControl_SunPuzzleSetupPositionHard(s16 puzzleBlockID, s16* outX, s16* outZ) {
+/**
+  * Sets the Sun pushblocks' initial positions, when the puzzle has yet to be completed.
+  */
+void WCLevelControl_SunPuzzleSetupPositionInitial(s16 puzzleBlockID, s16* outX, s16* outZ) {
     s32 x;
     s32 z;
 
     for (x = 0; x < 8; x++) {
         for (z = 0; z < 8; z++) {
-            if (puzzleBlockID == dSunPuzzleHard[x][z]) {
+            if (puzzleBlockID == dSunPuzzleInitial[x][z]) {
                 *outX = x;
                 *outZ = z;
                 return;
@@ -257,13 +260,16 @@ void WCLevelControl_SunPuzzleSetupPositionHard(s16 puzzleBlockID, s16* outX, s16
 }
 
 // offset: 0x7FC | func: 12 | export: 12
-void WCLevelControl_SunPuzzleSetupPositionEasy(s16 puzzleBlockID, s16* outX, s16* outZ) {
+/**
+  * Restores the Sun pushblocks' positions after the puzzle has been finished.
+  */
+void WCLevelControl_SunPuzzleSetupPositionFinished(s16 puzzleBlockID, s16* outX, s16* outZ) {
     s32 x;
     s32 z;
 
     for (x = 0; x < 8; x++) {
         for (z = 0; z < 8; z++) {
-            if (puzzleBlockID == dSunPuzzleEasy[x][z]) {
+            if (puzzleBlockID == dSunPuzzleFinished[x][z]) {
                 *outX = x;
                 *outZ = z;
                 return;
@@ -375,13 +381,16 @@ u8 WCLevelControl_MoonPuzzleGetCell(s16 x, s16 z) {
 }
 
 // offset: 0xE74 | func: 18 | export: 18
-void WCLevelControl_MoonPuzzleSetupPositionHard(s16 puzzleBlockID, s16* outX, s16* outZ) {
+/**
+  * Sets the Moon pushblocks' initial positions, when the puzzle has yet to be completed.
+  */
+void WCLevelControl_MoonPuzzleSetupPositionInitial(s16 puzzleBlockID, s16* outX, s16* outZ) {
     s32 x;
     s32 z;
 
     for (x = 0; x < 8; x++) {
         for (z = 0; z < 8; z++) {
-            if (puzzleBlockID == dMoonPuzzleHard[x][z]) {
+            if (puzzleBlockID == dMoonPuzzleInitial[x][z]) {
                 *outX = x;
                 *outZ = z;
                 return;
@@ -393,13 +402,16 @@ void WCLevelControl_MoonPuzzleSetupPositionHard(s16 puzzleBlockID, s16* outX, s1
 }
 
 // offset: 0xF40 | func: 19 | export: 19
-void WCLevelControl_MoonPuzzleSetupPositionEasy(s16 puzzleBlockID, s16* outX, s16* outZ) {
+/**
+  * Restores the Moon pushblocks' positions after the puzzle has been finished.
+  */
+void WCLevelControl_MoonPuzzleSetupPositionFinished(s16 puzzleBlockID, s16* outX, s16* outZ) {
     s32 x;
     s32 z;
 
     for (x = 0; x < 8; x++) {
         for (z = 0; z < 8; z++) {
-            if (puzzleBlockID == dMoonPuzzleEasy[x][z]) {
+            if (puzzleBlockID == dMoonPuzzleFinished[x][z]) {
                 *outX = x;
                 *outZ = z;
                 return;
@@ -600,7 +612,7 @@ static void WCLevelControl_handleAct1(Object* self, WCLevelControl_Data* objdata
 // offset: 0x1928 | func: 23
 static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata) {
     u8 isNightTime;
-    u8 temp;
+    u8 pushblocksPlaced;
     f32 time;
 
     isNightTime = gDLL_7_Newday->vtbl->func8(&time);
@@ -642,23 +654,23 @@ static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata
             break;
     }
 
-    if (!(objdata->flags & FLAG_10_Sun_Aperture_Opened)) {
-        temp = mainGetBits(BIT_810); // get sun block puzzle pieces in correct place
-        if (temp == 4) {
+    if ((objdata->flags & FLAG_10_Sun_Aperture_Opened) == FALSE) {
+        pushblocksPlaced = mainGetBits(BIT_WC_Sun_Pushblock_Puzzle_Progress);
+        if (pushblocksPlaced == 4) {
             mainSetBits(BIT_WC_Sun_Aperture_Opened,  TRUE);
             objdata->flags |= FLAG_10_Sun_Aperture_Opened;
-        } else if (isNightTime || mainGetBits(BIT_808)) {
-            WCLevelControl_sunPuzzleInitHard();
+        } else if (isNightTime || mainGetBits(BIT_WC_Sun_Pushblock_Puzzle_Reset)) {
+            WCLevelControl_sunPuzzleReset();
         }
     }
 
-    if (!(objdata->flags & FLAG_20_Moon_Aperture_Opened)) {
-        temp = mainGetBits(BIT_811); // get moon block puzzle pieces in correct place
-        if (temp == 4) {
+    if ((objdata->flags & FLAG_20_Moon_Aperture_Opened) == FALSE) {
+        pushblocksPlaced = mainGetBits(BIT_WC_Moon_Pushblock_Puzzle_Progress);
+        if (pushblocksPlaced == 4) {
             mainSetBits(BIT_WC_Moon_Aperture_Opened, TRUE);
             objdata->flags |= FLAG_20_Moon_Aperture_Opened;
-        } else if (!isNightTime || mainGetBits(BIT_809)) {
-            WCLevelControl_moonPuzzleInitHard();
+        } else if (!isNightTime || mainGetBits(BIT_WC_Moon_Pushblock_Puzzle_Reset)) {
+            WCLevelControl_moonPuzzleReset();
         }
     }
 
@@ -666,13 +678,13 @@ static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata
 }
 
 // offset: 0x1CF4 | func: 24
-static void WCLevelControl_sunPuzzleInitHard(void) {
-    mainSetBits(BIT_810, FALSE);
-    bcopy(dSunPuzzleHard, sSunPuzzleCells, sizeof(sSunPuzzleCells));
+static void WCLevelControl_sunPuzzleReset(void) {
+    mainSetBits(BIT_WC_Sun_Pushblock_Puzzle_Progress, 0);
+    bcopy(dSunPuzzleInitial, sSunPuzzleCells, sizeof(sSunPuzzleCells));
 }
 
 // offset: 0x1D54 | func: 25
-static void WCLevelControl_moonPuzzleInitHard(void) {
-    mainSetBits(BIT_811, FALSE);
-    bcopy(dMoonPuzzleHard, sMoonPuzzleCells, sizeof(sMoonPuzzleCells));
+static void WCLevelControl_moonPuzzleReset(void) {
+    mainSetBits(BIT_WC_Moon_Pushblock_Puzzle_Progress, 0);
+    bcopy(dMoonPuzzleInitial, sMoonPuzzleCells, sizeof(sMoonPuzzleCells));
 }

@@ -34,6 +34,11 @@ typedef struct {
 } WCPushBlock_Data;
 
 typedef enum {
+    WCPushBlock_MODELIDX_Moon,
+    WCPushBlock_MODELIDX_Sun
+} WCPushBlock_ModelIndices;
+
+typedef enum {
     WCPushBlock_STATE_0,
     WCPushBlock_STATE_1,
     WCPushBlock_STATE_2,
@@ -65,7 +70,7 @@ void WCPushBlock_obj_Setup(Object* self, WCPushBlock_Setup* setup, s32 reset) {
     self->opacity = 0;
     self->modelInstIdx = setup->modelIndex;
     if (self->modelInstIdx >= self->def->numModels) {
-        self->modelInstIdx = 0;
+        self->modelInstIdx = WCPushBlock_MODELIDX_Moon;
     }
     objdata->puzzlePieceID = setup->blockID;
 }
@@ -99,10 +104,10 @@ void WCPushBlock_obj_Control(Object* self) {
     if (objdata->state != WCPushBlock_STATE_6) {
         isNighttime = gDLL_7_Newday->vtbl->func8(&time);
         
-        if (self->modelInstIdx == 1) {
+        if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
             if (mainGetBits(BIT_WC_Sun_Aperture_Opened)) {
                 objdata->state = WCPushBlock_STATE_6;
-                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionEasy(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionFinished(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
                 dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
             } else if (isNighttime) {
                 objdata->state = WCPushBlock_STATE_3_Pushed_to_Bounds;
@@ -110,7 +115,7 @@ void WCPushBlock_obj_Control(Object* self) {
         } else {
             if (mainGetBits(BIT_WC_Moon_Aperture_Opened)) {
                 objdata->state = WCPushBlock_STATE_6;
-                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionEasy(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionFinished(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
                 dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
             } else if (isNighttime == FALSE) {
                 objdata->state = WCPushBlock_STATE_3_Pushed_to_Bounds;
@@ -120,11 +125,11 @@ void WCPushBlock_obj_Control(Object* self) {
 
     switch (objdata->state) {
     case WCPushBlock_STATE_0:
-        if (self->modelInstIdx == 1) {
-            dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+        if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
+            dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
             dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
         } else {
-            dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+            dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
             dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
         }
         objdata->state = WCPushBlock_STATE_1;
@@ -138,7 +143,7 @@ void WCPushBlock_obj_Control(Object* self) {
         self->velocity.x = 0.0f;
         self->velocity.z = 0.0f;
         if (((DLL_210_Player*)player->dll)->vtbl->func47(player, self, &objdata->moveDirection)) {
-            if (self->modelInstIdx == 1) {
+            if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
                 if (objdata->moveDirection == WCPushBlock_DIRECTION_X_Positive) {
                     objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleMove(
                         self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, -1, 0);
@@ -251,10 +256,10 @@ void WCPushBlock_obj_Control(Object* self) {
             if (objdata->collidedType == WCBlockPuzzle_HIT_Symbol) {
                 objdata->state = WCPushBlock_STATE_4;
                 dll_amSfx->Play(self, SOUND_9BB_Magic_Reverse_Cymbal, MAX_VOLUME, NULL, 0, 0, 0);
-                if (self->modelInstIdx == 1) {
-                    mainIncrementBits(BIT_810);
+                if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
+                    mainIncrementBits(BIT_WC_Sun_Pushblock_Puzzle_Progress);
                 } else {
-                    mainIncrementBits(BIT_811);
+                    mainIncrementBits(BIT_WC_Moon_Pushblock_Puzzle_Progress);
                 }
             } else if (objdata->collidedType == WCBlockPuzzle_HIT_Pushblock) {
                 objdata->state = WCPushBlock_STATE_1;
@@ -265,7 +270,7 @@ void WCPushBlock_obj_Control(Object* self) {
             }
 
             if (objdata->state != WCPushBlock_STATE_3_Pushed_to_Bounds) {
-                if (self->modelInstIdx == 1) {
+                if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
                     dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCell(0, objdata->gridX, objdata->gridZ);
                     dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetGridPositionFromCoords(self, self->srt.transl.x, self->srt.transl.z, &objdata->gridX, &objdata->gridZ);
                     dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCell(objdata->puzzlePieceID, objdata->gridX, objdata->gridZ);
@@ -293,11 +298,11 @@ void WCPushBlock_obj_Control(Object* self) {
 
         //Reappear once the player moves away from the spot the block should appear
         if (self->opacity == 0 && WCPushBlock_appearIfPlayerOutsideDestination(self, objdata, objGetPlayer())) {
-            if (self->modelInstIdx == 1) {
-                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+            if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
+                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
                 dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
             } else {
-                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
                 dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
             }
             objdata->state = WCPushBlock_STATE_5;
@@ -350,7 +355,7 @@ u32 WCPushBlock_obj_GetModelFlags(Object* self) {
     setup = (WCPushBlock_Setup*)self->setup;
     modelIndex = setup->modelIndex;
     if (modelIndex >= self->def->numModels) {
-        modelIndex = 0;
+        modelIndex = WCPushBlock_MODELIDX_Moon;
     }
     return MODFLAGS_MODEL_INDEX(modelIndex) | MODFLAGS_LOAD_SINGLE_MODEL;
 }
@@ -371,12 +376,12 @@ static s32 WCPushBlock_appearIfPlayerOutsideDestination(Object* self, WCPushBloc
 
     isNighttime = gDLL_7_Newday->vtbl->func8(&time);
 
-    if (self->modelInstIdx == 1) {
+    if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
         //Sun block
         if (isNighttime) {
             return FALSE;
         }
-        dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+        dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
         dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &positionX, &positionZ);
     } else {
         //Moon block
@@ -384,7 +389,7 @@ static s32 WCPushBlock_appearIfPlayerOutsideDestination(Object* self, WCPushBloc
             return FALSE;
         }
 
-        dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+        dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
         dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &positionX, &positionZ);
     }
 

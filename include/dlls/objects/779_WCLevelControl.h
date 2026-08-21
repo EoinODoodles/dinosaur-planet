@@ -29,15 +29,15 @@ DLL_INTERFACE(DLL_779_WCLevelControl) {
 /*8*/ void (*SunPuzzleSetGridPositionFromCoords)(Object* obj, f32 x, f32 z, s16* puzzleGridX, s16* puzzleGridZ);
 /*9*/ void (*SunPuzzleSetCell)(s16 puzzleBlockID, s16 x, s16 y);
 /*10*/ u8 (*SunPuzzleGetCell)(s16 x, s16 y);
-/*11*/ void (*SunPuzzleSetupPositionHard)(s16 puzzleBlockID, s16* outX, s16* outZ);
-/*12*/ void (*SunPuzzleSetupPositionEasy)(s16 puzzleBlockID, s16* outX, s16* outZ);
+/*11*/ void (*SunPuzzleSetupPositionInitial)(s16 puzzleBlockID, s16* outX, s16* outZ);  //Sets up the Sun pushblocks' initial positions, when the puzzle has yet to be completed.
+/*12*/ void (*SunPuzzleSetupPositionFinished)(s16 puzzleBlockID, s16* outX, s16* outZ); //Restores the Sun pushblocks' positions after the puzzle has been finished.
 /*13*/ s32 (*SunPuzzleMove)(Object* obj, s16 puzzleGridX, s16 puzzleGridZ, f32* limitX, f32* limitZ, s32 stepX, s32 stepZ);
 /*14*/ void (*MoonPuzzleSetCoordsFromGridPosition)(Object* obj, s16 puzzleGridX, s16 puzzleGridZ, f32* x, f32* z);
 /*15*/ void (*MoonPuzzleSetGridPositionFromCoords)(Object* obj, f32 x, f32 z, s16* puzzleGridX, s16* puzzleGridZ);
 /*16*/ void (*MoonPuzzleSetCell)(s16 puzzleBlockID, s16 x, s16 z);
 /*17*/ u8 (*MoonPuzzleGetCell)(s16 x, s16 y);
-/*18*/ void (*MoonPuzzleSetupPositionHard)(s16 puzzleBlockID, s16* outX, s16* outZ);
-/*19*/ void (*MoonPuzzleSetupPositionEasy)(s16 puzzleBlockID, s16* outX, s16* outZ);
+/*18*/ void (*MoonPuzzleSetupPositionInitial)(s16 puzzleBlockID, s16* outX, s16* outZ);  //Sets up the Moon pushblocks' initial positions, when the puzzle has yet to be completed.
+/*19*/ void (*MoonPuzzleSetupPositionFinished)(s16 puzzleBlockID, s16* outX, s16* outZ); //Restores the Moon pushblocks' positions after the puzzle has been finished.
 /*20*/ s32 (*MoonPuzzleMove)(Object* obj, s16 puzzleGridX, s16 puzzleGridZ, f32* limitX, f32* limitZ, s32 stepX, s32 stepZ);
 };
 

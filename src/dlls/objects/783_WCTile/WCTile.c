@@ -98,10 +98,10 @@ void WCTile_obj_Control(Object* self) {
     switch (objdata->state) {
     case WCTile_STATE_0_Initialising:
         if (self->modelInstIdx == WCTile_MODELIDX_Sun) {
-            dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
+            dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
             dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
         } else {
-            dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
+            dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
             dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
         }
         objdata->state = WCTile_STATE_1_Ready;
@@ -122,13 +122,13 @@ void WCTile_obj_Control(Object* self) {
         if (self->opacity == 0) {
             if (self->modelInstIdx == WCTile_MODELIDX_Sun) {
                 if (!isNight) {
-                    dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
+                    dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
                     dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
                     objdata->state = WCTile_STATE_4_Fading_In;
                 }
             } else {
                 if (isNight) {
-                    dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionHard(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
+                    dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
                     dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
                     objdata->state = WCTile_STATE_4_Fading_In;
                 }
