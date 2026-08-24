@@ -20,7 +20,7 @@ typedef struct {
 /*18*/ s8 yaw;
 /*19*/ s8 modelIdx;
 /*1A*/ s16 opacityThreshold;
-/*1C*/ u8 _unk1C[0x1E - 0x1C];
+/*1C*/ u16 unk1C;
 /*1E*/ s16 gamebitViewed;
 /*20*/ s16 gamebitEnabled;
 } WCApertureSymbol_Setup;
