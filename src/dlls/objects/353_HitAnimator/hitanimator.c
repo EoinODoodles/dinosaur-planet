@@ -10,7 +10,7 @@ typedef struct {
 typedef struct {
     ObjSetup base;
     s16 gamebitActivate; //gamebitID to check before animating
-    u8 enableFlag1;      //unknown purpose
+    u8 enableFlag1;      //when enabled, `HitAnimator_Flag_1` is stored whenever the value of the HitAnimator's gamebit changes, provided its local Block is loaded
     u8 blocksAnimatorID; //when animating Blocks model Shapes
     u8 mode;             //decides which behaviour to use: removing/adding HITS lines, removing/adding Blocks Shapes, fading in/out Blocks Shapes
     u8 hitsAnimatorID;   //when animating HITS lines
@@ -25,21 +25,21 @@ typedef enum {
 
 typedef enum {
     HitAnimator_No_Flags = 0,
-    HitAnimator_Flag_1 = 1, //unknown purpose
+    HitAnimator_Flag_1 = 1, //unknown purpose, but seems to track that the gamebit's value has changed?
     HitAnimator_Flag_HITS_Animate_Needed = 2,
     HitAnimator_Flag_BLOCK_Animate_Needed = 4
 } HitAnimator_Flags;
 
-static void HitAnimator_animate_blocks_shapes(Block* block, Object* self, HitAnimator_Data* objData, HitAnimator_Setup* objSetup);
+static void HitAnimator_animateBlockShapes(Block* block, Object* self, HitAnimator_Data* objData, HitAnimator_Setup* objSetup);
 
 // offset: 0x0 | ctor
-void HitAnimator_ctor(void *dll) { }
+void HitAnimator_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void HitAnimator_dtor(void *dll) { }
+void HitAnimator_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void HitAnimator_setup(Object* self, HitAnimator_Setup* objSetup, s32 arg2) {
+void HitAnimator_obj_Setup(Object* self, HitAnimator_Setup* objSetup, s32 reset) {
     Block* block;
     s8 gamebitValue;
     HitAnimator_Data* objData;
@@ -58,7 +58,7 @@ void HitAnimator_setup(Object* self, HitAnimator_Setup* objSetup, s32 arg2) {
 
     block = mapGetBlockByIndex(mapWorldCoordsToBlockIndex(self->srt.transl.x, self->srt.transl.y, self->srt.transl.z));
     if (block && (objSetup->mode & HitAnimator_Mode_BLOCKS) && objSetup->blocksAnimatorID) {
-        HitAnimator_animate_blocks_shapes(block, self, objData, objSetup);
+        HitAnimator_animateBlockShapes(block, self, objData, objSetup);
     }
 
     objData->flags |= HitAnimator_Flag_HITS_Animate_Needed;
@@ -72,7 +72,7 @@ void HitAnimator_setup(Object* self, HitAnimator_Setup* objSetup, s32 arg2) {
 }
 
 // offset: 0x160 | func: 1 | export: 1
-void HitAnimator_control(Object* self) {
+void HitAnimator_obj_Control(Object* self) {
     HitAnimator_Data* objData;
     HitAnimator_Setup* objSetup;
     Block* block;
@@ -118,13 +118,13 @@ void HitAnimator_control(Object* self) {
 
     //Animate any Block Shapes with the target animatorID
     if ((objSetup->mode & HitAnimator_Mode_BLOCKS) && objSetup->blocksAnimatorID && (objData->flags & HitAnimator_Flag_BLOCK_Animate_Needed)) {
-        HitAnimator_animate_blocks_shapes(block, self, objData, objSetup);
+        HitAnimator_animateBlockShapes(block, self, objData, objSetup);
         objData->flags &= ~HitAnimator_Flag_BLOCK_Animate_Needed;
     }
 }
 
 // offset: 0x354 | func: 2 | export: 2
-void HitAnimator_update(Object *self) { }
+void HitAnimator_obj_Update(Object* self) { }
 
 // offset: 0x360 | func: 3 | export: 3
 void HitAnimator_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
@@ -134,20 +134,20 @@ void HitAnimator_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Trian
 }
 
 // offset: 0x3B4 | func: 4 | export: 4
-void HitAnimator_free(Object *self, s32 a1) { }
+void HitAnimator_obj_Free(Object* self, s32 onlySelf) { }
 
 // offset: 0x3C4 | func: 5 | export: 5
-u32 HitAnimator_get_model_flags(Object *self) {
+u32 HitAnimator_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x3D4 | func: 6 | export: 6
-u32 HitAnimator_get_data_size(Object *self, u32 a1) {
+u32 HitAnimator_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(HitAnimator_Data);
 }
 
 // offset: 0x3E8 | func: 7
-void HitAnimator_animate_blocks_shapes(Block* block, Object* self, HitAnimator_Data* objData, HitAnimator_Setup* objSetup){
+void HitAnimator_animateBlockShapes(Block* block, Object* self, HitAnimator_Data* objData, HitAnimator_Setup* objSetup){
     s32 shapeIndex;
     BlockShape* shapes;
     BlockShape* shape;

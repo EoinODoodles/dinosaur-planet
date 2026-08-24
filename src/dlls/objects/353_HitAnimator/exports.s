@@ -8,10 +8,10 @@ _exports:
 .dword HitAnimator_dtor
 
 # export table
-/*0*/ .dword HitAnimator_setup
-/*1*/ .dword HitAnimator_control
-/*2*/ .dword HitAnimator_update
+/*0*/ .dword HitAnimator_obj_Setup
+/*1*/ .dword HitAnimator_obj_Control
+/*2*/ .dword HitAnimator_obj_Update
 /*3*/ .dword HitAnimator_print
-/*4*/ .dword HitAnimator_free
-/*5*/ .dword HitAnimator_get_model_flags
-/*6*/ .dword HitAnimator_get_data_size
+/*4*/ .dword HitAnimator_obj_Free
+/*5*/ .dword HitAnimator_obj_GetModelFlags
+/*6*/ .dword HitAnimator_obj_GetDataSize
