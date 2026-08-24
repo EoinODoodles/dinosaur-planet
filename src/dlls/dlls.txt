@@ -481,6 +481,7 @@
 782 = objects/782_WCpushblock
 783 = objects/783_WCTile
 784 = objects/784_WCTrexStatue
+785 = objects/785_WCUseObj
 786 = objects/786_WCTempleLift
 787 = objects/787_WCApertureSymbol
 788 = objects/788_WCSunTempleLaser

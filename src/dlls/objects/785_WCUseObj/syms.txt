@@ -1,0 +1,17 @@
+.text = 0x0:
+WCUseObj_ctor = 0x0;
+WCUseObj_dtor = 0xC;
+WCUseObj_obj_Setup = 0x18;
+WCUseObj_obj_Control = 0x148;
+WCUseObj_obj_Update = 0x554;
+WCUseObj_obj_Print = 0x5AC;
+WCUseObj_obj_Free = 0x600;
+WCUseObj_obj_GetModelFlags = 0x610;
+WCUseObj_obj_GetDataSize = 0x620;
+WCUseObj_animCallback = 0x634;
+
+.rodata = 0x868:
+str_0 = 0x0; // absolute:0x868
+
+.data = 0x898:
+dRestartPoint = 0x0; // absolute:0x898
