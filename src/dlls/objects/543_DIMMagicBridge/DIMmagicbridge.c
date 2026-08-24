@@ -11,16 +11,16 @@ typedef struct {
 } DIMMagicBridge_Setup;
 
 typedef struct {
-    f32 minZ;                       //The position of the vertex furthest from the model's origin along Z (will be negative, and effectively bridge's length)
-    f32 vertexZs[15];               //A array of unique Z positions extracted from the model's vertices (with +-10 tolerance), sorted along negative Z
-    u8 vertexFadeIn[15];            //Causes a unique vertex opacity to fade in when true (forced on)
-    u8 vertexZCount;                //A count of the unique vertex Z values stored in the vertexZ array (calculation gets overridden to 10 later on in setup)
-    u8 vertexAlphas[15];            //Vertex colour alpha values for each Z position in the vertexZs array
-    u8 visible;                     //The bridge is drawn when this is set
-    u16 phaseAngleA;                //Angle value for the vertices' sinusoidal waving animation
-    u16 phaseAngleB;                //Advances, but not used for anything
-    s16 fadeInWaveTimer;            //Used to progressively fade in the bridge's vertices in a wave along the bridge (DBMagicBridge, DIMMagicBridge)
-    u8 flags;                       //Tracks whether the gamebit has been set
+/*00*/ f32 minZ;                       //The position of the vertex furthest from the model's origin along Z (will be negative, and effectively bridge's length)
+/*04*/ f32 vertexZs[15];               //A array of unique Z positions extracted from the model's vertices (with +-10 tolerance), sorted along negative Z
+/*40*/ u8 vertexFadeIn[15];            //Causes a unique vertex opacity to fade in when true (forced on)
+/*4f*/ u8 vertexZCount;                //A count of the unique vertex Z values stored in the vertexZ array (calculation gets overridden to 10 later on in setup)
+/*50*/ u8 vertexAlphas[15];            //Vertex colour alpha values for each Z position in the vertexZs array
+/*5f*/ u8 visible;                     //The bridge is drawn when this is set
+/*60*/ u16 phaseAngleA;                //Angle value for the vertices' sinusoidal waving animation
+/*62*/ u16 phaseAngleB;                //Advances, but not used for anything (maybe they once had separate phases for the inner/outer bridge faces)
+/*65*/ s16 fadeInWaveTimer;            //Used to progressively fade in the bridge's vertices in a wave along the bridge (DBMagicBridge, DIMMagicBridge)
+/*66*/ u8 flags;                       //Tracks whether the gamebit has been set
 } DIMMagicBridge_Data;
 
 typedef enum {

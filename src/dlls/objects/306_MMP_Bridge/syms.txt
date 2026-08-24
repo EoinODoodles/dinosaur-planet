@@ -1,0 +1,21 @@
+.text = 0x0:
+MMP_Bridge_ctor = 0x0;
+MMP_Bridge_dtor = 0xC;
+MMP_Bridge_obj_Setup = 0x18;
+MMP_Bridge_obj_Control = 0x35C;
+MMP_Bridge_obj_Update = 0x610;
+MMP_Bridge_obj_Print = 0x61C;
+MMP_Bridge_obj_Free = 0x688;
+MMP_Bridge_obj_GetModelFlags = 0x698;
+MMP_Bridge_obj_GetDataSize = 0x6CC;
+MMP_Bridge_animCallback = 0x6E0;
+MMP_Bridge_advanceAnimation = 0x7FC;
+MMP_Bridge_updateVertices = 0x95C;
+
+.rodata = 0xCCC:
+
+.data = 0xCDC:
+dInStaggered = 0x0; // absolute:0xCDC
+dOutStaggered = 0x20; // absolute:0xCFC
+dInSimultaneous = 0x40; // absolute:0xD1C
+dOutSimultaneous = 0x60; // absolute:0xD3C

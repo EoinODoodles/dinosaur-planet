@@ -179,6 +179,7 @@
 303 = objects/303_FireFlyLantern
 304 = objects/304_LanternFireFly
 305 = objects/305_PortalSpellDoor
+306 = objects/306_MMP_Bridge
 307 = objects/307_SeqDoor
 308 = objects/308_USEOBJ
 309 = objects/309_SEQOBJ

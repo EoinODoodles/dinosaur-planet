@@ -19,7 +19,7 @@ typedef struct {
     u8 vertexAlphas[15];            //Vertex colour alpha values for each Z position in the vertexZs array
     u8 visible;                     //The bridge is drawn when this is set
     u16 phaseAngleA;                //Angle value for the vertices' sinusoidal waving animation
-    u16 phaseAngleB;                //Advances, but not used for anything
+    u16 phaseAngleB;                //Advances, but not used for anything (maybe they once had separate phases for the inner/outer bridge faces)
     s16 fadeInWaveTimer;            //Used to progressively fade in the bridge's vertices in a wave along the bridge (DBMagicBridge, DIMMagicBridge) 
     u8 flags;                       //Tracks whether the gamebit has been set
 } DBMagicBridge_Data;
