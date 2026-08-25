@@ -118,7 +118,7 @@ void WCFloorTile_obj_Control(Object* self) {
             }
             opacity *= OBJECT_OPACITY_MAX;
         }
-        self->opacity = (s8)opacity;
+        self->opacity = (s32)opacity;
 
         //Advance state when fully faded out
         if (self->opacity == 0) {
