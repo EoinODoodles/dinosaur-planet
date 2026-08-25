@@ -3,7 +3,7 @@
 
 typedef struct {
     ObjSetup base;
-    s16 gamebitActivate;                    //(For modes 2, 3) Controls when the fade is activated/deactivated
+    s16 gamebitActivate;                    //Gamebit controlling when the fade is activated/deactivated
     s16 gamebitSetWhenFaded;                //(For modes 0, 2, 3) Optionally set a gamebit when the fade animation is complete - also used to restore fully-faded state
     u8 initialOpacity;                      //Opacity at the beginning of the fade animation (can be higher than the goal opacity)
     u8 goalOpacity;                         //Opacity at the end of the fade animation (can be lower than the initial opacity)
@@ -29,10 +29,10 @@ typedef struct {
 } AlphaAnimator_Data;
 
 typedef enum {
-    AlphaAnimator_MODE_0_Fade_Immediately_and_Set_Gamebit, //Fade automatically (and optionally set a gamebit when the fade is complete)
-    AlphaAnimator_MODE_1_Fade_Immediately,                 //Fade automatically
-    AlphaAnimator_MODE_2_Fade_Controlled,                  //Activate/deactivate a fade using a gamebit (and optionally set/unset a secondary gamebit when the fade is complete)
-    AlphaAnimator_MODE_3_Radial_Falloff_Fade               //Activated by gamebit, fade vertices inside an expanding radius (or outside, based on fadeSpeed's sign!)
+    AlphaAnimator_MODE_0_Basic_Fade_and_Set_Gamebit, //Fade using a gamebit (and optionally set a secondary gamebit when the fade is complete)
+    AlphaAnimator_MODE_1_Basic_Fade,                 //Fade using a gamebit 
+    AlphaAnimator_MODE_2_Toggleable_Fade,            //Activate/deactivate a fade using a gamebit (and optionally set/unset a secondary gamebit when the fade is complete)
+    AlphaAnimator_MODE_3_Radial_Falloff_Fade         //Using a gamebit, fade vertices inside an expanding radius (or outside, based on fadeSpeed's sign!)
 } AlphaAnimator_Modes;
 
 typedef enum {
@@ -134,7 +134,7 @@ void AlphaAnimator_obj_Control(Object* self) {
         return;
     }
     
-    if (mode == AlphaAnimator_MODE_2_Fade_Controlled) {
+    if (mode == AlphaAnimator_MODE_2_Toggleable_Fade) {
         objData->fadeActivated = mainGetBits(objSetup->gamebitActivate);
         if ((objData->fadeCompletedTicks >= 3) && (objData->fadeActivated != objData->prevFadeActivated)) {
             //Optionally play a sound soon after the fade is completed
@@ -154,6 +154,7 @@ void AlphaAnimator_obj_Control(Object* self) {
             return;
         }
         
+        //Don't continue to the fade State Machine until gamebitActivate is set
         if (objData->fadeActivated == FALSE) {
             objData->fadeActivated = mainGetBits(objSetup->gamebitActivate);
 
@@ -171,7 +172,7 @@ void AlphaAnimator_obj_Control(Object* self) {
     }
     
     switch (mode) {
-    case AlphaAnimator_MODE_0_Fade_Immediately_and_Set_Gamebit:
+    case AlphaAnimator_MODE_0_Basic_Fade_and_Set_Gamebit:
         if (objSetup->goalOpacity < objSetup->initialOpacity) {
             //Fade out
             objData->vtxOpacity -= objSetup->fadeSpeed * gUpdateRate;
@@ -200,7 +201,7 @@ void AlphaAnimator_obj_Control(Object* self) {
             }
         }
         break;
-    case AlphaAnimator_MODE_1_Fade_Immediately:
+    case AlphaAnimator_MODE_1_Basic_Fade:
         if (objSetup->goalOpacity < objSetup->initialOpacity) {
             //Fade out
             objData->vtxOpacity -= objSetup->fadeSpeed * gUpdateRate;
@@ -217,7 +218,7 @@ void AlphaAnimator_obj_Control(Object* self) {
             }
         }
         break;
-    case AlphaAnimator_MODE_2_Fade_Controlled:
+    case AlphaAnimator_MODE_2_Toggleable_Fade:
         if (objData->fadeActivated) {
             if (objSetup->goalOpacity < objSetup->initialOpacity) {
                 //Fade out
