@@ -1,0 +1,15 @@
+.text = 0x0:
+AlphaAnimator_ctor = 0x0;
+AlphaAnimator_dtor = 0xC;
+AlphaAnimator_obj_Setup = 0x18;
+AlphaAnimator_obj_Control = 0x34;
+AlphaAnimator_animateVertices = 0x808;
+AlphaAnimator_obj_Update = 0xBB8;
+AlphaAnimator_obj_Print = 0xBC4;
+AlphaAnimator_obj_Free = 0xC18;
+AlphaAnimator_obj_GetModelFlags = 0xC68;
+AlphaAnimator_obj_GetDataSize = 0xC78;
+AlphaAnimator_calculateAnimatedVertexDistances = 0xC8C;
+
+.rodata = 0xF1C:
+str_0 = 0x0; // absolute:0xF1C
