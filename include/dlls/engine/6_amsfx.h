@@ -790,6 +790,8 @@ enum SoundID {
     SOUND_9F9_Laser_Startup_Hiss = 0x9F9,
     SOUND_9FA_Laser_Whir_Loop = 0x9FA,
 
+    SOUND_A11_Stone_Crumbling = 0xA11,
+
     SOUND_A20_Electric_Surge_Quieter = 0xA20,       //DBdustgeezer
     SOUND_A21_Whoosh_Echoey = 0xA21,                //DBdustgeezer
     SOUND_A22_Electric_Surge = 0xA22,               //DBdustgeezer

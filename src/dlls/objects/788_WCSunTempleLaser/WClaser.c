@@ -1,4 +1,5 @@
 #include "common.h"
+#include "game/gamebits.h"
 #include "sys/gfx/modgfx.h"
 #include "sys/objmsg.h"
 #include "dlls/objects/210_player.h"
@@ -105,7 +106,7 @@ void WCSunTempleLaser_obj_Control(Object* self) {
     objData = self->data;
     objData->timerDelay -= gUpdateRateF;
     
-    if ((objSetup->mode != WCSunTempleLaser_MODE_Always_On) && (mainGetBits(BIT_338))) {
+    if ((objSetup->mode != WCSunTempleLaser_MODE_Always_On) && (mainGetBits(BIT_WC_Hazards_Deactivated))) {
         mainSetBits(objSetup->gamebitEnabled, FALSE);
     }
     

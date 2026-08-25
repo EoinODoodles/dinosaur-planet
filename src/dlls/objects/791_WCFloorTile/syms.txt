@@ -1,0 +1,13 @@
+.text = 0x0:
+WCFloorTile_ctor = 0x0;
+WCFloorTile_dtor = 0xC;
+WCFloorTile_obj_Setup = 0x18;
+WCFloorTile_obj_Control = 0x50;
+WCFloorTile_obj_Update = 0x4B0;
+WCFloorTile_obj_Print = 0x4BC;
+WCFloorTile_obj_Free = 0x510;
+WCFloorTile_obj_GetModelFlags = 0x520;
+WCFloorTile_obj_GetDataSize = 0x530;
+WCFloorTile_manageHitLines = 0x544;
+
+.rodata = 0x64C:
