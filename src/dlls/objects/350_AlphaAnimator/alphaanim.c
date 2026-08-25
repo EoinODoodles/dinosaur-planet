@@ -66,7 +66,7 @@ void AlphaAnimator_obj_Control(Object* self) {
     Block* block;
     s32 fadeSpeed;
     s32 pad;
-    s32 temp;
+    s32 opacityDiff;
     s32 mode;
 
     objSetup = (AlphaAnimator_Setup*)self->setup;
@@ -205,15 +205,15 @@ void AlphaAnimator_obj_Control(Object* self) {
             //Fade out
             objData->vtxOpacity -= objSetup->fadeSpeed * gUpdateRate;
             if (objData->vtxOpacity < objSetup->goalOpacity) {
-                temp = objSetup->goalOpacity - objData->vtxOpacity;
-                objData->vtxOpacity = objSetup->initialOpacity - (temp);
+                opacityDiff = objSetup->goalOpacity - objData->vtxOpacity;
+                objData->vtxOpacity = objSetup->initialOpacity - opacityDiff;
             }
         } else {
             //Fade in
             objData->vtxOpacity += objSetup->fadeSpeed * gUpdateRate;
             if (objData->vtxOpacity > objSetup->initialOpacity) {
-                temp = objData->vtxOpacity - objSetup->goalOpacity;
-                objData->vtxOpacity = objSetup->goalOpacity + temp;
+                opacityDiff = objData->vtxOpacity - objSetup->goalOpacity;
+                objData->vtxOpacity = objSetup->goalOpacity + opacityDiff;
             }
         }
         break;
