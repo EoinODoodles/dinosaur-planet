@@ -113,7 +113,7 @@ void LaserBeam_obj_Control(Object* self) {
         objData->drawLaser = FALSE;
 
         if (objData->soundHandle != 0) {
-            gDLL_6_AMSFX->vtbl->Stop(objData->soundHandle);
+            dll_amSfx->Stop(objData->soundHandle);
             objData->soundHandle = 0;
         }
 
@@ -122,7 +122,7 @@ void LaserBeam_obj_Control(Object* self) {
 
     //Start the laser's hum sound loop
     if (objData->soundHandle == 0) {
-        gDLL_6_AMSFX->vtbl->Play(self, SOUND_135_Laser_Hum, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
+        dll_amSfx->Play(self, SOUND_135_Laser_Hum, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
     }
     
     beamLength = objSetup->beamLength;
@@ -228,7 +228,7 @@ void LaserBeam_obj_Control(Object* self) {
     }
 
     if (objData->soundHandle != 0) {
-        gDLL_6_AMSFX->vtbl->SetVol(objData->soundHandle, volume);
+        dll_amSfx->SetVol(objData->soundHandle, volume);
     }
     
     objData->colourR = 0xFF;
@@ -379,7 +379,7 @@ void LaserBeam_obj_Free(Object* self, s32 onlySelf) {
     LaserBeam_Data* objData = self->data;
     
     if (objData->soundHandle != 0) {
-        gDLL_6_AMSFX->vtbl->Stop(objData->soundHandle);
+        dll_amSfx->Stop(objData->soundHandle);
     }
 }
 

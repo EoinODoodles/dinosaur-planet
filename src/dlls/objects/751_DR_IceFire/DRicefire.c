@@ -57,8 +57,8 @@ void DFIceFire_obj_Setup(Object* self, DFIceFire_Setup* objSetup, s32 reset) {
         func_800267A4(self);
     } else {
         func_80026128(self, 0x13, 1, 0xF);
-        gDLL_6_AMSFX->vtbl->Play(self, SOUND_9D2_Fire_Roaring_Loop, MAX_VOLUME, &objData->soundHandleFlame, NULL, 0, NULL);
-        gDLL_6_AMSFX->vtbl->Play(self, SOUND_50b_Fire_Burning_High_Loop, MAX_VOLUME, &objData->soundHandleBurn, NULL, 0, NULL);
+        dll_amSfx->Play(self, SOUND_9D2_Fire_Roaring_Loop, MAX_VOLUME, &objData->soundHandleFlame, NULL, 0, NULL);
+        dll_amSfx->Play(self, SOUND_50b_Fire_Burning_High_Loop, MAX_VOLUME, &objData->soundHandleBurn, NULL, 0, NULL);
     }
     
     self->srt.roll = M_180_DEGREES - 1;
@@ -133,24 +133,24 @@ void DFIceFire_obj_Control(Object* self) {
         
         //Play steam hiss sound near the end of the countdown
         if ((objData->timer < 60) && (objData->timer >= (60 - gUpdateRate))) {
-            gDLL_6_AMSFX->vtbl->Play(self, SOUND_80C_Steam_Hissing, MAX_VOLUME, NULL, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_80C_Steam_Hissing, MAX_VOLUME, NULL, NULL, 0, NULL);
         }
         
         //Become fully frozen after three seconds
         objData->timer -= gUpdateRate;
         if (objData->timer < 0) {
             objData->state = DFIceFire_STATE_1_Frozen;
-            gDLL_6_AMSFX->vtbl->Play(self, SOUND_80B_Crackling_Freezing, MAX_VOLUME, NULL, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_80B_Crackling_Freezing, MAX_VOLUME, NULL, NULL, 0, NULL);
             
             //Free roaring flames sound loop
-            if (gDLL_6_AMSFX->vtbl->IsPlaying(objData->soundHandleFlame)) {
-                gDLL_6_AMSFX->vtbl->Stop(objData->soundHandleFlame);
+            if (dll_amSfx->IsPlaying(objData->soundHandleFlame)) {
+                dll_amSfx->Stop(objData->soundHandleFlame);
             }            
             objData->soundHandleFlame = 0;
             
             //Free crackling fire sound loop
-            if (gDLL_6_AMSFX->vtbl->IsPlaying(objData->soundHandleBurn)) {
-                gDLL_6_AMSFX->vtbl->Stop(objData->soundHandleBurn);
+            if (dll_amSfx->IsPlaying(objData->soundHandleBurn)) {
+                dll_amSfx->Stop(objData->soundHandleBurn);
             }
             objData->soundHandleBurn = 0;
             
@@ -223,18 +223,18 @@ void DFIceFire_obj_Update(Object* self) {
         func_800267A4(self);
         func_80026160(self);
         
-        if (gDLL_6_AMSFX->vtbl->IsPlaying(objData->soundHandleFlame)) {
-            gDLL_6_AMSFX->vtbl->Stop(objData->soundHandleFlame);
+        if (dll_amSfx->IsPlaying(objData->soundHandleFlame)) {
+            dll_amSfx->Stop(objData->soundHandleFlame);
         }
-        gDLL_6_AMSFX->vtbl->Play(self, SOUND_9CD, MAX_VOLUME, &objData->soundHandleFlame, NULL, 0, NULL);
+        dll_amSfx->Play(self, SOUND_9CD, MAX_VOLUME, &objData->soundHandleFlame, NULL, 0, NULL);
     } else {
         gDLL_17_partfx->vtbl->spawn(self, PARTICLE_5A, NULL, 0, -1, NULL);
         gDLL_17_partfx->vtbl->spawn(self, PARTICLE_5B, NULL, 0, -1, NULL);
         
-        if (gDLL_6_AMSFX->vtbl->IsPlaying(objData->soundHandleHiss)) {
-            gDLL_6_AMSFX->vtbl->Stop(objData->soundHandleHiss);
+        if (dll_amSfx->IsPlaying(objData->soundHandleHiss)) {
+            dll_amSfx->Stop(objData->soundHandleHiss);
         }
-        gDLL_6_AMSFX->vtbl->Play(self, SOUND_9F5_Steam_Hiss, MAX_VOLUME, &objData->soundHandleHiss, NULL, 0, NULL);
+        dll_amSfx->Play(self, SOUND_9F5_Steam_Hiss, MAX_VOLUME, &objData->soundHandleHiss, NULL, 0, NULL);
     }
 }
 

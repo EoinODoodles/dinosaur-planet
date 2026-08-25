@@ -96,10 +96,10 @@ void WL_WallTorch_obj_Control(Object* self) {
     
     if (objData->soundHandle == 0) {
         if ((playerDistance < 90.0f) && objData->isLit) {
-            gDLL_6_AMSFX->vtbl->Play(self, SOUND_1D3_Fire_Crackling_Loop, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_1D3_Fire_Crackling_Loop, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
         }
     } else if ((playerDistance >= 90.0f) && objData->isLit) {
-        gDLL_6_AMSFX->vtbl->Stop(objData->soundHandle);
+        dll_amSfx->Stop(objData->soundHandle);
         objData->soundHandle = 0;
     }
 
@@ -138,7 +138,7 @@ void WL_WallTorch_obj_Control(Object* self) {
         
         if (objData->isLit && (objData->viCheckInterval <= 0) && objData->playLitSound) {
             objData->playLitSound = FALSE;
-            gDLL_6_AMSFX->vtbl->Play(self, SOUND_424_Flame_Lighting, MAX_VOLUME, NULL, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_424_Flame_Lighting, MAX_VOLUME, NULL, NULL, 0, NULL);
         }
         
         if (objData->isLit == objData->wasLit) {
@@ -173,7 +173,7 @@ void WL_WallTorch_obj_Control(Object* self) {
             }
         } else {
             if (objData->soundHandle != 0) {
-                gDLL_6_AMSFX->vtbl->Stop(objData->soundHandle);
+                dll_amSfx->Stop(objData->soundHandle);
                 objData->soundHandle = 0;
             }
             
@@ -260,7 +260,7 @@ void WL_WallTorch_obj_Free(Object* self, s32 onlySelf) {
     objData = self->data;
     
     if (objData->soundHandle != 0) {
-        gDLL_6_AMSFX->vtbl->Stop(objData->soundHandle);
+        dll_amSfx->Stop(objData->soundHandle);
     }
     
     if (onlySelf == FALSE && objData->lfxEmitter != NULL) {

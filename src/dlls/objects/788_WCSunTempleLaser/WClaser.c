@@ -123,12 +123,12 @@ void WCSunTempleLaser_obj_Control(Object* self) {
                 objData->flags &= ~WCSunTempleLaser_Flag_Firing;
                 
                 if (objData->soundHandle != 0) {
-                    gDLL_6_AMSFX->vtbl->Stop(objData->soundHandle);
+                    dll_amSfx->Stop(objData->soundHandle);
                     objData->soundHandle = 0;
                 }
                 
                 gDLL_14_Modgfx->vtbl->func5(self);
-                gDLL_6_AMSFX->vtbl->Play(self, SOUND_2BB_Laser_Stop_Hiss, MAX_VOLUME, NULL, NULL, 0, NULL);
+                dll_amSfx->Play(self, SOUND_2BB_Laser_Stop_Hiss, MAX_VOLUME, NULL, NULL, 0, NULL);
             } else {
                 //Firing
                 if (objData->timerDelay < 0.0f) {
@@ -138,13 +138,13 @@ void WCSunTempleLaser_obj_Control(Object* self) {
                     if (objData->state == WCSunTempleLaser_STATE_0_Off) {
                         //Start laser whirring sound loop
                         if (objData->soundHandle == 0) {
-                            gDLL_6_AMSFX->vtbl->Play(self, SOUND_9FA_Laser_Whir_Loop, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
+                            dll_amSfx->Play(self, SOUND_9FA_Laser_Whir_Loop, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
                         }
                         
                         //Play a hiss sound as the beam starts firing
                         if (objData->beamStartHissPlayed == FALSE) {
                             objData->beamStartHissPlayed = TRUE;
-                            gDLL_6_AMSFX->vtbl->Play(self, SOUND_9F9_Laser_Startup_Hiss, MAX_VOLUME, NULL, NULL, 0, NULL);
+                            dll_amSfx->Play(self, SOUND_9F9_Laser_Startup_Hiss, MAX_VOLUME, NULL, NULL, 0, NULL);
                         }
                         
                         objData->state = WCSunTempleLaser_STATE_1_Started;
@@ -194,7 +194,7 @@ void WCSunTempleLaser_obj_Control(Object* self) {
     //Handle laser whir volume
     if (objData->laserIsActive) {
         if (objData->soundHandle != 0) {
-            gDLL_6_AMSFX->vtbl->SetVol(objData->soundHandle, (s8) (objData->whirVolume * 127.0f));
+            dll_amSfx->SetVol(objData->soundHandle, (s8) (objData->whirVolume * 127.0f));
         }
     }
     
@@ -255,7 +255,7 @@ void WCSunTempleLaser_obj_Control(Object* self) {
                 if ((0.0f < distance) && (distance < 170.0f)) {
                     //Zap the player if they're not using the Forcefield Spell
                     if (((DLL_210_Player*)player->dll)->vtbl->func50(player) != BIT_Spell_Forcefield) {
-                        gDLL_6_AMSFX->vtbl->Play(self, SOUND_228, MAX_VOLUME, NULL, NULL, 0, NULL);
+                        dll_amSfx->Play(self, SOUND_228, MAX_VOLUME, NULL, NULL, 0, NULL);
                         
                         for (i = 0; i < 4; i++) {
                             gDLL_17_partfx->vtbl->spawn(objGetPlayer(), PARTICLE_28B, NULL, 4, -1, NULL);
@@ -298,7 +298,7 @@ void WCSunTempleLaser_obj_Free(Object* self, s32 onlySelf) {
     WCSunTempleLaser_Data* objData = self->data;
     
     if (objData->soundHandle != 0) {
-        gDLL_6_AMSFX->vtbl->Stop(objData->soundHandle);
+        dll_amSfx->Stop(objData->soundHandle);
     }
     
     gDLL_14_Modgfx->vtbl->func5(self);

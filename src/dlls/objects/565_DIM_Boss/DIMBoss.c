@@ -642,7 +642,7 @@ void dll_565_func_14F8(Object* self, ObjFSA_Data* fsa) {
     }
     
     if (wasHit) {
-        gDLL_6_AMSFX->vtbl->Play(self, data_DC[mathRnd(0, 1)], MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(self, data_DC[mathRnd(0, 1)], MAX_VOLUME, NULL, NULL, 0, NULL);
         modelInst = self->modelInsts[self->modelInstIdx];
         hitSphereCoords = modelInst->unk24;
         bss_0.transl.x = hitSphereCoords[hitSphereID].f[1] + gWorldX;
@@ -711,7 +711,7 @@ void dll_565_func_14F8(Object* self, ObjFSA_Data* fsa) {
     }
 
     if (baddie->unk3A8 != 0) {
-        gDLL_6_AMSFX->vtbl->Stop(baddie->unk3A8);
+        dll_amSfx->Stop(baddie->unk3A8);
         baddie->unk3A8 = 0;
     }
     
@@ -727,7 +727,7 @@ static void dll_565_func_1BC8(Object* self, ObjFSA_Data* fsa, s32 bitIndex, s32 
     bit = 1 << bitIndex;
     if (fsa->unk308 & bit) {
         fsa->unk308 &= ~bit;
-        gDLL_6_AMSFX->vtbl->Play(self, data_A0[arg3], MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(self, data_A0[arg3], MAX_VOLUME, NULL, NULL, 0, NULL);
         data_B0 |= arg4 | 4;
     }
 }
@@ -1219,7 +1219,7 @@ s32 dll_565_func_380C(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     
     if (fsa->unk308 & 1) {
         data_B0 |= 0x4004;
-        gDLL_6_AMSFX->vtbl->Play(self, 0x3BF, MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(self, 0x3BF, MAX_VOLUME, NULL, NULL, 0, NULL);
         camUseShake();
         camSetShakeOffset(7.0f);
         mainSetBits(BIT_26B, 1);
@@ -1237,7 +1237,7 @@ s32 dll_565_func_394C(Object* self, ObjFSA_Data* arg1, f32 updateRate) {
     
     if (arg1->enteredAnimState) {
         data_B0 |= 0x2000;
-        gDLL_6_AMSFX->vtbl->Play(self, 0x380, MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(self, 0x380, MAX_VOLUME, NULL, NULL, 0, NULL);
         camUseShake();
         camSetShakeOffset(4.0f);
         self->curModAnimIdLayered = -1;
@@ -1269,7 +1269,7 @@ s32 dll_565_func_3AB8(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     
     if (fsa->enteredAnimState) {
         data_B0 |= 0x8020;
-        gDLL_6_AMSFX->vtbl->Play(self, 0x380, MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(self, 0x380, MAX_VOLUME, NULL, NULL, 0, NULL);
         camUseShake();
         camSetShakeOffset(4.0f);
         self->curModAnimIdLayered = -1;

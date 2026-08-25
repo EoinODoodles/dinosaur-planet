@@ -161,13 +161,13 @@ void IMIcicle_obj_Control(Object* self) {
         if (objData->fallStarted == FALSE) {
             objData->fallStarted = TRUE;
             self->velocity.y = 0.0f;
-            gDLL_6_AMSFX->vtbl->Play(self, SOUND_50E, MAX_VOLUME, NULL, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_50E, MAX_VOLUME, NULL, NULL, 0, NULL);
 
             if (objData->soundHandle != 0) {
-                gDLL_6_AMSFX->vtbl->Stop(objData->soundHandle);
+                dll_amSfx->Stop(objData->soundHandle);
             }
 
-            gDLL_6_AMSFX->vtbl->Play(self, SOUND_50F, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_50F, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
             objHits->unk58 |= 1;
         }
 
@@ -200,11 +200,11 @@ void IMIcicle_obj_Control(Object* self) {
 
         //Stop fall sound loop
         if (objData->soundHandle != 0) {
-            gDLL_6_AMSFX->vtbl->Stop(objData->soundHandle);
+            dll_amSfx->Stop(objData->soundHandle);
         }
 
         //Play shattering sound and create modGfx fragments
-        gDLL_6_AMSFX->vtbl->Play(self, SOUND_510_Ice_Shatter, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
+        dll_amSfx->Play(self, SOUND_510_Ice_Shatter, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
         sModGfxDLL->vtbl->func0(self, 0xE, 0, 0x10000002, -1, 0);
     }
     
@@ -229,7 +229,7 @@ void IMIcicle_obj_Free(Object* self, s32 onlySelf) {
     IMIcicle_Data* objData = self->data;
 
     if (objData->soundHandle) {
-        gDLL_6_AMSFX->vtbl->Stop(objData->soundHandle);
+        dll_amSfx->Stop(objData->soundHandle);
     }
 }
 

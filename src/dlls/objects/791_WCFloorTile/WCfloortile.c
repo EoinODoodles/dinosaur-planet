@@ -74,7 +74,7 @@ void WCFloorTile_obj_Control(Object* self) {
                 for (i = 0; i < self->polyhits->unk10F; i++) {
                     obj = self->polyhits->unk100[i];
                     if (obj->id == OBJ_Sabre) {
-                        gDLL_6_AMSFX->vtbl->Play(self, SOUND_A11_Stone_Crumbling, 0x28, NULL, NULL, 0, NULL);
+                        dll_amSfx->Play(self, SOUND_A11_Stone_Crumbling, 0x28, NULL, NULL, 0, NULL);
                         objData->state = WCFloorTile_STATE_1_Falling;
                         objData->timer = 0.0f;
                         self->velocity.y = 0.0f;

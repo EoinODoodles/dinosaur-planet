@@ -80,9 +80,9 @@ void DIMWoodDoor_obj_Control(Object* self) {
         objData->health--;
         if (objData->health <= 0) {
             mainSetBits(objSetup->gamebitDestroyed, TRUE);
-            gDLL_6_AMSFX->vtbl->Play(self, SOUND_388_Wood_Smash, MAX_VOLUME, NULL, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_388_Wood_Smash, MAX_VOLUME, NULL, NULL, 0, NULL);
         } else {
-            gDLL_6_AMSFX->vtbl->Play(self, SOUND_387_Wood_Impact, MAX_VOLUME, NULL, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_387_Wood_Impact, MAX_VOLUME, NULL, NULL, 0, NULL);
         }
 
         //Change to progressively more damaged-looking models

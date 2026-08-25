@@ -482,7 +482,7 @@ static void RobotPatrol_moveAndShoot(Object* self, RobotPatrol_Data* objdata, Ro
         }
         RobotPatrol_checkForPlayer(self, objdata);
         if (objdata->alertMode == 2) {
-            gDLL_6_AMSFX->vtbl->Play(self, SOUND_112_RobotPatrol_Activate, MAX_VOLUME, NULL, NULL, 0, NULL);
+            dll_amSfx->Play(self, SOUND_112_RobotPatrol_Activate, MAX_VOLUME, NULL, NULL, 0, NULL);
             if (objdata2) {} // @fake
             objdata2->gun.animDelta = 0.02f; // show weapon
             objdata2->beam.colorPulseDir = 0;
@@ -860,7 +860,7 @@ static void RobotPatrol_fireGun(Object* self, RobotPatrol_Gun* gun) {
     angle = gun->targetYaw - (gun->yaw & 0xFFFF);
     CIRCLE_WRAP(angle);
     if ((angle >= -0x1000) && (angle <= 0x1000)) {
-        gDLL_6_AMSFX->vtbl->Play(self, SOUND_115_Robot_LaserFire, MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(self, SOUND_115_Robot_LaserFire, MAX_VOLUME, NULL, NULL, 0, NULL);
         endSRT.transl.x = gun->fireAtPoint.x;
         endSRT.transl.y = gun->fireAtPoint.y;
         endSRT.transl.z = gun->fireAtPoint.z;

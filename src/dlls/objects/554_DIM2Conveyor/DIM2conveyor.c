@@ -37,7 +37,7 @@ void DIM2Conveyor_obj_Control(Object* self) {
     DIM2Conveyor_Data* objData = self->data;
     
     if (objData->soundHandle == 0) {
-        gDLL_6_AMSFX->vtbl->Play(self, SOUND_3C4_Conveyor_Loop, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
+        dll_amSfx->Play(self, SOUND_3C4_Conveyor_Loop, MAX_VOLUME, &objData->soundHandle, NULL, 0, NULL);
     }
 }
 
@@ -59,7 +59,7 @@ void DIM2Conveyor_obj_Free(Object* self, s32 onlySelf) {
 
     objData = self->data;
     if (objData->soundHandle) {
-        gDLL_6_AMSFX->vtbl->Stop(objData->soundHandle);
+        dll_amSfx->Stop(objData->soundHandle);
     }
 }
 

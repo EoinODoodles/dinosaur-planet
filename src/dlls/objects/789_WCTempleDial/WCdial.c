@@ -158,14 +158,14 @@ void WCTempleDial_obj_Control(Object* self) {
                     mainSetBits(objData->switchGamebits[j], 0);
                 }
                 
-                gDLL_6_AMSFX->vtbl->Play(self, SOUND_912_Object_Refused, MAX_VOLUME, NULL, NULL, 0, NULL);
+                dll_amSfx->Play(self, SOUND_912_Object_Refused, MAX_VOLUME, NULL, NULL, 0, NULL);
                 
                 //Reset back to initial state and rotation speed
                 objData->switchFlags = 0;
                 objData->rotateSpeedGoal = objData->rotateSpeedGoals[0];
                 break;
             } else {
-                gDLL_6_AMSFX->vtbl->Play(self, SOUND_798_Puzzle_Solved, MAX_VOLUME, NULL, NULL, 0, NULL);
+                dll_amSfx->Play(self, SOUND_798_Puzzle_Solved, MAX_VOLUME, NULL, NULL, 0, NULL);
 
                 //Update switch flags and rotation speed
                 objData->switchFlags |= (1 << switchIdx);

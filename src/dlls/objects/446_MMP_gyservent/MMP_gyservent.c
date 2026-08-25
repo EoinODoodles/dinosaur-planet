@@ -40,7 +40,7 @@ void MMP_GeyserVent_obj_Control(Object* self) {
     if (self->unkDC < 0) {
         self->unkDC = mathRnd(70, 240);
         self->unkE0 = mathRnd(30, 60);
-        gDLL_6_AMSFX->vtbl->Play(self, dSoundIDs[mathRnd(0, 1)], MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(self, dSoundIDs[mathRnd(0, 1)], MAX_VOLUME, NULL, NULL, 0, NULL);
     }
 
     if (self->unkE0 != 0) {

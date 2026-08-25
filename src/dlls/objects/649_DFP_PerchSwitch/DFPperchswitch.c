@@ -55,7 +55,7 @@ void DFP_PerchSwitch_obj_Control(Object* self) {
         (mainGetBits(objSetup->gamebitLocked) == FALSE)
     ) {
         gDLL_3_Animation->vtbl->start_obj_sequence(0, self, -1);
-        gDLL_6_AMSFX->vtbl->Play(self, SOUND_99F_Metal_Hinge_Squeak, MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(self, SOUND_99F_Metal_Hinge_Squeak, MAX_VOLUME, NULL, NULL, 0, NULL);
         mainSetBits(objSetup->gamebitPulled, TRUE);
         mainSetBits(objSetup->gamebitLocked, TRUE);
     }
