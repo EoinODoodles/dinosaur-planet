@@ -8,13 +8,13 @@ _exports:
 .dword GroundAnimator_dtor
 
 # export table
-/*0*/ .dword GroundAnimator_setup
-/*1*/ .dword GroundAnimator_control
-/*2*/ .dword GroundAnimator_update
-/*3*/ .dword GroundAnimator_print
-/*4*/ .dword GroundAnimator_free
-/*5*/ .dword GroundAnimator_get_model_flags
-/*6*/ .dword GroundAnimator_get_data_size
-/*7*/ .dword GroundAnimator_tick_dig
-/*8*/ .dword GroundAnimator_is_dig_finished
-/*9*/ .dword GroundAnimator_get_magic_cave_index
+/*0*/ .dword GroundAnimator_obj_Setup
+/*1*/ .dword GroundAnimator_obj_Control
+/*2*/ .dword GroundAnimator_obj_Update
+/*3*/ .dword GroundAnimator_obj_Print
+/*4*/ .dword GroundAnimator_obj_Free
+/*5*/ .dword GroundAnimator_obj_GetModelFlags
+/*6*/ .dword GroundAnimator_obj_GetDataSize
+/*7*/ .dword GroundAnimator_TickDig
+/*8*/ .dword GroundAnimator_IsDigFinished
+/*9*/ .dword GroundAnimator_GetMagicCaveIndex

@@ -1,7 +1,7 @@
 #include "common.h"
-#include "dlls/engine/6_amsfx.h"
 #include "sys/gfx/modgfx.h"
 #include "sys/objtype.h"
+#include "dlls/engine/6_amsfx.h"
 #include "dlls/objects/common/sidekick.h"
 #include "dlls/objects/272_collectable.h"
 #include "dlls/objects/351_GroundAnimator.h"
@@ -15,16 +15,16 @@
 #define OPACITY_MAX 0xFF
 #define TOTAL_JINGLES 2
 
-static void GroundAnimator_store_shapeIDs_and_vertex_weights(Object* self, GroundAnimator_Data* objData, GroundAnimator_Setup* objSetup);
+static void GroundAnimator_storeShapeIDsAndVertexWeights(Object* self, GroundAnimator_Data* objData, GroundAnimator_Setup* objSetup);
 
 // offset: 0x0 | ctor
-void GroundAnimator_ctor(void *dll) { }
+void GroundAnimator_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void GroundAnimator_dtor(void *dll) { }
+void GroundAnimator_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void GroundAnimator_setup(Object* self, GroundAnimator_Setup* objSetup, s32 reset) {
+void GroundAnimator_obj_Setup(Object* self, GroundAnimator_Setup* objSetup, s32 reset) {
     GroundAnimator_Data* objData = self->data;
     
     //Check if the dig spot is a Magic Cave entrance
@@ -58,7 +58,7 @@ void GroundAnimator_setup(Object* self, GroundAnimator_Setup* objSetup, s32 rese
 }
 
 // offset: 0x170 | func: 1 | export: 1
-void GroundAnimator_control(Object* self) {
+void GroundAnimator_obj_Control(Object* self) {
     GroundAnimator_Data* objData;
     Block* block;
     GroundAnimator_Setup* objSetup;
@@ -134,7 +134,7 @@ void GroundAnimator_control(Object* self) {
         objData->animatedVtxCount = blockGetAnimatorVertexCount(self, objSetup->animatorID);
         if (objData->animatedVtxCount > 0) {
             objData->vtxWeights = mmAlloc(objData->animatedVtxCount * sizeof(f32), ALLOC_TAG_TRACK_COL, NULL);
-            GroundAnimator_store_shapeIDs_and_vertex_weights(self, objData, objSetup);
+            GroundAnimator_storeShapeIDsAndVertexWeights(self, objData, objSetup);
         }
     }
     
@@ -245,13 +245,13 @@ void GroundAnimator_control(Object* self) {
 }
 
 // offset: 0x950 | func: 2 | export: 2
-void GroundAnimator_update(Object *self) { }
+void GroundAnimator_obj_Update(Object* self) { }
 
 // offset: 0x95C | func: 3 | export: 3
-void GroundAnimator_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) { }
+void GroundAnimator_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) { }
 
 // offset: 0x974 | func: 4 | export: 4
-void GroundAnimator_free(Object* self, s32 onlySelf) {
+void GroundAnimator_obj_Free(Object* self, s32 onlySelf) {
     GroundAnimator_Data* objData = self->data;
     
     if (objData->vtxWeights != NULL) {
@@ -263,17 +263,17 @@ void GroundAnimator_free(Object* self, s32 onlySelf) {
 }
 
 // offset: 0xA04 | func: 5 | export: 5
-u32 GroundAnimator_get_model_flags(Object *self) {
+u32 GroundAnimator_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0xA14 | func: 6 | export: 6
-u32 GroundAnimator_get_data_size(Object *self, u32 offsetAddr) {
+u32 GroundAnimator_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(GroundAnimator_Data);
 }
 
 // offset: 0xA28 | func: 7
-void GroundAnimator_store_shapeIDs_and_vertex_weights(Object* self, GroundAnimator_Data* objData, GroundAnimator_Setup* objSetup) {
+void GroundAnimator_storeShapeIDsAndVertexWeights(Object* self, GroundAnimator_Data* objData, GroundAnimator_Setup* objSetup) {
     BlockShape* shapes;
     s32 pad[6];
     f32 radiusSq;
@@ -344,7 +344,7 @@ void GroundAnimator_store_shapeIDs_and_vertex_weights(Object* self, GroundAnimat
 }
 
 // offset: 0xC90 | func: 8 | export: 7
-f32 GroundAnimator_tick_dig(Object* self, Object* sidekick) {
+f32 GroundAnimator_TickDig(Object* self, Object* sidekick) {
     GroundAnimator_Setup* objSetup;
     GroundAnimator_Data* objData;
     Object* collectable;
@@ -387,7 +387,7 @@ f32 GroundAnimator_tick_dig(Object* self, Object* sidekick) {
 }
 
 // offset: 0xDFC | func: 9 | export: 8
-u8 GroundAnimator_is_dig_finished(Object* self) {
+u8 GroundAnimator_IsDigFinished(Object* self) {
     GroundAnimator_Data* objData = self->data;
     GroundAnimator_Setup* objSetup = (GroundAnimator_Setup*)self->setup;
     
@@ -400,9 +400,7 @@ u8 GroundAnimator_is_dig_finished(Object* self) {
  *
  * Presumably the warp cutscene would've warped you to different setups of the Magic Cave based on this (like in SFA).
  */
-u8 GroundAnimator_get_magic_cave_index(Object* self) {
+u8 GroundAnimator_GetMagicCaveIndex(Object* self) {
     GroundAnimator_Data* objData = self->data;
     return objData->magicCaveID;
 }
-
-/*0x1C*/ static const char str_1C[] = "";

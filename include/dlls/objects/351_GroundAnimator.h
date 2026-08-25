@@ -50,10 +50,12 @@ typedef enum {
 
 DLL_INTERFACE(DLL_351_GroundAnimator) {
     /*:*/ DLL_INTERFACE_BASE(DLL_IObject);
-    /*7*/ f32 (*tick_dig)(Object* self, Object* sidekick);
-    /*8*/ u8 (*is_dig_finished)(Object* self);
-    /*9*/ u8 (*get_magic_cave_index)(Object* self);
+    /*7*/ f32 (*TickDig)(Object* self, Object* sidekick);
+    /*8*/ u8 (*IsDigFinished)(Object* self);
+    /*9*/ u8 (*GetMagicCaveIndex)(Object* self);
 };
+
+#define dll_groundAnimator(obj) (((DLL_351_GroundAnimator*)obj->dll)->vtbl)
 
 #endif // _DLLS_351_H
 
