@@ -1,0 +1,14 @@
+.text = 0x0:
+PortalTexAnimator_ctor = 0x0;
+PortalTexAnimator_dtor = 0xC;
+PortalTexAnimator_obj_Setup = 0x18;
+PortalTexAnimator_obj_Control = 0x78;
+PortalTexAnimator_animateVertices = 0x310;
+PortalTexAnimator_obj_Update = 0x414;
+PortalTexAnimator_obj_Print = 0x420;
+PortalTexAnimator_obj_Free = 0x474;
+PortalTexAnimator_obj_GetModelFlags = 0x4C4;
+PortalTexAnimator_obj_GetDataSize = 0x4D4;
+
+.rodata = 0x53C:
+str_0 = 0x0; // absolute:0x53C

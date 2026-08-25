@@ -29,7 +29,7 @@ typedef struct {
 /*04*/ f32 minDistance;
 /*08*/ f32 maxDistance;
 /*0C*/ f32 minDistanceCopy;
-/*10*/ s32 unk10;
+/*10*/ f32* unk10;
 /*14*/ s16 vertexOpacity;
 /*16*/ s8 animatorID;
 /*17*/ s8 enabled;              //unfinished, doesn't affect behaviour
@@ -37,27 +37,27 @@ typedef struct {
 /*19*/ s8 unk19;
 } PortalTexAnimator_Data;
 
-static void portaltexanimator_animate_vertices(PortalTexAnimator_Data* objdata, PortalTexAnimator_Setup* setup, Block* block);
+static void PortalTexAnimator_animateVertices(PortalTexAnimator_Data* objdata, PortalTexAnimator_Setup* setup, Block* block);
 
 // offset: 0x0 | ctor
-void portaltexanimator_ctor(void* dll){ }
+void PortalTexAnimator_ctor(void* dll){ }
 
 // offset: 0xC | dtor
-void portaltexanimator_dtor(void* dll){ }
+void PortalTexAnimator_dtor(void* dll){ }
 
 // offset: 0x18 | func: 0 | export: 0
-void portaltexanimator_setup(Object* self, PortalTexAnimator_Setup* arg1, s32 arg2) {
+void PortalTexAnimator_obj_Setup(Object* self, PortalTexAnimator_Setup* objSetup, s32 reset) {
     PortalTexAnimator_Data* objdata;
 
     objdata = self->data;
 
     objdata->unk19 = -1;
-    objdata->minDistance = arg1->minDistance;
-    objdata->maxDistance = arg1->base.loadDistance * 8;
+    objdata->minDistance = objSetup->minDistance;
+    objdata->maxDistance = objSetup->base.loadDistance * 8;
 }
 
 // offset: 0x78 | func: 1 | export: 1
-void portaltexanimator_control(Object* self) {
+void PortalTexAnimator_obj_Control(Object* self) {
     PortalTexAnimator_Data* objdata;
     PortalTexAnimator_Setup* setup;
     Block* block;
@@ -106,9 +106,9 @@ void portaltexanimator_control(Object* self) {
 
         //Set both vertex animation buffers' animated vertices to max opacity
         objdata->vertexOpacity = setup->maxOpacity;
-        portaltexanimator_animate_vertices(objdata, setup, block); 
+        PortalTexAnimator_animateVertices(objdata, setup, block); 
         block->vtxFlags ^= 1;
-        portaltexanimator_animate_vertices(objdata, setup, block);
+        PortalTexAnimator_animateVertices(objdata, setup, block);
         block->vtxFlags ^= 1;
     } 
 
@@ -124,77 +124,69 @@ void portaltexanimator_control(Object* self) {
         }
 
         objdata->vertexOpacity = setup->minOpacity + (setup->maxOpacity - setup->minOpacity) * blendValue;
-        portaltexanimator_animate_vertices(objdata, setup, block);
+        PortalTexAnimator_animateVertices(objdata, setup, block);
     }
 }
 
 // offset: 0x310 | func: 2
-void portaltexanimator_animate_vertices(PortalTexAnimator_Data* objdata, PortalTexAnimator_Setup* setup, Block* block) {
-    BlockShape *shapes;
-    Vtx_t *vertices;
-    s32 shapeIndex;
+void PortalTexAnimator_animateVertices(PortalTexAnimator_Data* objdata, PortalTexAnimator_Setup* setup, Block* block) {
+    BlockShape* shapes;
+    Vtx_t* vertices;
+    s32 shapeIdx;
     s32 vertexIndex;
 
     vertices = block->vertices2[block->vtxFlags & 1];
 
-    shapeIndex = 0;
-    shapes = block->shapes;
-
     //Iterate over shapes, and update all vertices' alpha on shapes with matching animatorID tag
-    while (shapeIndex < block->shapeCount){
-
-        if (objdata->animatorID == shapes[shapeIndex].animatorID){
-            for (vertexIndex = shapes[shapeIndex].vtxBase; vertexIndex < shapes[shapeIndex + 1].vtxBase; vertexIndex++){
+    for (shapeIdx = 0, shapes = block->shapes; shapeIdx < block->shapeCount; shapeIdx++){
+        if (objdata->animatorID == shapes[shapeIdx].animatorID){
+            for (vertexIndex = shapes[shapeIdx].vtxBase; vertexIndex < shapes[shapeIdx + 1].vtxBase; vertexIndex++){
                 vertices[vertexIndex].cn[3] = objdata->vertexOpacity; //@bug: setting a 16-bit value on an 8-bit colour field
             }
 
             //Switch shape's draw flags when opacity is zero
             if (objdata->vertexOpacity == 0){
-                shapes[shapeIndex].flags |= RENDER_SHAPE_HIDE;
+                shapes[shapeIdx].flags |= RENDER_SHAPE_HIDE;
                 if (setup->removeCollision){
-                    shapes[shapeIndex].flags |= RENDER_UNK800;
+                    shapes[shapeIdx].flags |= RENDER_UNK800;
                 }
             } else {
-                shapes[shapeIndex].flags &= ~RENDER_SHAPE_HIDE;
+                shapes[shapeIdx].flags &= ~RENDER_SHAPE_HIDE;
                 if (setup->removeCollision){
-                    shapes[shapeIndex].flags &= ~RENDER_UNK800;
+                    shapes[shapeIdx].flags &= ~RENDER_UNK800;
                 }
             }
         }
-
-        shapeIndex++;
     }
 
 }
 
 // offset: 0x414 | func: 3 | export: 2
-void portaltexanimator_update(Object *self) { }
+void PortalTexAnimator_obj_Update(Object *self) { }
 
 // offset: 0x420 | func: 4 | export: 3
-void portaltexanimator_print(Object* self, Gfx** gfx, Mtx** mtx, Vertex** vtx, Triangle** pols, s8 visibility) {
+void PortalTexAnimator_obj_Print(Object* self, Gfx** gfx, Mtx** mtx, Vertex** vtx, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gfx, mtx, vtx, pols, 1.0f);
     }
 }
 
 // offset: 0x474 | func: 5 | export: 4
-void portaltexanimator_free(Object* self, s32 arg1) {
+void PortalTexAnimator_obj_Free(Object* self, s32 onlySelf) {
     PortalTexAnimator_Data* objdata = self->data;
-    s32 ptr;
 
-    ptr = objdata->unk10;
-    if (ptr) {
-        mmFree((void*)ptr);
+    if (objdata->unk10) {
+        mmFree(objdata->unk10);
     }
 }
 
 // offset: 0x4C4 | func: 6 | export: 5
-u32 portaltexanimator_get_model_flags(Object* self){
+u32 PortalTexAnimator_obj_GetModelFlags(Object* self){
     return MODFLAGS_NONE;
 }
 
 // offset: 0x4D4 | func: 7 | export: 6
-u32 portaltexanimator_get_data_size(Object* self, s32 arg1){
+u32 PortalTexAnimator_obj_GetDataSize(Object* self, s32 offsetAddr){
     return sizeof(PortalTexAnimator_Data);
 }
 

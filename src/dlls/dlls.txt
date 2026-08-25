@@ -219,7 +219,7 @@
 355 = objects/355_WallAnimator
 357 = objects/357_ExplodeAnimator
 361 = objects/361_TexFrameAnimator
-362 = objects/362_portaltexanimator
+362 = objects/362_PortalTexAnimator
 363 = objects/363_FElevControl
 364 = objects/364_FEseqobject
 365 = objects/365
