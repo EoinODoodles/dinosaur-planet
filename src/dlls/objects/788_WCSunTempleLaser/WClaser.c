@@ -106,7 +106,7 @@ void WCSunTempleLaser_obj_Control(Object* self) {
     objData = self->data;
     objData->timerDelay -= gUpdateRateF;
     
-    if ((objSetup->mode != WCSunTempleLaser_MODE_Always_On) && (mainGetBits(BIT_WC_Hazards_Deactivated))) {
+    if ((objSetup->mode != WCSunTempleLaser_MODE_Always_On) && (mainGetBits(BIT_WC_Moon_Temple_Hazards_Deactivated))) {
         mainSetBits(objSetup->gamebitEnabled, FALSE);
     }
     

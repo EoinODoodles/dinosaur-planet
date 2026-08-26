@@ -828,7 +828,7 @@ typedef enum {
     BIT_WC_Transporter_Chamber_Rises = 0x335, // len:1 group:1 (Act 2: Central temple's Krazoa Shrine transporter chamber animates upwards, setting BIT_235 when finished)
     BIT_CRF_Treasure_Chest_Key = 0x336, // len:1 group:1    [INVENTORY]
     BIT_CF_Free_Cloudrunner_From_Chest = 0x337, // len:1 group:1
-    BIT_WC_Hazards_Deactivated = 0x338, // len:1 group:1 //Walled City: all timed lasers switched off?
+    BIT_WC_Moon_Temple_Hazards_Deactivated = 0x338, // len:1 group:1 //Walled City: all falling floor tiles and timed lasers switched off (provided they're not using `WCSunTempleLaser_MODE_Always_On`)
     BIT_339 = 0x339, // len:1 group:1
     BIT_33A = 0x33A, // len:1 group:1
     BIT_33B = 0x33B, // len:1 group:0

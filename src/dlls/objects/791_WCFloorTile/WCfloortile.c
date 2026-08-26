@@ -58,8 +58,8 @@ void WCFloorTile_obj_Control(Object* self) {
     objData = self->data;
     objSetup = (WCFloorTile_Setup*)self->setup;
 
-    //Reappear and don't fall if a particular gamebit is set
-    if (mainGetBits(BIT_WC_Hazards_Deactivated)) {
+    //Reappear and don't fall when the player backtracks through the corridor
+    if (mainGetBits(BIT_WC_Moon_Temple_Hazards_Deactivated)) {
         self->srt.transl.y = objSetup->base.y;
         objData->state = WCFloorTile_STATE_3_Finished;
     }
