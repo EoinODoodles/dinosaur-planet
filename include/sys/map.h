@@ -175,7 +175,7 @@ typedef struct {
 /*003A*/    s8 unk3A;
 /*003B*/    s8 unk3B;
 /*003C*/    s16 unk3C;
-/*003E*/    s16 unk3E; // pointer to animated vertices, maybe?
+/*003E*/    s16 unk3E;
 /*0040*/    s16 minY; // lowest vertex elevation
 /*0042*/    s16 maxY; // highest vertex elevation
 /*0044*/    u16 modelSize; // length of decompressed model
