@@ -281,7 +281,7 @@ typedef struct {
 /*8BA*/ u8 spirits; //Krazoa Spirit bitfield
 /*8BB*/ u8 unk8BB; // player has magic? (bitfield for magic spells obtained?)
 /*8BC*/ u8 unk8BC;
-/*8BD*/ u8 unk8BD;
+/*8BD*/ u8 unk8BD; //Cam flags
 /*8BE*/ u8 unk8BE;
 /*8BF*/ s8 unk8BF;
 /*8C0*/ s8 unk8C0;
