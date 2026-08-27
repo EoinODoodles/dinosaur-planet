@@ -634,7 +634,7 @@ static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata
                 } else {
                     //Failure...
                     mainSetBits(BIT_WC_Sun_Temple_Maze_Timed_Challenge_Door_Opened, FALSE);
-                    mainSetBits(BIT_WC_Sun_Temple_Maze_Switch_1_Pressed, FALSE);
+                    mainSetBits(BIT_WC_Sun_Temple_Maze_Timed_Challenge_Switch_Pressed, FALSE);
                     mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_1_Shown, TRUE);
                     mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_2_Hidden, TRUE);
                     mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_3_Hidden, TRUE);
@@ -646,7 +646,7 @@ static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata
         default:
             if ((objdata->flags & FLAG_40_Sun_Temple_Maze_Solved) == FALSE) {
                 //Start the maze's timed challenge when the wall switch is pressed (just to the left when entering)
-                if (mainGetBits(BIT_WC_Sun_Temple_Maze_Switch_1_Pressed) && 
+                if (mainGetBits(BIT_WC_Sun_Temple_Maze_Timed_Challenge_Switch_Pressed) && 
                     mainGetBits(BIT_WC_Played_Seq_179_Sun_Temple_Maze_Timed_Challenge_Intro)
                 ) {
                     mainSetBits(BIT_WC_Sun_Temple_Maze_Illusory_Wall_1_Shown, FALSE);
@@ -660,6 +660,7 @@ static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata
             break;
     }
 
+    //Handle the Sun Pushblock Puzzle
     if ((objdata->flags & FLAG_10_Sun_Aperture_Opened) == FALSE) {
         pushblocksPlaced = mainGetBits(BIT_WC_Sun_Pushblock_Puzzle_Progress);
         if (pushblocksPlaced == 4) {
@@ -670,6 +671,7 @@ static void WCLevelControl_handleAct2(Object* self, WCLevelControl_Data* objdata
         }
     }
 
+    //Handle the Moon Pushblock Puzzle
     if ((objdata->flags & FLAG_20_Moon_Aperture_Opened) == FALSE) {
         pushblocksPlaced = mainGetBits(BIT_WC_Moon_Pushblock_Puzzle_Progress);
         if (pushblocksPlaced == 4) {

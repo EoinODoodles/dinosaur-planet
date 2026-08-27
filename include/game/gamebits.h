@@ -693,7 +693,7 @@ typedef enum {
     BIT_2AE = 0x2AE, // len:1 group:0
     BIT_2AF = 0x2AF, // len:1 group:0
     BIT_WC_Sun_Temple_Portal_Spell_Door_Opened = 0x2B0, // len:1 group:1
-    BIT_WC_Sun_Temple_Maze_Switch_1_Pressed = 0x2B1, // len:1 group:1
+    BIT_WC_Sun_Temple_Maze_Timed_Challenge_Switch_Pressed = 0x2B1, // len:1 group:1
     BIT_2B2 = 0x2B2, // len:1 group:2 task:5
     BIT_2B3 = 0x2B3, // len:1 group:0
     BIT_2B4 = 0x2B4, // len:1 group:3
