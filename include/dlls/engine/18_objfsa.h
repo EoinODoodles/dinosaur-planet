@@ -81,7 +81,7 @@ typedef struct ObjFSA_Data {
         // Is reset to null after being ran.
 /*2FC*/ ObjFSA_ExitCallback animExitAction;
 /*300*/ u8 _unk300[0x304 - 0x300];
-/*304*/ s32 unk304;
+/*304*/ s32 unk304; // effects bitfield (applied through EffectBox)
 /*308*/ u32 unk308; // model anim event bits
 /*30C*/ s32 unk30C; // value of joyGetButtonsBuffered?
 /*310*/ s32 unk310; // value of joyGetPressedBuffered?

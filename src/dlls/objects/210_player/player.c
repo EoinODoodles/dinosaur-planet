@@ -611,17 +611,19 @@ void dll_210_control(Object* player) {
     dll_210_func_1DDC(player, data, &data->unk0);
     dll_210_func_1CA8(player, data, &data->unk0);
     if (player->parent != NULL) {
-        var_v0 = (0x8000 - _bss_20C->srt.yaw);
+        var_v0 = (M_180_DEGREES - _bss_20C->srt.yaw);
         var_v0 = (player->parent->srt.yaw & 0xFFFF) - (var_v0 & 0xFFFF);
         CIRCLE_WRAP(var_v0)
-        data->unk0.unk324 = var_v0 + 0x8000;
+        data->unk0.unk324 = var_v0 + M_180_DEGREES;
     } else {
         data->unk0.unk324 = _bss_20C->srt.yaw;
     }
+
     data->unk8BC = gDLL_2_Camera->vtbl->get_dll_ID();
-    if (data->unk8BC == 0x56 && data->unk0.animState != PLAYER_ASTATE_Standing) {
+    if (data->unk8BC == DLL_ID_CAM1STPERSON && data->unk0.animState != PLAYER_ASTATE_Standing) {
         gDLL_18_objfsa->vtbl->set_anim_state(player, &data->unk0, PLAYER_ASTATE_Standing);
     }
+
     data->unk7FC = 100000.0f;
     data->unk8BD = 1;
     data->unk0.unk304 = 0;
@@ -645,10 +647,10 @@ void dll_210_control(Object* player) {
     }
     i = gDLL_1_cmdmenu->vtbl->was_used_item_in_gamebit_array(sp48, 6);
     if (i != -1) {
-        dll_amSfx->Play(player, (player->id != PLAYER_SABRE ? _data_4C0 : _data_4CC)[i], 0x7FU, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(player, (player->id != PLAYER_SABRE ? _data_4C0 : _data_4CC)[i], MAX_VOLUME, NULL, NULL, 0, NULL);
     }
     dll_210_func_7180(player, data, gUpdateRateF);
-    if ((data->unk87C != -1) && ((joyGetPressed(0) & 0x4000) || (data->stats->magic == 0))) {
+    if ((data->unk87C != -1) && ((joyGetPressed(0) & B_BUTTON) || (data->stats->magic == 0))) {
         data->unk87C = -1;
         data->unk8BF = -1;
         if (*_data_38 != 0) {
@@ -1754,7 +1756,7 @@ void *dll_210_func_44A4(Object* player, s32 arg1) {
     objdata2 = player->data;
     switch (arg1) {
     case 1:
-        if (fsa->unk304 & 0x1000) {
+        if (fsa->unk304 & 0x1000) { //In stealth region, can't be seen by robots in CRF
             return (void*)0;
         }
         if (player->stateFlags & OBJSTATE_IN_SEQ) {
@@ -1807,7 +1809,7 @@ void *dll_210_func_44A4(Object* player, s32 arg1) {
 }
 
 // offset: 0x4634 | func: 25 | export: 67
-void dll_210_func_4634(Object* player, s32 arg1, f32 arg2) {
+void dll_210_func_4634(Object* player, s32 arg1, f32 effectIdx) { //@bug: effect seems to be an index, but it's passed as a float?
     Player_Data* objdata1;
     ObjFSA_Data* fsa;
 
@@ -1816,7 +1818,7 @@ void dll_210_func_4634(Object* player, s32 arg1, f32 arg2) {
     switch (arg1) {
     case 1:
         if (objdata1->unk8AD < 4) {
-            objdata1->unk8AE[objdata1->unk8AD] = arg2;
+            objdata1->unk8AE[objdata1->unk8AD] = effectIdx;
             objdata1->unk8AD++;
             return;
         }
@@ -1836,7 +1838,7 @@ void dll_210_func_4634(Object* player, s32 arg1, f32 arg2) {
     case 9:
         if (*_bss_1A0 == 0) {
             gDLL_28_ScreenFade->vtbl->fade(30, 1);
-            *_bss_1A0 = 0x64;
+            *_bss_1A0 = 100;
         }
         break;
     case 10:
@@ -4780,7 +4782,7 @@ s32 dll_210_func_CAA8(Object* player, ObjFSA_Data* fsa, f32 arg2) {
         fsa->animTickDelta = 0.01f;
     }
     if (fsa->animStateTime > 30) {
-        dll_210_func_4634(player, 9, 0.0f);
+        dll_210_func_4634(player, 9, 0);
     }
     return 0;
 }
@@ -4876,7 +4878,7 @@ s32 dll_210_func_CC24(Object* player, ObjFSA_Data* fsa, f32 arg2) {
             objAnimSet(player, 0xB, 0.0f, 0U);
             dll_210_add_health(player, -8);
         }
-        if (fsa->animStateTime >= 0x3D) {
+        if (fsa->animStateTime > 60) {
             dll_210_func_4634(player, 9, 0);
         }
         player->velocity.f[1] -= 0.1f * arg2;

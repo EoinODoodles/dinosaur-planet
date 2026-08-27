@@ -269,8 +269,8 @@ typedef struct {
 /*8AA*/ u8 unk8AA;
 /*8AB*/ u8 unk8AB;
 /*8AC*/ u8 pad8AC;
-/*8AD*/ u8 unk8AD;
-/*8AE*/ s8 unk8AE[4];
+/*8AD*/ u8 unk8AD; //effects count (number of values in unk8AE)
+/*8AE*/ s8 unk8AE[4]; //effects (applied through EffectBoxes for example)
 /*8B2*/ u8 unk8B2[0x8B4 - 0x8B2];
 /*8B4*/ u8 unk8B4; //0 when Krystal, 1 when Sabre
 /*8B5*/ s8 unk8B5;
@@ -280,7 +280,7 @@ typedef struct {
 /*8B9*/ s8 unk8B9;
 /*8BA*/ u8 spirits; //Krazoa Spirit bitfield
 /*8BB*/ u8 unk8BB; // player has magic? (bitfield for magic spells obtained?)
-/*8BC*/ u8 unk8BC;
+/*8BC*/ u8 unk8BC; //Cam DLL ID
 /*8BD*/ u8 unk8BD; //Cam flags
 /*8BE*/ u8 unk8BE;
 /*8BF*/ s8 unk8BF;
