@@ -28,9 +28,6 @@ WCLevelControl_handleAct2 = 0x1928;
 WCLevelControl_sunPuzzleReset = 0x1CF4;
 WCLevelControl_moonPuzzleReset = 0x1D54;
 
-.rodata = 0x1E88:
-str_0 = 0x0; // absolute:0x1E88
-
 .data = 0x1FD8:
 dSunPuzzleInitial = 0x0; // absolute:0x1FD8
 dSunPuzzleFinished = 0x40; // absolute:0x2018
