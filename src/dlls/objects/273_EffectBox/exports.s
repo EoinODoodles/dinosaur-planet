@@ -8,10 +8,10 @@ _exports:
 .dword EffectBox_dtor
 
 # export table
-/*0*/ .dword EffectBox_setup
-/*1*/ .dword EffectBox_control
-/*2*/ .dword EffectBox_update
-/*3*/ .dword EffectBox_print
-/*4*/ .dword EffectBox_free
-/*5*/ .dword EffectBox_get_model_flags
-/*6*/ .dword EffectBox_get_data_size
+/*0*/ .dword EffectBox_obj_Setup
+/*1*/ .dword EffectBox_obj_Control
+/*2*/ .dword EffectBox_obj_Update
+/*3*/ .dword EffectBox_obj_Print
+/*4*/ .dword EffectBox_obj_Free
+/*5*/ .dword EffectBox_obj_GetModelFlags
+/*6*/ .dword EffectBox_obj_GetDataSize

@@ -1,121 +1,146 @@
 #include "dlls/objects/210_player.h"
+#include "game/gamebits.h"
 #include "sys/objects.h"
 #include "sys/objprint.h"
 #include "sys/objtype.h"
 
 typedef struct {
 /*00*/ ObjSetup base;
-/*18*/ u8 unk18; // yaw?
-/*19*/ u8 unk19; // pitch?
-/*1A*/ u8 unk1A; // width? (x)
-/*1B*/ u8 unk1B; // height? (y) divided by 2
-/*1C*/ u8 unk1C; // length? (z)
+/*18*/ u8 yaw;
+/*19*/ u8 roll;
+/*1A*/ u8 halfWidth;  // x dimension (stored halved), centred around origin
+/*1B*/ u8 halfHeight; // y dimension (stored halved), base of box at origin
+/*1C*/ u8 halfLength; // z dimension (stored halved), centred around origin
 /*1D*/ u8 effect;
-/*1E*/ u8 _unk1E;
-/*1F*/ u8 gamebitDisableValue; // disabled if the target gamebit is this value
-/*20*/ s16 gamebit; // -1 if this effect box is always enabled
-/*22*/ u8 target; // 0 = player, 1 = sidekick, 2 = pushblock
+/*1E*/ u8 _unk1E;     // Unused, but rarely set to 1 in ROM?
+/*1F*/ u8 gamebitDisableValue;      // disabled if the target gamebit is this value
+/*20*/ s16 gamebitEnable;           // -1 if this effect box is always enabled
+/*22*/ u8 target;                   // see `EffectBox_Targets`
 } EffectBox_Setup;
 
+typedef enum {
+    EffectBox_EFFECT_Fall_Reset = 0,        //Puts camera underneath you and causes fall reset
+    EffectBox_EFFECT_WMInsert_Unk = 4,      //? (used in the unused WMInsert map)
+    EffectBox_EFFECT_Gravity_Unk = 8,       //? (something to do with player gravity?)
+    EffectBox_EFFECT_Stealth_Region = 12    //Robots can't see you when inside! Used a lot in CRF
+} EffectBox_Effects;
+
+typedef enum {
+    EffectBox_TARGET_Player = 0,
+    EffectBox_TARGET_Sidekick = 1,
+    EffectBox_TARGET_Pushblock = 2
+} EffectBox_Targets;
+
 // offset: 0x0 | ctor
-void EffectBox_ctor(void *dll) { }
+void EffectBox_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void EffectBox_dtor(void *dll) { }
+void EffectBox_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void EffectBox_setup(Object *self, EffectBox_Setup *setup, s32 reset) {
-    if (self->unkDC == 0) {
+void EffectBox_obj_Setup(Object* self, EffectBox_Setup* setup, s32 reset) {
+    if (self->unkDC == FALSE) {
         objAddEffectBox(self);
     }
-    self->unkDC = 1;
-    if (setup->gamebit >= 0) {
-        self->unkE0 = setup->gamebit;
+    self->unkDC = TRUE;
+
+    if (setup->gamebitEnable > NO_GAMEBIT) {
+        self->unkE0 = setup->gamebitEnable;
     } else {
-        self->unkE0 = -1;
+        self->unkE0 = NO_GAMEBIT;
     }
+
     self->stateFlags |= (OBJSTATE_PRINT_DISABLED | OBJSTATE_UPDATE_DISABLED);
 }
 
 // offset: 0x9C | func: 1 | export: 1
-void EffectBox_control(Object *self) {
-    EffectBox_Setup *setup;
-    Object *spB0;
-    Object **objList;
+void EffectBox_obj_Control(Object* self) {
+    EffectBox_Setup* setup;
+    Object* target;
+    Object** objList;
     s32 i;
     s32 numObjs;
-    Object *obj;
-    f32 temp_fa0;
-    f32 temp_fa1;
-    f32 temp_fs0;
-    f32 sp90;
-    f32 temp_fs1;
-    f32 temp_fs2;
-    f32 temp_fs4;
-    f32 temp_fv0;
-    f32 temp_fv1;
-    f32 var_fs3;
-    f32 var_fs5;
+    Object* obj;
+    f32 distance;
+    f32 halfWidth;
+    f32 halfLength;
+    f32 height;
+    f32 cosRoll;
+    f32 sinRoll;
+    f32 cosYaw;
+    f32 sinYaw;
+    f32 dx;
+    f32 dy;
+    f32 dz;
 
     setup = (EffectBox_Setup*)self->setup;
-    if ((self->unkE0 < 0) || (mainGetBits(self->unkE0) != setup->gamebitDisableValue)) {
-        temp_fs4 = mathCosfInterp(-(setup->unk18 * 256));
-        temp_fs0 = mathSinfInterp(-(setup->unk18 * 256));
-        temp_fs1 = mathCosfInterp(-(setup->unk19 * 256));
-        temp_fs2 = mathSinfInterp(-(setup->unk19 * 256));
-        var_fs5 = (f32) setup->unk1A;
-        sp90 = (f32) (setup->unk1B * 2);
-        var_fs3 = (f32) setup->unk1C;
-        switch (setup->target) {
-        case 0:
-            spB0 = objGetPlayer();
-            if (spB0 != NULL) {
-                objList = &spB0;
-                numObjs = 1;
-                break;
-            }
-            return;
-        case 1:
-            spB0 = objGetSidekick();
-            if (spB0 != NULL) {
-                objList = &spB0;
-                numObjs = 1;
-                break;
-            }
-            return;
-        case 2:
-            objList = objGetAllOfType(OBJTYPE_PushBlock, &numObjs);
-            if (objList != NULL) {
-                break;
-            }
-            return;
-        }
+    if ((self->unkE0 >= 0) && (mainGetBits(self->unkE0) == setup->gamebitDisableValue)) {
+        return;
+    }
 
-        for (i = 0; i < numObjs; i++) {
-            obj = objList[i];
-            temp_fa0 = obj->srt.transl.x;
-            temp_fv1 = obj->srt.transl.y;
-            temp_fv0 = obj->srt.transl.z;
-            temp_fa0 -= self->srt.transl.x;
-            temp_fv1 -= self->srt.transl.y;
-            temp_fv0 -= self->srt.transl.z;
-            temp_fa1 = (temp_fa0 * temp_fs4) + (temp_fv0 * temp_fs0);
-            if ((-var_fs5 < temp_fa1) && (temp_fa1 < var_fs5)) {
-                temp_fv0 = (-temp_fa0 * temp_fs0) + (temp_fv0 * temp_fs4);
-                temp_fv0 = (-temp_fv1 * temp_fs2) + (temp_fv0 * temp_fs1);
-                if ((-var_fs3 < temp_fv0) && (temp_fv0 < var_fs3)) {
-                    temp_fv1 = (temp_fv1 * temp_fs1) + (temp_fv0 * temp_fs2);
-                    if ((temp_fv1 >= 0.0f) && (temp_fv1 < sp90)) {
-                        switch (setup->target) {
-                        case 1:
-                            break;
-                        case 0:
-                            ((DLL_210_Player*)obj->dll)->vtbl->func67(obj, 1, (f32) setup->effect);
-                            break;
-                        case 2:
-                            ((DLL_Unknown*)obj->dll)->vtbl->func[9].withTwoArgsCustom(obj, setup->effect);
-                            break;
-                        }
+    cosYaw = mathCosfInterp(-(setup->yaw << 8));
+    sinYaw = mathSinfInterp(-(setup->yaw << 8));
+    cosRoll = mathCosfInterp(-(setup->roll << 8));
+    sinRoll = mathSinfInterp(-(setup->roll << 8));
+
+    halfWidth = setup->halfWidth;
+    height = setup->halfHeight * 2;
+    halfLength = setup->halfLength;
+
+    switch (setup->target) {
+    case EffectBox_TARGET_Player:
+        target = objGetPlayer();
+        if (target != NULL) {
+            objList = &target;
+            numObjs = 1;
+            break;
+        }
+        return;
+    case EffectBox_TARGET_Sidekick:
+        target = objGetSidekick();
+        if (target != NULL) {
+            objList = &target;
+            numObjs = 1;
+            break;
+        }
+        return;
+    case EffectBox_TARGET_Pushblock:
+        objList = objGetAllOfType(OBJTYPE_PushBlock, &numObjs);
+        if (objList != NULL) {
+            break;
+        }
+        return;
+    }
+
+    for (i = 0; i < numObjs; i++) {
+        obj = objList[i];
+        
+        dx = obj->srt.transl.x;
+        dy = obj->srt.transl.y;
+        dz = obj->srt.transl.z;
+
+        dx -= self->srt.transl.x;
+        dy -= self->srt.transl.y;
+        dz -= self->srt.transl.z;
+
+        //Check if the object's inside the box
+        distance = (dx * cosYaw) + (dz * sinYaw);
+        if ((-halfWidth < distance) && (distance < halfWidth)) {
+            dz = (-dx * sinYaw) + (dz * cosYaw);
+            dz = (-dy * sinRoll) + (dz * cosRoll);
+            if ((-halfLength < dz) && (dz < halfLength)) {
+                dy = (dy * cosRoll) + (dz * sinRoll);
+                if ((dy >= 0.0f) && (dy < height)) {
+                    //Apply the effect
+                    switch (setup->target) {
+                    case EffectBox_TARGET_Sidekick:
+                        break;
+                    case EffectBox_TARGET_Player:
+                        ((DLL_210_Player*)obj->dll)->vtbl->func67(obj, 1, setup->effect);
+                        break;
+                    case EffectBox_TARGET_Pushblock:
+                        ((DLL_Unknown*)obj->dll)->vtbl->func[9].withTwoArgsCustom(obj, setup->effect);
+                        break;
                     }
                 }
             }
@@ -124,26 +149,26 @@ void EffectBox_control(Object *self) {
 }
 
 // offset: 0x45C | func: 2 | export: 2
-void EffectBox_update(Object *self) { }
+void EffectBox_obj_Update(Object* self) { }
 
 // offset: 0x468 | func: 3 | export: 3
-void EffectBox_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
-    if (visibility != 0) {
+void EffectBox_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+    if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x4BC | func: 4 | export: 4
-void EffectBox_free(Object *self, s32 onlySelf) {
+void EffectBox_obj_Free(Object* self, s32 onlySelf) {
     objFreeEffectBox(self);
 }
 
 // offset: 0x4F8 | func: 5 | export: 5
-u32 EffectBox_get_model_flags(Object *self) {
+u32 EffectBox_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x508 | func: 6 | export: 6
-u32 EffectBox_get_data_size(Object *self, u32 offsetAddr) {
+u32 EffectBox_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return 0;
 }
