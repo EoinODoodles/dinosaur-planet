@@ -1,8 +1,8 @@
+#include "dll.h"
 #include "dlls/objects/210_player.h"
 #include "game/objects/object_id.h"
 #include "sys/objects.h"
 #include "sys/objprint.h"
-#include "dll.h"
 
 typedef struct {
     f32 cooldownTimer;
