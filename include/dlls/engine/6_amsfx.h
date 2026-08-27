@@ -789,6 +789,7 @@ enum SoundID {
 
     SOUND_9F9_Laser_Startup_Hiss = 0x9F9,
     SOUND_9FA_Laser_Whir_Loop = 0x9FA,
+    SOUND_9FB_Illusory_Wall_Revealed = 0x9FB,
 
     SOUND_A11_Stone_Crumbling = 0xA11,
 
