@@ -1,7 +1,9 @@
 #include "PR/gbi.h"
 #include "PR/ultratypes.h"
+#include "dll.h"
 #include "dlls/objects/210_player.h"
 #include "dlls/objects/779_WCLevelControl.h"
+#include "dlls/objects/782_WCPushBlock.h"
 #include "game/gamebits.h"
 #include "game/objects/object.h"
 #include "sys/gfx/model.h"
@@ -10,14 +12,6 @@
 #include "sys/objprint.h"
 #include "sys/main.h"
 #include "types.h"
-#include "dll.h"
-
-typedef struct {
-/*00*/ ObjSetup base;
-/*18*/ u8 unk18;
-/*19*/ s8 modelIndex;
-/*1A*/ s16 blockID;
-} WCPushBlock_Setup;
 
 typedef struct {
 /*000*/    DLL27_Data unk0;   //Unused: probably DLL27_Data
@@ -32,21 +26,6 @@ typedef struct {
 /*276*/    u8 puzzlePieceID;  //The pushblock's identifier, used by WCLevelControl to quickly store which puzzle element is in each grid cell
 /*277*/    u8 collidedType;
 } WCPushBlock_Data;
-
-typedef enum {
-    WCPushBlock_MODELIDX_Moon,
-    WCPushBlock_MODELIDX_Sun
-} WCPushBlock_ModelIndices;
-
-typedef enum {
-    WCPushBlock_STATE_0_Initialising,
-    WCPushBlock_STATE_1_Pushable,
-    WCPushBlock_STATE_2_Moving,
-    WCPushBlock_STATE_3_Pushed_to_Bounds,
-    WCPushBlock_STATE_4_In_Correct_Spot,
-    WCPushBlock_STATE_5_Reappearing,
-    WCPushBlock_STATE_6_Puzzle_Complete
-} WCPushBlock_States;
 
 typedef enum {
     WCPushBlock_DIRECTION_X_Positive, //Moving forwards along world X axis
