@@ -186,7 +186,7 @@ u32 PortalTexAnimator_obj_GetModelFlags(Object* self){
 }
 
 // offset: 0x4D4 | func: 7 | export: 6
-u32 PortalTexAnimator_obj_GetDataSize(Object* self, s32 offsetAddr){
+u32 PortalTexAnimator_obj_GetDataSize(Object* self, u32 offsetAddr){
     return sizeof(PortalTexAnimator_Data);
 }
 
