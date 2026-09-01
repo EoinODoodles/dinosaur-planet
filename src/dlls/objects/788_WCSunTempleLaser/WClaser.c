@@ -255,7 +255,7 @@ void WCSunTempleLaser_obj_Control(Object* self) {
                 if ((0.0f < distance) && (distance < 170.0f)) {
                     //Zap the player if they're not using the Forcefield Spell
                     if (((DLL_210_Player*)player->dll)->vtbl->func50(player) != BIT_Spell_Forcefield) {
-                        dll_amSfx->Play(self, SOUND_228, MAX_VOLUME, NULL, NULL, 0, NULL);
+                        dll_amSfx->Play(self, SOUND_228_Laser_Zap, MAX_VOLUME, NULL, NULL, 0, NULL);
                         
                         for (i = 0; i < 4; i++) {
                             gDLL_17_partfx->vtbl->spawn(objGetPlayer(), PARTICLE_28B, NULL, 4, -1, NULL);

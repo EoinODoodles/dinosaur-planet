@@ -308,7 +308,7 @@ enum SoundID {
 
     SOUND_226_Fall_Impact = 0x226,
 
-    SOUND_228 = 0x228,
+    SOUND_228_Laser_Zap = 0x228,
 
     SOUND_236_SharpClaw_Argh = 0x236, //DR_NiceSharpy
     SOUND_237_SharpClaw_Arghhh = 0x237,
