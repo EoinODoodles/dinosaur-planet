@@ -229,6 +229,7 @@
 378 = objects/378_CFScalesGalleon
 379 = objects/379_CF_ObjCreator
 380 = objects/380_RobotPatrol
+381 = objects/381_RobotAnimPatrol
 382 = objects/382_CFIllusionClaw
 383 = objects/383_CFPerch
 385 = objects/385

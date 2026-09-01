@@ -228,6 +228,9 @@ enum SoundID {
     SOUND_12A_SnowHorn_SnoreHorn = 0x12A,
     SOUND_12B_SnowHorn_Yawn_2 = 0x12B,
 
+    SOUND_130 = 0x130,
+    SOUND_131 = 0x131, // RobotPatrol "yipee :)"
+
     SOUND_135_Laser_Hum = 0x135,
 
     SOUND_140_Galleon_Propeller_Loop = 0x140,
@@ -836,6 +839,11 @@ enum SoundID {
     SOUND_B01_Success_Chime = 0xB01, //NWtreebridge (via seq 0x92)
     SOUND_B02_Gas_Disperse_Burst = 0xB02, //PollenFragment
     SOUND_B03_Acid_Hiss_Loop = 0xB03,     //PollenFragment
+
+    SOUND_B16 = 0xB16,
+    SOUND_B17 = 0xB17,
+    SOUND_B18 = 0xB18,
+    SOUND_B19 = 0xB19,
 
     SOUND_B1C_Ladder_Climb_A = 0xB1C,
     SOUND_B1D_Ladder_Climb_B = 0xB1D,
