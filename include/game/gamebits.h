@@ -553,7 +553,7 @@ typedef enum {
     BIT_222 = 0x222, // len:1 group:1 (Spirit 6 placed)
     BIT_223 = 0x223, // len:1 group:1
     BIT_224 = 0x224, // len:1 group:1
-    BIT_225 = 0x225, // len:1 group:1
+    BIT_WC_Played_Seq_0174_Sun_Temple_Opens = 0x225, // len:1 group:1
     BIT_WC_Sun_Temple_Maze_Illusory_Wall_1_Shown = 0x226, // len:1 group:1
     BIT_WM_Spirit_Release_Effect = 0x227, // len:1 group:0
     BIT_Played_Seq_022F_CC_Lightfoot_Gives_Spellpage = 0x228, // len:1 group:2
@@ -584,7 +584,7 @@ typedef enum {
     BIT_DIM_Door_Key_1 = 0x241, // len:1 group:1        [INVENTORY]
     BIT_DIM_Used_Door_Key_1 = 0x242, // len:1 group:1   [INVENTORY - HIDE]
     BIT_WC_Used_Moon_Stone = 0x243, // len:1 group:1    [INVENTORY - HIDE]
-    BIT_244 = 0x244, // len:1 group:1
+    BIT_WC_Played_Seq_0175_Moon_Temple_Opens = 0x244, // len:1 group:1
     BIT_Tricky_Learned_Flame = 0x245, // len:1 group:2 [SIDEKICK COMMAND]
     BIT_246 = 0x246, // len:1 group:2
     BIT_247 = 0x247, // len:1 group:0
