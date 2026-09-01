@@ -1,0 +1,12 @@
+.text = 0x0:
+SeqProp_ctor = 0x0;
+SeqProp_dtor = 0xC;
+SeqProp_obj_Setup = 0x18;
+SeqProp_obj_Control = 0xD4;
+SeqProp_obj_Update = 0xE0;
+SeqProp_obj_Print = 0xEC;
+SeqProp_obj_Free = 0x140;
+SeqProp_obj_GetModelFlags = 0x150;
+SeqProp_obj_GetDataSize = 0x160;
+
+.rodata = 0x1A8:
