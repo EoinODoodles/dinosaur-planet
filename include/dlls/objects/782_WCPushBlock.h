@@ -9,7 +9,7 @@ typedef struct {
 /*00*/ ObjSetup base;
 /*18*/ u8 unk18;
 /*19*/ s8 modelIndex;
-/*1A*/ s16 blockID;
+/*1A*/ s16 puzzlePieceID;
 } WCPushBlock_Setup;
 
 typedef enum {

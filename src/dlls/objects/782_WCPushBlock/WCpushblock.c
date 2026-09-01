@@ -51,7 +51,7 @@ void WCPushBlock_obj_Setup(Object* self, WCPushBlock_Setup* setup, s32 reset) {
     if (self->modelInstIdx >= self->def->numModels) {
         self->modelInstIdx = WCPushBlock_MODELIDX_Moon;
     }
-    objdata->puzzlePieceID = setup->blockID;
+    objdata->puzzlePieceID = setup->puzzlePieceID;
 }
 
 // offset: 0x58 | func: 1 | export: 1
