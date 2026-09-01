@@ -10135,16 +10135,13 @@ int dll_210_func_1D5C0(Object* player) {
 }
 
 // offset: 0x1D5E8 | func: 197 | export: 47
-#ifndef NON_MATCHING
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/210_player/dll_210_func_1D5E8.s")
-#else
-u8 dll_210_func_1D5E8(Object* player, Object* arg1, u8* arg2) {
+u8 dll_210_func_1D5E8(Object* player, Object* pushblock, u8* arg2) {
     Player_Data* objdata = player->data;
+    ObjFSA_Data* fsa = player->data;
 
     *arg2 = objdata->unk680.unk2E;
-    return (objdata->unk0.animState == PLAYER_ASTATE_Push_Block_Away && objdata->unk680.unk28 == arg1);
+    return (fsa->animState == PLAYER_ASTATE_Push_Block_Away && objdata->unk680.unk28 == pushblock);
 }
-#endif
 
 // offset: 0x1D620 | func: 198 | export: 60
 s32 dll_210_func_1D620(Object* player) {
