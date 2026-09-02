@@ -456,6 +456,6 @@ DLL_INTERFACE(DLL_210_Player) {
     /*79*/ f32 (*func79)(Object* player);
 };
 
-#define dll_Player(obj) (((DLL_210_Player*)obj->dll)->vtbl)
+#define dll_player(obj) (((DLL_210_Player*)obj->dll)->vtbl)
 
 #endif //_DLLS_210_H
