@@ -223,6 +223,8 @@
 363 = objects/363_FElevControl
 364 = objects/364_FEseqobject
 365 = objects/365
+366 = objects/366_CloudPrisonControl
+367 = objects/367_CloudShipControl
 374 = objects/374_LaserBeam
 375 = objects/375_CFPrisonGuard
 376 = objects/376_CFPrisonUncle

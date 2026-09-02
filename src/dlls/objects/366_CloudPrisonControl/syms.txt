@@ -1,0 +1,24 @@
+.text = 0x0:
+CloudPrisonControl_ctor = 0x0;
+CloudPrisonControl_dtor = 0x24;
+CloudPrisonControl_obj_Setup = 0x30;
+CloudPrisonControl_obj_Control = 0x74;
+CloudPrisonControl_obj_Update = 0x32C;
+CloudPrisonControl_obj_Print = 0x338;
+CloudPrisonControl_obj_Free = 0x38C;
+CloudPrisonControl_obj_GetModelFlags = 0x39C;
+CloudPrisonControl_obj_GetDataSize = 0x3AC;
+CloudPrisonControl_func_3C0 = 0x3C0;
+
+.rodata = 0x410:
+str_0 = 0x0; // absolute:0x410
+
+.data = 0x450:
+data_0 = 0x0; // absolute:0x450
+data_4 = 0x4; // absolute:0x454
+data_8 = 0x8; // absolute:0x458
+
+.bss = 0x460:
+bss_0 = 0x0; // absolute:0x460
+bss_8 = 0x8; // absolute:0x468
+bss_90 = 0x90; // absolute:0x4F0

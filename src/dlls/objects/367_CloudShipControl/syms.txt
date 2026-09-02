@@ -1,0 +1,35 @@
+.text = 0x0:
+CloudShipControl_ctor = 0x0;
+CloudShipControl_dtor = 0x24;
+CloudShipControl_obj_Setup = 0x30;
+CloudShipControl_obj_Control = 0x74;
+CloudShipControl_obj_Update = 0x654;
+CloudShipControl_obj_Print = 0x660;
+CloudShipControl_obj_Free = 0x6B4;
+CloudShipControl_obj_GetModelFlags = 0x704;
+CloudShipControl_obj_GetDataSize = 0x714;
+CloudShipControl_func_728 = 0x728;
+CloudShipControl_func_7F0 = 0x7F0;
+CloudShipControl_func_9DC = 0x9DC;
+CloudShipControl_func_A3C = 0xA3C;
+CloudShipControl_func_D64 = 0xD64;
+
+.rodata = 0x1044:
+
+.data = 0x1064:
+data_0 = 0x0; // absolute:0x1064
+data_4 = 0x4; // absolute:0x1068
+data_8 = 0x8; // absolute:0x106C
+data_C = 0xC; // absolute:0x1070
+data_10 = 0x10; // absolute:0x1074
+data_18 = 0x18; // absolute:0x107C
+
+.bss = 0x1094:
+bss_0 = 0x0; // absolute:0x1094
+bss_4 = 0x4; // absolute:0x1098
+bss_8 = 0x8; // absolute:0x109C
+bss_90 = 0x90; // absolute:0x1124
+bss_130 = 0x130; // absolute:0x11C4
+bss_138 = 0x138; // absolute:0x11CC
+bss_158 = 0x158; // absolute:0x11EC
+bss_160 = 0x160; // absolute:0x11F4
