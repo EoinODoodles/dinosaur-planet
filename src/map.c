@@ -5362,6 +5362,8 @@ void blockComputeVertexColors(Block* arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
 }
 
+static const char str_8009a930[] = "######  DOING WARP  ########\n";
+
 /** 
   * Queues warping the player to coordinates stored in WARPTAB.bin.
   * If fadeToBlack is nonzero, the player will be warped once the screen fade finishes,
@@ -5420,8 +5422,6 @@ void mapHandleTransition(void) {
         
     //If a warp is queued, warp when the fade-out is finished (or immediately if the warp isn't using a fade)
     if (gDLL_28_ScreenFade->vtbl->is_complete() || D_800B4A59 == 0){
-        STUBBED_PRINTF("######  DOING WARP  ########\n");
-
         warp = &D_800B4A60;
         D_800B4A58 = FALSE;
         playerLocation->vec.x = warp->coord.x;
