@@ -5399,8 +5399,6 @@ void mapWarpPlayer(s32 warpID, s8 fadeToBlack) {
 void mapHandleTransition(void) {
     PlayerLocation* playerLocation;
     Warp* warp;
-    u8 temp2;
-    u8 temp1;
 
     playerLocation = gDLL_29_Gplay->vtbl->get_player_saved_location();
     
