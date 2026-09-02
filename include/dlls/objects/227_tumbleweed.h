@@ -77,12 +77,12 @@ typedef enum {
 
 DLL_INTERFACE(DLL_227_Tumbleweed) {
 /*:*/ DLL_INTERFACE_BASE(DLL_IObject);
-/*07*/ u8 (*get_state)(Object* self);
-/*08*/ void (*set_home)(Object* self, f32 x, f32 z);
-/*09*/ void (*fall)(Object* self);
-/*10*/ void (*gravitate_towards_point)(Object* self, Vec3f* point);
-/*11*/ s32 (*is_gravitating)(Object* self);
-/*12*/ void (*store_player)(Object* self, Object* player);
+/*07*/ u8 (*GetState)(Object* self);
+/*08*/ void (*SetHome)(Object* self, f32 x, f32 z);
+/*09*/ void (*Fall)(Object* self);
+/*10*/ void (*GravitateTowardsPoint)(Object* self, Vec3f* point);
+/*11*/ s32 (*IsGravitating)(Object* self);
+/*12*/ void (*StorePlayer)(Object* self, Object* player);
 };
 
 #define dll_Tumbleweed(obj) (((DLL_227_Tumbleweed*)obj->dll)->vtbl)

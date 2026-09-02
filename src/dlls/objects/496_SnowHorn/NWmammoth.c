@@ -1194,9 +1194,9 @@ static void SnowHorn_garundaTeControl(Object* self, SnowHorn_Data* objData, Snow
         if ((frostWeed != NULL) && (frostWeed->id == OBJ_Tumbleweed2) && 
             (vec3DistanceXZSquared(&self->globalPosition, &frostWeed->globalPosition) < SQ(objSetup->playerNearbyRange))
         ) {
-            if (dll_tumbleweed(frostWeed)->is_gravitating(frostWeed) == FALSE) {
+            if (dll_Tumbleweed(frostWeed)->IsGravitating(frostWeed) == FALSE) {
                 //Attract the FrostWeed towards Garunda Te's trunk
-                dll_tumbleweed(frostWeed)->gravitate_towards_point(frostWeed, &objData->trunkAttachPoint);
+                dll_Tumbleweed(frostWeed)->GravitateTowardsPoint(frostWeed, &objData->trunkAttachPoint);
                 objData->frostWeed = frostWeed;
 
                 //@debug code (skipping FrostWeed quest)

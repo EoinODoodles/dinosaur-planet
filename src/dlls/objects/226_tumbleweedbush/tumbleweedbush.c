@@ -29,16 +29,16 @@
 
 #define TUMBLEWEED_LIMIT 7
 
-static s8 TumbleweedBush_create_tumbleweed(Object* self);
+static s8 TumbleweedBush_createTumbleweed(Object* self);
 
 // offset: 0x0 | ctor
-void TumbleweedBush_ctor(void *dll) { }
+void TumbleweedBush_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void TumbleweedBush_dtor(void *dll) { }
+void TumbleweedBush_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void TumbleweedBush_setup(Object* self, TumbleweedBush_Setup* objSetup, s32 arg2) {
+void TumbleweedBush_obj_Setup(Object* self, TumbleweedBush_Setup* objSetup, s32 reset) {
     s32 pad[2];
     s32 type;
     s32 i;
@@ -70,7 +70,7 @@ void TumbleweedBush_setup(Object* self, TumbleweedBush_Setup* objSetup, s32 arg2
         break;
     }
     
-    if (arg2 == 0) {
+    if (reset == FALSE) {
         for (i = 0; i < objData->heldWeedCount; i++) {
             objData->heldWeeds[i] = NULL;
             bcopy(&dWeedCoords[type][i], &objData->heldWeedCoords[i], sizeof(Vec3f));
@@ -83,7 +83,7 @@ void TumbleweedBush_setup(Object* self, TumbleweedBush_Setup* objSetup, s32 arg2
 }
 
 // offset: 0x24C | func: 1 | export: 1
-void TumbleweedBush_control(Object* self) {
+void TumbleweedBush_obj_Control(Object* self) {
     TumbleweedBush_Data* objData;
     Object* player;
     Object* hitBy;
@@ -104,7 +104,7 @@ void TumbleweedBush_control(Object* self) {
         for (i = 0; i < objData->heldWeedCount; i++){
             if (objData->heldWeeds[i] != NULL) {
                 if (self->id != OBJ_TumbleWeedBush1 || gDLL_7_Newday->vtbl->func8(&dayTime) ) {
-                    ((DLL_227_Tumbleweed*)objData->heldWeeds[i]->dll)->vtbl->fall(objData->heldWeeds[i]);
+                    dll_Tumbleweed(objData->heldWeeds[i])->Fall(objData->heldWeeds[i]);
                 }
             }
         }
@@ -120,23 +120,23 @@ void TumbleweedBush_control(Object* self) {
      * provided the tree has an empty Tumbleweed slot and there are 
      * fewer than 7 of the relevant kind of Tumbleweed currently loaded */
     if ((u16)sqrtf(SQ(dx) + SQ(dz)) < objData->growWeedsRadius) {
-        while (TumbleweedBush_create_tumbleweed(self) != -1) {};
+        while (TumbleweedBush_createTumbleweed(self) != -1) {};
     }
 
     //Clear the tree's Tumbleweed slots when the Tumbleweed has fallen from the tree
     for (i = 0; i < objData->heldWeedCount; i++){
         weed = objData->heldWeeds[i];
-        if (weed && (((DLL_227_Tumbleweed*)weed->dll)->vtbl->get_state(weed) > Tumbleweed_STATE_Fall_from_Tree)) {
+        if (weed && (dll_Tumbleweed(weed)->GetState(weed) > Tumbleweed_STATE_Fall_from_Tree)) {
             objData->heldWeeds[i] = NULL;
         }
     }
 }
 
 // offset: 0x50C | func: 2 | export: 2
-void TumbleweedBush_update(Object *self) { }
+void TumbleweedBush_obj_Update(Object* self) { }
 
 // offset: 0x518 | func: 3 | export: 3
-void TumbleweedBush_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
+void TumbleweedBush_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     TumbleweedBush_Setup* objSetup = (TumbleweedBush_Setup*)self->setup;
     
     if (visibility) {
@@ -147,15 +147,15 @@ void TumbleweedBush_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Tr
 }
 
 // offset: 0x5A8 | func: 4 | export: 4
-void TumbleweedBush_free(Object *self, s32 a1) { }
+void TumbleweedBush_obj_Free(Object* self, s32 onlySelf) { }
 
 // offset: 0x5B8 | func: 5 | export: 5
-u32 TumbleweedBush_get_model_flags(Object *self) {
+u32 TumbleweedBush_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x5C8 | func: 6 | export: 6
-u32 TumbleweedBush_get_data_size(Object *self, u32 a1) {
+u32 TumbleweedBush_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(TumbleweedBush_Data);
 }
 
@@ -164,7 +164,7 @@ u32 TumbleweedBush_get_data_size(Object *self, u32 a1) {
   * Removes a specific Tumbleweed Object from the tree's list of held Tumbleweeds.
   * NOTE: the Tumbleweed Object isn't deleted, just no longer referenced by the tree.
 */
-void TumbleweedBush_remove_tumbleweed(Object* self, Object* tumbleweed) {
+void TumbleweedBush_RemoveTumbleweed(Object* self, Object* tumbleweed) {
     TumbleweedBush_Data* objData;
     s32 i;
 
@@ -185,7 +185,7 @@ void TumbleweedBush_remove_tumbleweed(Object* self, Object* tumbleweed) {
  * or if too many of the relevant kind of Tumbleweed are already loaded, 
  * or if it's nighttime and this is a TumbleweedBush1.
  */
-s8 TumbleweedBush_create_tumbleweed(Object* self) {
+s8 TumbleweedBush_createTumbleweed(Object* self) {
     TumbleweedBush_Data* objData;
     TumbleweedBush_Setup* objSetup;
     Tumbleweed_Setup* weedSetup;
@@ -270,7 +270,7 @@ s8 TumbleweedBush_create_tumbleweed(Object* self) {
     }
     
     objData->heldWeeds[weedIdx] = objSetupObject(&weedSetup->base, OBJINIT_STANDALONE | OBJINIT_FLAG4, self->mapID, -1, self->parent);
-    ((DLL_227_Tumbleweed*)objData->heldWeeds[weedIdx]->dll)->vtbl->set_home(objData->heldWeeds[weedIdx], self->srt.transl.x, self->srt.transl.z);
+    dll_Tumbleweed(objData->heldWeeds[weedIdx])->SetHome(objData->heldWeeds[weedIdx], self->srt.transl.x, self->srt.transl.z);
     objData->tumbleweedsGrown++;
     return weedIdx;
 }

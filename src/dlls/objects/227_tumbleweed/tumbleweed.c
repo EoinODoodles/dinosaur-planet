@@ -41,13 +41,13 @@ void func_8002674C(Object* obj);
 #define SPEED_CAP_Y_CHASE 1.0f
 #define SPEED_CAP_Y_FLEE 1.5f
 
-static void Tumbleweed_tick_handle_flags(Object* self);
-static void Tumbleweed_tick_chase_player(Object* self);
-static void Tumbleweed_tick_flee_from_player(Object* self);
-static void Tumbleweed_bounce_and_roll(Object* self, Tumbleweed_Data* objData);
-static int Tumbleweed_handle_carry_behaviour(Object* self);
-static int Tumbleweed_did_player_lift_twig(Object* self);
-static void Tumbleweed_create_twigs(Object* self);
+static void Tumbleweed_handleFlags(Object* self);
+static void Tumbleweed_chasePlayer(Object* self);
+static void Tumbleweed_fleeFromPlayer(Object* self);
+static void Tumbleweed_bounceAndRoll(Object* self, Tumbleweed_Data* objData);
+static int Tumbleweed_handleCarryBehaviour(Object* self);
+static int Tumbleweed_didPlayerLiftTwig(Object* self);
+static void Tumbleweed_createTwigs(Object* self);
 
 // offset: 0x0 | ctor
 void Tumbleweed_ctor(void* dll) { }
@@ -56,7 +56,7 @@ void Tumbleweed_ctor(void* dll) { }
 void Tumbleweed_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void Tumbleweed_setup(Object* self, Tumbleweed_Setup* setup, GoldenNugget_Setup* arg2) { // arg2 fakematch, not actually a golden nugget setup pointer
+void Tumbleweed_obj_Setup(Object* self, Tumbleweed_Setup* setup, s32 reset) {
     Tumbleweed_Data* objData;
     GoldenNugget_Setup* goldSetup;
     Object** objects;
@@ -121,17 +121,17 @@ void Tumbleweed_setup(Object* self, Tumbleweed_Setup* setup, GoldenNugget_Setup*
 }
 
 // offset: 0x354 | func: 1 | export: 1
-void Tumbleweed_control(Object* self) {
+void Tumbleweed_obj_Control(Object* self) {
     Tumbleweed_Data* objData;
     Object* shiny;
 
     objData = self->data;
     if (self->id == OBJ_Tumbleweed1 || self->id == OBJ_Tumbleweed1twig) {
-        Tumbleweed_tick_chase_player(self);
+        Tumbleweed_chasePlayer(self);
     } else {
-        Tumbleweed_tick_flee_from_player(self);
+        Tumbleweed_fleeFromPlayer(self);
     }
-    Tumbleweed_tick_handle_flags(self);
+    Tumbleweed_handleFlags(self);
     
     shiny = objData->goldenNugget;
     if (shiny) {
@@ -140,8 +140,8 @@ void Tumbleweed_control(Object* self) {
 }
 
 // offset: 0x420 | func: 2
-void Tumbleweed_tick_handle_flags(Object* self) {
-    Tumbleweed_Data *objData;
+void Tumbleweed_handleFlags(Object* self) {
+    Tumbleweed_Data* objData;
     s32 i;
     
     objData = self->data;
@@ -194,7 +194,7 @@ void Tumbleweed_tick_handle_flags(Object* self) {
 }
 
 // offset: 0x658 | func: 3
-void Tumbleweed_tick_chase_player(Object* self) {
+void Tumbleweed_chasePlayer(Object* self) {
     Tumbleweed_Data* objData;
     s32 hitSphereID;
     s32 hitDamage;
@@ -265,7 +265,7 @@ void Tumbleweed_tick_chase_player(Object* self) {
         }
         
         //Move and apply collision
-        Tumbleweed_bounce_and_roll(self, objData);
+        Tumbleweed_bounceAndRoll(self, objData);
         gDLL_27->vtbl->func_624(self, &objData->collision, gUpdateRateF);
 
         //Check for attack collisions
@@ -280,12 +280,12 @@ void Tumbleweed_tick_chase_player(Object* self) {
                 return;
             }
 
-            Tumbleweed_create_twigs(self);
+            Tumbleweed_createTwigs(self);
         }
 
     } else if (objData->state == Tumbleweed_STATE_Twigs) {
         //Return early if being carried
-        if (Tumbleweed_handle_carry_behaviour(self) == FALSE) {
+        if (Tumbleweed_handleCarryBehaviour(self) == FALSE) {
             return;
         }
 
@@ -305,7 +305,7 @@ void Tumbleweed_tick_chase_player(Object* self) {
         self->velocity.x = 0.0f;
         self->velocity.y /= 1.1f; //@frame-rate dependent
         self->velocity.z = 0.0f;
-        Tumbleweed_bounce_and_roll(self, objData);
+        Tumbleweed_bounceAndRoll(self, objData);
 
     } else {
         //Destroy self when expiry timer runs out
@@ -323,7 +323,7 @@ void Tumbleweed_tick_chase_player(Object* self) {
   *
   * These Tumbleweeds are active day or night!
   */
-void Tumbleweed_tick_flee_from_player(Object* self) {
+void Tumbleweed_fleeFromPlayer(Object* self) {
     Tumbleweed_Data* objData;
     s32 hitSphereID;
     s32 hitDamage;
@@ -417,7 +417,7 @@ void Tumbleweed_tick_flee_from_player(Object* self) {
         }
         
         //Move and apply collision
-        Tumbleweed_bounce_and_roll(self, objData);
+        Tumbleweed_bounceAndRoll(self, objData);
         gDLL_27->vtbl->func_624(self, &objData->collision, gUpdateRateF);
 
         //React to attack collisions
@@ -432,12 +432,12 @@ void Tumbleweed_tick_flee_from_player(Object* self) {
                 return;
             }
 
-            Tumbleweed_create_twigs(self);
+            Tumbleweed_createTwigs(self);
         }
 
     } else if (objData->state == Tumbleweed_STATE_Twigs) {
         //Return early if being carried
-        if (Tumbleweed_handle_carry_behaviour(self) == FALSE) {
+        if (Tumbleweed_handleCarryBehaviour(self) == FALSE) {
             return;
         }
 
@@ -457,7 +457,7 @@ void Tumbleweed_tick_flee_from_player(Object* self) {
         self->velocity.x = 0.0f;
         self->velocity.y /= 1.1f; //@frame-rate dependent
         self->velocity.z = 0.0f;
-        Tumbleweed_bounce_and_roll(self, objData);
+        Tumbleweed_bounceAndRoll(self, objData);
 
     } else if (objData->state == Tumbleweed_STATE_Gravitate) {
         //Gravitate towards a target point (e.g. when being eaten by Garunda Te)
@@ -499,17 +499,17 @@ void Tumbleweed_tick_flee_from_player(Object* self) {
 }
 
 // offset: 0x1518 | func: 5 | export: 2
-void Tumbleweed_update(Object* self) { }
+void Tumbleweed_obj_Update(Object* self) { }
 
 // offset: 0x1524 | func: 6 | export: 3
-void Tumbleweed_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) {
+void Tumbleweed_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility > 0) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x1578 | func: 7 | export: 4
-void Tumbleweed_free(Object* self, s32 arg1) {
+void Tumbleweed_obj_Free(Object* self, s32 onlySelf) {
     Tumbleweed_Data* objData;
     Object* object;
     s32 i;
@@ -538,7 +538,7 @@ void Tumbleweed_free(Object* self, s32 arg1) {
     for (objects = objGetObjects(&i, &count); i < count; i++) {
         object = objects[i];
         if (id == object->id) {
-            ((DLL_226_TumbleweedBush*)object->dll)->vtbl->remove_tumbleweed(object, self);
+            dll_TumbleweedBush(object)->RemoveTumbleweed(object, self);
         }
     }
     
@@ -552,31 +552,31 @@ void Tumbleweed_free(Object* self, s32 arg1) {
 }
 
 // offset: 0x16F8 | func: 8 | export: 5
-u32 Tumbleweed_get_model_flags(Object* self) {
+u32 Tumbleweed_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x1708 | func: 9 | export: 6
-u32 Tumbleweed_get_data_size(Object* self, s32 arg1) {
+u32 Tumbleweed_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(Tumbleweed_Data);
 }
 
 // offset: 0x171C | func: 10 | export: 7
-u8 Tumbleweed_get_state(Object* self) {
+u8 Tumbleweed_GetState(Object* self) {
     Tumbleweed_Data* objData = self->data;
     return objData->state;
 }
 
 // offset: 0x172C | func: 11 | export: 8
-void Tumbleweed_set_home(Object* self, f32 x, f32 z) {
-    Tumbleweed_Data *objData = self->data;
+void Tumbleweed_SetHome(Object* self, f32 x, f32 z) {
+    Tumbleweed_Data* objData = self->data;
     objData->homeX = x;
     objData->homeZ = z;
 }
 
 // offset: 0x174C | func: 12 | export: 9
-void Tumbleweed_fall(Object* self) {
-    Tumbleweed_Data *objData = self->data;
+void Tumbleweed_Fall(Object* self) {
+    Tumbleweed_Data* objData = self->data;
     if (objData->state == Tumbleweed_STATE_Fall_from_Tree) {
         func_8002674C(self);
         objData->state = Tumbleweed_STATE_Rolling;
@@ -586,8 +586,8 @@ void Tumbleweed_fall(Object* self) {
 
 // offset: 0x17C0 | func: 13 | export: 10
 /** When being eaten */
-void Tumbleweed_gravitate_towards_point(Object* self, Vec3f* point) {
-    Tumbleweed_Data *objData = self->data;
+void Tumbleweed_GravitateTowardsPoint(Object* self, Vec3f* point) {
+    Tumbleweed_Data* objData = self->data;
     f32 dx;
     f32 dy;
     f32 dz;
@@ -605,8 +605,8 @@ void Tumbleweed_gravitate_towards_point(Object* self, Vec3f* point) {
 }
 
 // offset: 0x1828 | func: 14 | export: 11
-s32 Tumbleweed_is_gravitating(Object* self) {
-    Tumbleweed_Data *objData = self->data;
+s32 Tumbleweed_IsGravitating(Object* self) {
+    Tumbleweed_Data* objData = self->data;
     return objData->state == Tumbleweed_STATE_Gravitate;
 }
 
@@ -616,18 +616,18 @@ s32 Tumbleweed_is_gravitating(Object* self) {
   * 
   * Causes the shy kind of Tumbleweed to move towards the player instead!
   */
-void Tumbleweed_store_player(Object* self, Object* player) {
-    Tumbleweed_Data *objData = self->data;
+void Tumbleweed_StorePlayer(Object* self, Object* player) {
+    Tumbleweed_Data* objData = self->data;
     objData->player = player;
 }
 
 // offset: 0x1850 | func: 16
 /** Updates Tumbleweed's movement, and handles ground plane collision */
-void Tumbleweed_bounce_and_roll(Object* self, Tumbleweed_Data* objData) {
+void Tumbleweed_bounceAndRoll(Object* self, Tumbleweed_Data* objData) {
     f32 sampleHeight;
     s32 sampleCount;
     s32 minimumIndex;
-    TrackHeightResult **samples;
+    TrackHeightResult** samples;
     f32 groundY;
     s32 volume;
     s32 i;
@@ -723,7 +723,7 @@ void Tumbleweed_bounce_and_roll(Object* self, Tumbleweed_Data* objData) {
   *
   * Returns TRUE when the Tumbleweed is on the ground, and FALSE when the Tumbleweed is being carried.
   */
-int Tumbleweed_handle_carry_behaviour(Object* self) {
+int Tumbleweed_handleCarryBehaviour(Object* self) {
     u32 pad;
     Object* player;
     u32 messageArg;
@@ -737,7 +737,7 @@ int Tumbleweed_handle_carry_behaviour(Object* self) {
     //Not being carried
     if (objData->carryFlags == Twig_FLAG_None) {
         //Check for player to lift twig via interaction arrow
-        if ((objData->carryFlags = Tumbleweed_did_player_lift_twig(self))) {
+        if ((objData->carryFlags = Tumbleweed_didPlayerLiftTwig(self))) {
             objData->beingCarried = TRUE;
         }
         self->unkAF &= ~ARROW_FLAG_8_No_Targetting;
@@ -745,49 +745,48 @@ int Tumbleweed_handle_carry_behaviour(Object* self) {
     }
     
     //Being carried
-    else {
-        //Handle squeaking and growing in size temporarily
-        objData->twigSqueakTimer -= gUpdateRateF;
-        if (objData->twigSqueakTimer < 0.0f) {
-            objData->twigSqueakTimer = mathRnd(120, 240);
-            soundID = mathRnd(SOUND_614_Tumbleweed_Squeak_1, SOUND_615_Tumbleweed_Squeak_2);
-            soundVol = mathRnd(90, 100);
-            dll_amSfx->Play(self, soundID, soundVol, 0, 0, 0, 0);
-            self->srt.scale = 0.2f;
-        } else {
-            self->srt.scale = 0.15f;
-        }
-        
-        self->unkAF |= ARROW_FLAG_8_No_Targetting;
-        objData->timer = 0.0f;
 
-        //Stop being carried when A button pressed (@bug: desync can occur with player FSA)
-        if (joyGetPressed(0) & A_BUTTON) {
-            joyDisableButtons(0, A_BUTTON);
-            objData->beingCarried = FALSE;
-        }
-
-        //Check if Tumbleweed dropped by player
-        if (self->unkE0 == 1) {
-            objData->carryFlags = Twig_FLAG_Dropped;
-        }
-        if ((objData->carryFlags == Twig_FLAG_Dropped) && (self->unkE0 == 0)) {
-            objData->carryFlags = Twig_FLAG_None;
-            objData->beingCarried = FALSE;
-        }
-
-        //Send message to player object while being carried
-        if (objData->beingCarried) {
-            messageArg = (objData->carryMessageArgHi << 0x10) | (objData->carryMessageArgLo & 0xFFFF);
-            objSendMesg(player, 0x100008, self, (void*)messageArg);
-        }
-
-        return FALSE;
+    //Handle squeaking and growing in size temporarily
+    objData->twigSqueakTimer -= gUpdateRateF;
+    if (objData->twigSqueakTimer < 0.0f) {
+        objData->twigSqueakTimer = mathRnd(120, 240);
+        soundID = mathRnd(SOUND_614_Tumbleweed_Squeak_1, SOUND_615_Tumbleweed_Squeak_2);
+        soundVol = mathRnd(90, 100);
+        dll_amSfx->Play(self, soundID, soundVol, 0, 0, 0, 0);
+        self->srt.scale = 0.2f;
+    } else {
+        self->srt.scale = 0.15f;
     }
+    
+    self->unkAF |= ARROW_FLAG_8_No_Targetting;
+    objData->timer = 0.0f;
+
+    //Stop being carried when A button pressed (@bug: desync can occur with player FSA)
+    if (joyGetPressed(0) & A_BUTTON) {
+        joyDisableButtons(0, A_BUTTON);
+        objData->beingCarried = FALSE;
+    }
+
+    //Check if Tumbleweed dropped by player
+    if (self->unkE0 == 1) {
+        objData->carryFlags = Twig_FLAG_Dropped;
+    }
+    if ((objData->carryFlags == Twig_FLAG_Dropped) && (self->unkE0 == 0)) {
+        objData->carryFlags = Twig_FLAG_None;
+        objData->beingCarried = FALSE;
+    }
+
+    //Send message to player object while being carried
+    if (objData->beingCarried) {
+        messageArg = (objData->carryMessageArgHi << 0x10) | (objData->carryMessageArgLo & 0xFFFF);
+        objSendMesg(player, 0x100008, self, (void*)messageArg);
+    }
+
+    return FALSE;
 }
 
 // offset: 0x1FA0 | func: 18
-int Tumbleweed_did_player_lift_twig(Object* self) {
+int Tumbleweed_didPlayerLiftTwig(Object* self) {
     Tumbleweed_Data* objData = self->data;
     s32 returnVal;
 
@@ -808,7 +807,7 @@ int Tumbleweed_did_player_lift_twig(Object* self) {
   *
   * Used to turn the Tumbleweeds into a bundle of twigs when attacked.
 */
-void Tumbleweed_create_twigs(Object* self) {
+void Tumbleweed_createTwigs(Object* self) {
     Tumbleweed_Setup* setup;
 
     switch (self->id) {

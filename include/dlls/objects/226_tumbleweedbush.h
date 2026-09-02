@@ -33,7 +33,9 @@ typedef struct {
 
 DLL_INTERFACE(DLL_226_TumbleweedBush) {
 /*:*/ DLL_INTERFACE_BASE(DLL_IObject);
-/*07*/ void (*remove_tumbleweed)(Object* self, Object* tumbleweed); //Removes a specific Tumbleweed Object from the tree's list of held Tumbleweeds.
+/*07*/ void (*RemoveTumbleweed)(Object* self, Object* tumbleweed); //Removes a specific Tumbleweed Object from the tree's list of held Tumbleweeds.
 };
+
+#define dll_TumbleweedBush(obj) (((DLL_226_TumbleweedBush*)obj->dll)->vtbl)
 
 #endif //_DLLS_226_H

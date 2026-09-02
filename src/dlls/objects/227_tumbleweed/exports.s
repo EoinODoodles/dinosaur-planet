@@ -8,16 +8,16 @@ _exports:
 .dword Tumbleweed_dtor
 
 # export table
-.dword Tumbleweed_setup
-.dword Tumbleweed_control
-.dword Tumbleweed_update
-.dword Tumbleweed_print
-.dword Tumbleweed_free
-.dword Tumbleweed_get_model_flags
-.dword Tumbleweed_get_data_size
-.dword Tumbleweed_get_state
-.dword Tumbleweed_set_home
-.dword Tumbleweed_fall
-.dword Tumbleweed_gravitate_towards_point
-.dword Tumbleweed_is_gravitating
-.dword Tumbleweed_store_player
+.dword Tumbleweed_obj_Setup
+.dword Tumbleweed_obj_Control
+.dword Tumbleweed_obj_Update
+.dword Tumbleweed_obj_Print
+.dword Tumbleweed_obj_Free
+.dword Tumbleweed_obj_GetModelFlags
+.dword Tumbleweed_obj_GetDataSize
+.dword Tumbleweed_GetState
+.dword Tumbleweed_SetHome
+.dword Tumbleweed_Fall
+.dword Tumbleweed_GravitateTowardsPoint
+.dword Tumbleweed_IsGravitating
+.dword Tumbleweed_StorePlayer
