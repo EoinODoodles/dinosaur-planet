@@ -140,10 +140,10 @@ void DIMMagicBridge_obj_Control(Object* self) {
     DIMMagicBridge_updateVertices(self, objData);
     
     if (objData->visible == FALSE) {
-        sp24 = dll_player(player)->func36(player, &sp20);
+        sp24 = dll_Player(player)->func36(player, &sp20);
 
-        if (mainGetBits(BIT_1EF) && (sp24 != 1) && dll_player(player)->func42(player)) {
-            dll_player(player)->func37(player, 1);
+        if (mainGetBits(BIT_1EF) && (sp24 != 1) && dll_Player(player)->func42(player)) {
+            dll_Player(player)->func37(player, 1);
         }
 
         if ((sp24 == 1) && (sp20 < 0.1f)) {

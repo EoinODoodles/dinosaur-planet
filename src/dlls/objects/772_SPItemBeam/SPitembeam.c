@@ -39,8 +39,8 @@ void SPItemBeam_obj_Control(Object* self) {
     //@bug: no NULL check for the SPShop object
 
     //Check if the beam's item isn't visible (and shouldn't be spotlighted)
-    if ((dll_shop(shop)->IsItemShown(shop, objSetup->itemIndex) == FALSE) ||
-        dll_shop(shop)->IsItemHidden(shop, objSetup->itemIndex)
+    if ((dll_SPShop(shop)->IsItemShown(shop, objSetup->itemIndex) == FALSE) ||
+        dll_SPShop(shop)->IsItemHidden(shop, objSetup->itemIndex)
     ) {
         self->srt.flags |= OBJFLAG_INVISIBLE;
         self->stateFlags |= OBJSTATE_CONTROL_DISABLED;

@@ -283,7 +283,7 @@ void SnowWorm_obj_Control(Object* self) {
         return;
     }
     
-    if (dll_baddieControl->func11(self, baddie, 0) == 0) {
+    if (dll_BaddieControl->func11(self, baddie, 0) == 0) {
         baddie->unk3B6 = 0;
         return;
     }

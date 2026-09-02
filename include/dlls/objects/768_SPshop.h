@@ -95,6 +95,6 @@ DLL_INTERFACE(DLL_768_SPShop) {
     /*20*/ void (*GetMinigameStats)(Object* self, s32* getUnk3, s32* getUnk2, s32* getUnk4);
 };
 
-#define dll_shop(obj) (((DLL_768_SPShop*)obj->dll)->vtbl)
+#define dll_SPShop(obj) (((DLL_768_SPShop*)obj->dll)->vtbl)
 
 #endif //_DLLS_768_H

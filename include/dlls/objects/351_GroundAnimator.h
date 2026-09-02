@@ -55,7 +55,7 @@ DLL_INTERFACE(DLL_351_GroundAnimator) {
     /*9*/ u8 (*GetMagicCaveIndex)(Object* self);
 };
 
-#define dll_groundAnimator(obj) (((DLL_351_GroundAnimator*)obj->dll)->vtbl)
+#define dll_GroundAnimator(obj) (((DLL_351_GroundAnimator*)obj->dll)->vtbl)
 
 #endif // _DLLS_351_H
 

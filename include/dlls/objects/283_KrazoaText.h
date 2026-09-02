@@ -17,7 +17,7 @@ DLL_INTERFACE(DLL_283_KrazoaText) {
     /*7*/ void (*PrintText)(Object* self, Gfx** gfx);
 };
 
-#define dll_krazoaText(obj) (((DLL_283_KrazoaText*)obj->dll)->vtbl)
+#define dll_KrazoaText(obj) (((DLL_283_KrazoaText*)obj->dll)->vtbl)
 
 #endif // _DLLS_283_H
 

@@ -1094,8 +1094,8 @@ static void SharpClaw_messageAllAttackingAllies(u8 message, Object* self) {
         if (self != objects[index]) {
             for (j = 0; j < ARRAYCOUNT(dAllyObjectIDs); j++) {
                 if (objects[index]->id == (s32)dAllyObjectIDs[j]){
-                    if (dll_sharpClaw(objects[index])->GetLogicState(objects[index]) == SharpClaw_LSTATE_12_Attack) {
-                        dll_sharpClaw(objects[index])->ReceiveMessage(objects[index], message);
+                    if (dll_SharpClaw(objects[index])->GetLogicState(objects[index]) == SharpClaw_LSTATE_12_Attack) {
+                        dll_SharpClaw(objects[index])->ReceiveMessage(objects[index], message);
                     }
                 }
             }

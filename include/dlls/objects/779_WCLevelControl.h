@@ -41,6 +41,6 @@ DLL_INTERFACE(DLL_779_WCLevelControl) {
 /*20*/ s32 (*MoonPuzzleMove)(Object* obj, s16 puzzleGridX, s16 puzzleGridZ, f32* limitX, f32* limitZ, s32 stepX, s32 stepZ);
 };
 
-#define dll_wcLevelControl(obj) (((DLL_779_WCLevelControl*)obj->dll)->vtbl)
+#define dll_WCLevelControl(obj) (((DLL_779_WCLevelControl*)obj->dll)->vtbl)
 
 #endif // _DLLS_779_H

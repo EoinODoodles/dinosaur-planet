@@ -98,11 +98,11 @@ void WCTile_obj_Control(Object* self) {
     switch (objdata->state) {
     case WCTile_STATE_0_Initialising:
         if (self->modelInstIdx == WCTile_MODELIDX_Sun) {
-            dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
-            dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
+            dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
+            dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
         } else {
-            dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
-            dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
+            dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
+            dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
         }
         objdata->state = WCTile_STATE_1_Ready;
         break;
@@ -122,14 +122,14 @@ void WCTile_obj_Control(Object* self) {
         if (self->opacity == 0) {
             if (self->modelInstIdx == WCTile_MODELIDX_Sun) {
                 if (!isNight) {
-                    dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
-                    dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
+                    dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
+                    dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
                     objdata->state = WCTile_STATE_4_Fading_In;
                 }
             } else {
                 if (isNight) {
-                    dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
-                    dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
+                    dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->puzzleGridX, &objdata->puzzleGridZ);
+                    dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->puzzleGridX, objdata->puzzleGridZ, &self->srt.transl.x, &self->srt.transl.z);
                     objdata->state = WCTile_STATE_4_Fading_In;
                 }
             }
@@ -157,11 +157,11 @@ void WCTile_obj_Control(Object* self) {
 
         //Change state when covered up by a pushblock
         if (self->modelInstIdx == WCTile_MODELIDX_Sun) {
-            if (objdata->puzzlePieceID != dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleGetCell(objdata->puzzleGridX, objdata->puzzleGridZ)) {
+            if (objdata->puzzlePieceID != dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleGetCell(objdata->puzzleGridX, objdata->puzzleGridZ)) {
                 objdata->state = WCTile_STATE_2_Covered_With_Block;
             }
         } else {
-            if (objdata->puzzlePieceID != dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleGetCell(objdata->puzzleGridX, objdata->puzzleGridZ)) {
+            if (objdata->puzzlePieceID != dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleGetCell(objdata->puzzleGridX, objdata->puzzleGridZ)) {
                 objdata->state = WCTile_STATE_2_Covered_With_Block;
             }
         }

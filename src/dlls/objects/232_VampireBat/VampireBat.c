@@ -119,7 +119,7 @@ void VampireBat_obj_Setup(Object* self, Baddie_Setup* setup, s32 reset) {
     if ((setup->unk2B & 0x20) == FALSE) {
         flags |= 8;
     }
-    dll_baddieControl->setup(self, setup, baddie, 2, 5, 0x108, flags, 20.0f);
+    dll_BaddieControl->setup(self, setup, baddie, 2, 5, 0x108, flags, 20.0f);
 
     self->animCallback = NULL;
 
@@ -237,13 +237,13 @@ void VampireBat_obj_Control(Object* self) {
     }
 
     if ((baddie->unk3B0 & 0x20) == FALSE) {
-        dll_baddieControl->func14(self, baddie, &baddie->unk3B2, -1, -1, baddie->unk3A6, baddie->unk3A4);
+        dll_BaddieControl->func14(self, baddie, &baddie->unk3B2, -1, -1, baddie->unk3A6, baddie->unk3A4);
     }
-    dll_baddieControl->func20(self, &baddie->fsa, &baddie->unk34C, baddie->unk39E, NULL, 0, 0, 0);
+    dll_BaddieControl->func20(self, &baddie->fsa, &baddie->unk34C, baddie->unk39E, NULL, 0, 0, 0);
 
     //Create particles when hit by weapon (@bug: not working?)
     if ((baddie->fsa.hitpoints > 0) && 
-            (dll_baddieControl->check_hit(self, &baddie->fsa, &baddie->unk34C, baddie->unk39E, dHitAnimStateMap, dHitDamageMap, 1, &baddie->unk3A8, &fxTransform))) {
+            (dll_BaddieControl->check_hit(self, &baddie->fsa, &baddie->unk34C, baddie->unk39E, dHitAnimStateMap, dHitDamageMap, 1, &baddie->unk3A8, &fxTransform))) {
         idx = ((DLL_Unknown*)player->linkedObject->dll)->vtbl->func[19].withOneVoidArgS32(player->linkedObject);
         if (idx > 3) {
             idx = 3;
@@ -263,7 +263,7 @@ void VampireBat_obj_Control(Object* self) {
         }
     }
 
-    dll_baddieControl->func10(self, &baddie->fsa, 0.0f, -1);
+    dll_BaddieControl->func10(self, &baddie->fsa, 0.0f, -1);
     baddie->unk3AC = self->animObj;
     self->animObj = NULL;
     gDLL_18_objfsa->vtbl->tick(self, &baddie->fsa, gUpdateRateF, gUpdateRateF, sAnimStateCallbacks, sLogicStateCallbacks);
@@ -291,7 +291,7 @@ void VampireBat_obj_Free(Object* self, s32 onlySelf) {
         self->linkedObject = NULL;
     }
 
-    dll_baddieControl->free(self, baddie, 0x20);
+    dll_BaddieControl->free(self, baddie, 0x20);
 }
 
 // offset: 0x938 | func: 6 | export: 5
@@ -499,7 +499,7 @@ static s32 VampireBat_logicState4Dead(Object* self, ObjFSA_Data* fsa, f32 update
 
     //Drop a collectable
     if (fsa->enteredLogicState) {
-        dll_baddieControl->drop_collectable(self, baddie->unk3E0, -1, 0);
+        dll_BaddieControl->drop_collectable(self, baddie->unk3E0, -1, 0);
         gDLL_18_objfsa->vtbl->func21(self, fsa, PARTICLE_3C, 10, 0);
         baddie->unk3B4 = 0;
     }

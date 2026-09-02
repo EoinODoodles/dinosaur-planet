@@ -50,7 +50,7 @@ void dll_77_draw(Gfx **gdl, Mtx **mtxs, Vertex **vtxs) {
     
     shop = objGetNearestTypeTo(OBJTYPE_LevelControl, objGetPlayer(), &distance);
     if (shop) {
-        dll_shop(shop)->GetMinigameStats(shop, &sp40, &scarabCount, &total);
+        dll_SPShop(shop)->GetMinigameStats(shop, &sp40, &scarabCount, &total);
     }
     
     rcpScreenFullWrite(gdl, scarabTexture, 252, 198, 0, 0, 0xFF, SCREEN_WRITE_TRANSLUCENT);

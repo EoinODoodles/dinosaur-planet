@@ -128,6 +128,6 @@ DLL_INTERFACE(DLL_33_BaddieControl) {
 /*23*/ f32 (*get_health_ratio)(Object* obj); // Gets current health on a scale from 0-1
 };
 
-#define dll_baddieControl (gDLL_33_BaddieControl->vtbl)
+#define dll_BaddieControl (gDLL_33_BaddieControl->vtbl)
 
 #endif // _DLL_33_H

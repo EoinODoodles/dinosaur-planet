@@ -308,6 +308,6 @@ DLL_INTERFACE(DLL_214_SharpClaw) {
     /*08*/ u8 (*ReceiveMessage)(Object* self, u8 message);
 };
 
-#define dll_sharpClaw(obj) (((DLL_214_SharpClaw*)obj->dll)->vtbl)
+#define dll_SharpClaw(obj) (((DLL_214_SharpClaw*)obj->dll)->vtbl)
 
 #endif //_DLLS_215_H

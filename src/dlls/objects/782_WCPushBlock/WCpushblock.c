@@ -86,16 +86,16 @@ void WCPushBlock_obj_Control(Object* self) {
         if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
             if (mainGetBits(BIT_WC_Sun_Aperture_Opened)) {
                 objdata->state = WCPushBlock_STATE_6_Puzzle_Complete;
-                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionFinished(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
-                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
+                dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionFinished(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+                dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
             } else if (isNighttime) {
                 objdata->state = WCPushBlock_STATE_3_Pushed_to_Bounds;
             }
         } else {
             if (mainGetBits(BIT_WC_Moon_Aperture_Opened)) {
                 objdata->state = WCPushBlock_STATE_6_Puzzle_Complete;
-                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionFinished(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
-                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
+                dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionFinished(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+                dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
             } else if (isNighttime == FALSE) {
                 objdata->state = WCPushBlock_STATE_3_Pushed_to_Bounds;
             }
@@ -105,11 +105,11 @@ void WCPushBlock_obj_Control(Object* self) {
     switch (objdata->state) {
     case WCPushBlock_STATE_0_Initialising:
         if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
-            dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
-            dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
+            dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+            dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
         } else {
-            dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
-            dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
+            dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+            dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
         }
         objdata->state = WCPushBlock_STATE_1_Pushable;
         break;
@@ -127,36 +127,36 @@ void WCPushBlock_obj_Control(Object* self) {
         if (((DLL_210_Player*)player->dll)->vtbl->func47(player, self, &objdata->moveDirection)) {
             if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
                 if (objdata->moveDirection == WCPushBlock_DIRECTION_X_Positive) {
-                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleMove(
+                    objdata->collidedType = dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleMove(
                         self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, -1, 0);
                 }
                 else if (objdata->moveDirection == WCPushBlock_DIRECTION_X_Negative) {
-                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleMove(
+                    objdata->collidedType = dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleMove(
                         self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 1, 0);
                 }
                 else if (objdata->moveDirection == WCPushBlock_DIRECTION_Z_Positive) {
-                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleMove(
+                    objdata->collidedType = dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleMove(
                         self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 0, -1);
                 }
                 else if (objdata->moveDirection == WCPushBlock_DIRECTION_Z_Negative) {
-                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleMove(
+                    objdata->collidedType = dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleMove(
                         self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 0, 1);
                 }
             } else {
                 if (objdata->moveDirection == WCPushBlock_DIRECTION_X_Positive) {
-                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
+                    objdata->collidedType = dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
                         self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, -1, 0);
                 }
                 else if (objdata->moveDirection == WCPushBlock_DIRECTION_X_Negative) {
-                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
+                    objdata->collidedType = dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
                         self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 1, 0);
                 }
                 else if (objdata->moveDirection == WCPushBlock_DIRECTION_Z_Positive) {
-                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
+                    objdata->collidedType = dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
                         self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 0, -1);
                 }
                 else if (objdata->moveDirection == WCPushBlock_DIRECTION_Z_Negative) {
-                    objdata->collidedType = dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
+                    objdata->collidedType = dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleMove(
                         self, objdata->gridX, objdata->gridZ, &objdata->limitX, &objdata->limitZ, 0, 1);
                 }
             }
@@ -253,13 +253,13 @@ void WCPushBlock_obj_Control(Object* self) {
 
             if (objdata->state != WCPushBlock_STATE_3_Pushed_to_Bounds) {
                 if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
-                    dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCell(0, objdata->gridX, objdata->gridZ);
-                    dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetGridPositionFromCoords(self, self->srt.transl.x, self->srt.transl.z, &objdata->gridX, &objdata->gridZ);
-                    dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCell(objdata->puzzlePieceID, objdata->gridX, objdata->gridZ);
+                    dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetCell(0, objdata->gridX, objdata->gridZ);
+                    dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetGridPositionFromCoords(self, self->srt.transl.x, self->srt.transl.z, &objdata->gridX, &objdata->gridZ);
+                    dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetCell(objdata->puzzlePieceID, objdata->gridX, objdata->gridZ);
                 } else {
-                    dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCell(0, objdata->gridX, objdata->gridZ);
-                    dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetGridPositionFromCoords(self, self->srt.transl.x, self->srt.transl.z, &objdata->gridX, &objdata->gridZ);
-                    dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCell(objdata->puzzlePieceID, objdata->gridX, objdata->gridZ);
+                    dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetCell(0, objdata->gridX, objdata->gridZ);
+                    dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetGridPositionFromCoords(self, self->srt.transl.x, self->srt.transl.z, &objdata->gridX, &objdata->gridZ);
+                    dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetCell(objdata->puzzlePieceID, objdata->gridX, objdata->gridZ);
                 }
             }
         }
@@ -281,11 +281,11 @@ void WCPushBlock_obj_Control(Object* self) {
         //Reappear once the player moves away from the spot the block should appear
         if (self->opacity == 0 && WCPushBlock_appearIfPlayerOutsideDestination(self, objdata, objGetPlayer())) {
             if (self->modelInstIdx == WCPushBlock_MODELIDX_Sun) {
-                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
-                dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
+                dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+                dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
             } else {
-                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
-                dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
+                dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+                dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &self->srt.transl.x, &self->srt.transl.z);
             }
             objdata->state = WCPushBlock_STATE_5_Reappearing;
         }
@@ -363,16 +363,16 @@ static s32 WCPushBlock_appearIfPlayerOutsideDestination(Object* self, WCPushBloc
         if (isNighttime) {
             return FALSE;
         }
-        dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
-        dll_wcLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &positionX, &positionZ);
+        dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+        dll_WCLevelControl(objdata->levelCtrl)->SunPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &positionX, &positionZ);
     } else {
         //Moon block
         if (isNighttime == FALSE) {
             return FALSE;
         }
 
-        dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
-        dll_wcLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &positionX, &positionZ);
+        dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetupPositionInitial(objdata->puzzlePieceID, &objdata->gridX, &objdata->gridZ);
+        dll_WCLevelControl(objdata->levelCtrl)->MoonPuzzleSetCoordsFromGridPosition(self, objdata->gridX, objdata->gridZ, &positionX, &positionZ);
     }
 
     //Check if player out of range
