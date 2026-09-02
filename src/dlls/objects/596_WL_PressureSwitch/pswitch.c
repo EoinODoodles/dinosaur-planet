@@ -101,7 +101,7 @@ void WLPressureSwitch_obj_Control(Object* self) {
             }
         }
     //Handle Tricky's behaviour during Sabre's first visit
-    } else if (dll_gPlay->get_act(self->mapID) == WM_ACT3_Spirit2_Sabre_DB) {
+    } else if (dll_gplay->get_act(self->mapID) == WM_ACT3_Spirit2_Sabre_DB) {
         sidekick = objGetSidekick();
         if (sidekick && vec3Distance(&self->globalPosition, &sidekick->globalPosition) < 50.0f) {
             objdata->pressedTimer = 5;
@@ -109,7 +109,7 @@ void WLPressureSwitch_obj_Control(Object* self) {
     }
 
     //Handle the column piece puzzle during Krystal's first visit
-    if ((dll_gPlay->get_act(self->mapID) == WM_ACT1_Krystal_Meeting_Randorn) && !playerIsFarAway) {
+    if ((dll_gplay->get_act(self->mapID) == WM_ACT1_Krystal_Meeting_Randorn) && !playerIsFarAway) {
         if (objdata->pressedTimer) {
             deltaY = setup->base.y - self->srt.transl.y;
             // Set a gamebit partway through descending, playing a sequence of Randorn's hall door opening
