@@ -25,17 +25,17 @@ typedef enum {
     Fall_Ladders_STATE_2_Lowered
 } Fall_Ladders_States;
 
-static void Fall_Ladders_fall_or_rise_by_sequence(Object* self);
-static int Fall_Ladders_anim_callback(Object* actor, Object* animObj, AnimObj_Data* animObjData, s8 arg3);
+static void Fall_Ladders_fallOrRiseBySequence(Object* self);
+static int Fall_Ladders_animCallback(Object* actor, Object* animObj, AnimObj_Data* animObjData, s8 prevCallbackValue);
 
 // offset: 0x0 | ctor
-void Fall_Ladders_ctor(void *dll) { }
+void Fall_Ladders_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void Fall_Ladders_dtor(void *dll) { }
+void Fall_Ladders_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void Fall_Ladders_setup(Object* self, Fall_Ladders_Setup* objSetup, s32 reset) {
+void Fall_Ladders_obj_Setup(Object* self, Fall_Ladders_Setup* objSetup, s32 reset) {
     Fall_Ladders_Data* objData = self->data;
     
     self->srt.yaw = objSetup->yaw << 8;
@@ -45,7 +45,7 @@ void Fall_Ladders_setup(Object* self, Fall_Ladders_Setup* objSetup, s32 reset) {
     objData->raisedOffsetY = objSetup->raisedOffsetY;
     
     self->stateFlags |= OBJSTATE_PRINT_DISABLED | OBJSTATE_UPDATE_DISABLED;
-    self->animCallback = Fall_Ladders_anim_callback;
+    self->animCallback = Fall_Ladders_animCallback;
     self->srt.transl.y = objSetup->base.y + objData->raisedOffsetY;
     
     objSetModel(self, objSetup->modelIdx);
@@ -54,7 +54,7 @@ void Fall_Ladders_setup(Object* self, Fall_Ladders_Setup* objSetup, s32 reset) {
 }
 
 // offset: 0xC4 | func: 1 | export: 1
-void Fall_Ladders_control(Object* self) {
+void Fall_Ladders_obj_Control(Object* self) {
     Fall_Ladders_Setup* objSetup;
     Fall_Ladders_Data* objData;
     f32 magnitude;
@@ -64,7 +64,7 @@ void Fall_Ladders_control(Object* self) {
     
     //For the special Fall Ladder in VFPT Act 2, use sequences to handle lowering (and uniquely: raising!) instead
     if (self->id == OBJ_VFP_Ladders2) {
-        Fall_Ladders_fall_or_rise_by_sequence(self);
+        Fall_Ladders_fallOrRiseBySequence(self);
         return;
     }
     
@@ -113,28 +113,28 @@ void Fall_Ladders_control(Object* self) {
 }
 
 // offset: 0x2B4 | func: 2 | export: 2
-void Fall_Ladders_update(Object *self) { }
+void Fall_Ladders_obj_Update(Object* self) { }
 
 // offset: 0x2C0 | func: 3 | export: 3
-void Fall_Ladders_print(Object *self, Gfx **gdl, Mtx **mtxs, Vertex **vtxs, Triangle **pols, s8 visibility) { }
+void Fall_Ladders_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) { }
 
 // offset: 0x2D8 | func: 4 | export: 4
-void Fall_Ladders_free(Object* self, s32 onlySelf) {
+void Fall_Ladders_obj_Free(Object* self, s32 onlySelf) {
     gDLL_13_Expgfx->vtbl->func5(self);
 }
 
 // offset: 0x320 | func: 5 | export: 5
-u32 Fall_Ladders_get_model_flags(Object *self) {
+u32 Fall_Ladders_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x330 | func: 6 | export: 6
-u32 Fall_Ladders_get_data_size(Object *self, u32 offsetAddr) {
+u32 Fall_Ladders_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(Fall_Ladders_Data);
 }
 
 // offset: 0x344 | func: 7
-void Fall_Ladders_fall_or_rise_by_sequence(Object* self) {
+void Fall_Ladders_fallOrRiseBySequence(Object* self) {
     Fall_Ladders_Data* objData = self->data;
     
     //Fall
@@ -149,6 +149,6 @@ void Fall_Ladders_fall_or_rise_by_sequence(Object* self) {
 }
 
 // offset: 0x42C | func: 8
-int Fall_Ladders_anim_callback(Object* actor, Object* animObj, AnimObj_Data* animObjData, s8 arg3) {
+int Fall_Ladders_animCallback(Object* actor, Object* animObj, AnimObj_Data* animObjData, s8 prevCallbackValue) {
     return 0;
 }
