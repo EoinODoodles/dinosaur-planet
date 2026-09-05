@@ -250,10 +250,10 @@ typedef enum {
     BIT_DIM_Shackled_SnowHorn_Freed = 0xF3, // len:1 group:1
     BIT_F4 = 0xF4, // len:1 group:1
     BIT_F5 = 0xF5, // len:1 group:1
-    BIT_F6 = 0xF6, // len:1 group:0
-    BIT_F7 = 0xF7, // len:1 group:0
-    BIT_F8 = 0xF8, // len:1 group:0
-    BIT_F9 = 0xF9, // len:1 group:0
+    BIT_DF_Shrine_Activate_ObjCreator_1 = 0xF6, // len:1 group:0
+    BIT_DF_Shrine_Activate_ObjCreator_2 = 0xF7, // len:1 group:0
+    BIT_DF_Shrine_Activate_ObjCreator_3 = 0xF8, // len:1 group:0
+    BIT_DF_Shrine_Activate_ObjCreator_4 = 0xF9, // len:1 group:0
     BIT_FA = 0xFA, // len:1 group:0
     BIT_FB = 0xFB, // len:1 group:0
     BIT_FC = 0xFC, // len:1 group:1
@@ -491,7 +491,7 @@ typedef enum {
     BIT_1E4 = 0x1E4, // len:1 group:1
     BIT_1E5 = 0x1E5, // len:1 group:1
     BIT_1E6 = 0x1E6, // len:1 group:1
-    BIT_1E7 = 0x1E7, // len:1 group:0
+    BIT_DF_Shrine_SharpClaw_Defeated = 0x1E7, // len:1 group:0
     BIT_1E8 = 0x1E8, // len:1 group:1
     BIT_DIM_Magic_Bridge_Visible = 0x1E9, // len:1 group:1
     BIT_Tutorial_Fire_Crystal = 0x1EA, // len:1 group:1 [TUTORIAL]
@@ -1421,7 +1421,7 @@ typedef enum {
     BIT_586 = 0x586, // len:1 group:1
     BIT_587 = 0x587, // len:1 group:1
     BIT_588 = 0x588, // len:1 group:0
-    BIT_589 = 0x589, // len:1 group:0
+    BIT_DFSH_ObjCreator_Stop = 0x589, // len:1 group:0
     BIT_58A = 0x58A, // len:1 group:0
     BIT_58B = 0x58B, // len:1 group:0
     BIT_58C = 0x58C, // len:1 group:0
