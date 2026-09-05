@@ -506,7 +506,7 @@ typedef enum {
     BIT_Tricky_Cell_Key = 0x1F3, // len:1 group:1            [INVENTORY]
     BIT_Used_Tricky_Cell_Key = 0x1F4, // len:1 group:1       [INVENTORY - HIDE]
     BIT_1F5 = 0x1F5, // len:1 group:1
-    BIT_1F6 = 0x1F6, // len:1 group:0
+    BIT_Player_Rope_Controls_No_Letting_Go = 0x1F6, // len:1 group:0 (player can't let go of ropes with the A button when this gamebit is set)
     BIT_1F7 = 0x1F7, // len:1 group:0
     BIT_1F8 = 0x1F8, // len:1 group:1
     BIT_1F9 = 0x1F9, // len:1 group:1
