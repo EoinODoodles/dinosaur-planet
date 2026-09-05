@@ -4,6 +4,7 @@
 #include "dlls/objects/260_Pollen.h"
 #include "dlls/objects/common/collectable.h"
 #include "game/gamebits.h"
+#include "game/objects/interaction_arrow.h"
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
 #include "sys/gfx/animseq.h"
@@ -866,14 +867,16 @@ void BaddieControl_setup(Object* obj, Baddie_Setup* setup, Baddie* baddie, s32 a
     obj->srt.transl.z = setup->base.z;
     baddie->unk3E4 = arg7;
     obj->srt.yaw = setup->unk2A << 8;
-    obj->opacity = 255;
-    obj->unkAF &= ~0x8;
+    obj->opacity = OBJECT_OPACITY_MAX;
+    obj->unkAF &= ~ARROW_FLAG_8_No_Targetting;
+
     baddie->unk39C = setup->unk18;
-    if (baddie->unk39C != -1) {
+    if (baddie->unk39C != NO_GAMEBIT) {
         obj->unkDC = mainGetBits(baddie->unk39C);
     } else {
-        obj->unkDC = 0;
+        obj->unkDC = FALSE;
     }
+
     if (gDLL_29_Gplay->vtbl->did_time_expire(setup->base.uID) == 0) {
         obj->unkDC = 1;
     }

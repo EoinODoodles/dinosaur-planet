@@ -1917,8 +1917,8 @@ s32 SharpClaw_logicState10Dead(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 
     if (fsa->enteredLogicState) {
         baddie->unk3B4 = 0;
-        mainSetBits(baddie->unk39E, 0);
-        mainSetBits(baddie->unk39C, 1);
+        mainSetBits(baddie->unk39E, FALSE);
+        mainSetBits(baddie->unk39C, TRUE);
     }
 
     return 0;

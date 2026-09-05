@@ -58,7 +58,7 @@ typedef struct {
 // size:0x38
 typedef struct {
 /*00*/ ObjSetup base;
-/*18*/ s16 unk18;
+/*18*/ s16 unk18; //gamebit set when defeated
 /*1A*/ s16 unk1A;
 /*1C*/ s16 unk1C;
 /*1E*/ s16 unk1E;
