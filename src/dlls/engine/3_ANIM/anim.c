@@ -2901,25 +2901,26 @@ static f32 anim_calc_channel_value_at_time(AnimCurvesKeyframe* keyframes, s32 co
     if (count <= 0) {
         return 0.0f;
     }
-    // Find keyframe that we are currently interpolating into
-    i = 0;
-    while ((i < count && keyframes[i].timeOffset < time)) {
-        i++;
-    }
+
+    // Find the keyframe that we are currently interpolating into
+    for (i = 0; i < count && keyframes[i].timeOffset < time; i++);
 
     if (i == count) {
         // End of channel, repeat last value
         value = keyframes[count - 1].value;
     } else if (i == 0) {
         // Start of channel, take initial value
-        value = keyframes->value;
+        value = keyframes[0].value;
     } else {
         if (time == keyframes[i].timeOffset) {
-            // Exactly at start of keyframe, no need to interpolate curve
+            // Exactly at current keyframe's time, no need to interpolate curve
             value = keyframes[i].value;
-            if (((keyframes[i].interpolation & 3) >= KF_INTERP_Stepped) && (i < (count - 1))) {
+            
+            // If the current keyframe is a stepped key, use the next key's value (if this isn't the final key)
+            if (((keyframes[i].interpolation & 3) >= KF_INTERP_Stepped) && (i < count - 1)) {
                 value = keyframes[i + 1].value;
             }
+
             return value;
         }
 
@@ -2972,7 +2973,7 @@ static f32 anim_calc_channel_value_at_time(AnimCurvesKeyframe* keyframes, s32 co
                     nextDeltaOut = prevDeltaOut;
                 }
 
-                //Ignore the value delta' sign
+                //Ignore the value delta's sign
                 if (nextDeltaOut < 0.0f) {
                     nextDeltaOut = -nextDeltaOut;
                 }
