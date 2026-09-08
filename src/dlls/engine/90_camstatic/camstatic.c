@@ -36,17 +36,11 @@ typedef struct {
     u8 cameraLost;      //No StaticCamera found, swapping back to CamNormal
 } CamStatic;
 
-typedef enum {
-    CamStatic_FLAG_Aim_Yaw_at_Player = 1,   //Yaw aims at player, otherwise StaticCamera's own fixed yaw is used
-    CamStatic_FLAG_Aim_Pitch_at_Player = 2, //Pitch aims at player, otherwise StaticCamera's own fixed pitch is used
-    CamStatic_FLAG_Use_Player_Roll = 4      //Player's roll value is used, otherwise StaticCamera's own fixed roll is used
-} CamStatic_Flags;
-
 /*0x0*/ static CamStatic* sState;
 
-static void camstatic_func_5D4(Cam* cam, Vec3f* staticCamCoords, s32 goalYaw, s32 goalPitch, s32 goalRoll, f32 goalFov);
-static s32 camstatic_ease(Cam* cam, u8 arg1);
-static Object* camstatic_findStaticCamera(f32 x, f32 y, f32 z, s32 arg3, s32 controlNo);
+static void camstatic_setupEase(Cam* cam, Vec3f* staticCamCoords, s32 goalYaw, s32 goalPitch, s32 goalRoll, f32 goalFov);
+static s32 camstatic_ease(Cam* cam, u8 flags);
+static Object* camstatic_findStaticCamera(f32 x, f32 y, f32 z, s32 cameraID, s32 controlNo);
 
 // offset: 0x0 | ctor
 void camstatic_ctor(void* dll) { }
@@ -74,7 +68,7 @@ void camstatic_func_18(Cam* cam, s32 arg1, CamStatic_Params* data) {
     sState->easeInFinished = TRUE;
     sState->cameraLost = FALSE;
     
-    staticCam = camstatic_findStaticCamera(player->srt.transl.x, player->srt.transl.y, player->srt.transl.z, data->unk0, OBJCONTROL_StaticCamera);
+    staticCam = camstatic_findStaticCamera(player->srt.transl.x, player->srt.transl.y, player->srt.transl.z, data->cameraID, OBJCONTROL_StaticCamera);
     if (staticCam == NULL) {
         sState->cameraLost = TRUE;
         return;
@@ -106,18 +100,18 @@ void camstatic_func_18(Cam* cam, s32 arg1, CamStatic_Params* data) {
 
     fov = camSetup->fov;
 
-    if (data->unk4 == FALSE) {
-        camstatic_func_5D4(cam, &staticCam->globalPosition, yaw, pitch, roll, fov);
-        return;
+    if (data->previousCameraEasesIn == FALSE) {
+        //StaticCamera manages the initial ease in
+        camstatic_setupEase(cam, &staticCam->globalPosition, yaw, pitch, roll, fov);
+    } else {
+        cam->srt.transl.x = staticCam->globalPosition.x;
+        cam->srt.transl.y = staticCam->globalPosition.y;
+        cam->srt.transl.z = staticCam->globalPosition.z;
+        cam->srt.yaw = yaw;
+        cam->srt.pitch = pitch;
+        cam->srt.roll = roll;
+        cam->fov = fov;
     }
-
-    cam->srt.transl.x = staticCam->globalPosition.x;
-    cam->srt.transl.y = staticCam->globalPosition.y;
-    cam->srt.transl.z = staticCam->globalPosition.z;
-    cam->srt.yaw = yaw;
-    cam->srt.pitch = pitch;
-    cam->srt.roll = roll;
-    cam->fov = fov;
 }
 
 // offset: 0x278 | func: 1 | export: 1
@@ -155,6 +149,7 @@ void camstatic_func_278(Cam* cam) {
     cam->srt.transl.z = sState->obj->globalPosition.z;
     cam->fov = camSetup->fov;
 
+    //Apply easing
     if (sState->easeInFinished == FALSE) {
         easeFinished = camstatic_ease(cam, camSetup->flags);
         if (easeFinished) {
@@ -195,8 +190,7 @@ void camstatic_func_5C4(void* arg0, s32 arg1) {
 }
 
 // offset: 0x5D4 | func: 4
-/* CamStatic_setupEase? */
-static void camstatic_func_5D4(Cam* cam, Vec3f* staticCamCoords, s32 goalYaw, s32 goalPitch, s32 goalRoll, f32 goalFov) {
+static void camstatic_setupEase(Cam* cam, Vec3f* staticCamCoords, s32 goalYaw, s32 goalPitch, s32 goalRoll, f32 goalFov) {
     f32 dz;
     f32 dx;
     f32 dy;
@@ -302,7 +296,7 @@ static s32 camstatic_ease(Cam* cam, u8 flags) {
         cam->srt.roll = curvesLinear(&sState->roll, tValue, NULL);
     }
 
-    //@bug: no way to ease FOV
+    //@bug: FOV doesn't ease
 
     return tValue >= 1.0f;
 }

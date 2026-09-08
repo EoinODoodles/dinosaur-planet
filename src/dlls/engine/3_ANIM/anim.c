@@ -3119,9 +3119,9 @@ void anim_update_camera(void) {
             dummy_label_1: ; // @fake
             break;
         case DLL_ID_CAMSTATIC:
-            camstaticData.unk0 = sCamParam1;
+            camstaticData.cameraID = sCamParam1;
             if (sCamEaseDuration == 0) {
-                camstaticData.unk4 = 1;
+                camstaticData.previousCameraEasesIn = TRUE;
             }
             gDLL_2_Camera->vtbl->change_camera_module(DLL_ID_CAMSTATIC, TRUE, 3, sizeof(camstaticData), &camstaticData, sCamEaseDuration, Cam_Ease_All);
             dummy_label_2: ; // @fake

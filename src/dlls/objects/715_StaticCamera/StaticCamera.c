@@ -5,7 +5,7 @@
 typedef struct {
     u8 unk0;
     u8 unk1;
-    f32 unk4;
+    f32 fov;
 } StaticCamera_Data;
 
 // offset: 0x0 | ctor
@@ -23,7 +23,7 @@ void StaticCamera_obj_Setup(Object* self, StaticCamera_Setup* setup, s32 reset) 
     self->srt.roll = -setup->roll;
 
     objdata->unk0 = setup->unk19;
-    objdata->unk4 = setup->fov;
+    objdata->fov = setup->fov;
     objdata->unk1 = 0;
 
     if (reset == FALSE) {
