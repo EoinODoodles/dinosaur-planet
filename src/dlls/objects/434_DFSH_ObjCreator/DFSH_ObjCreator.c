@@ -11,28 +11,28 @@
 
 /*
     The DFSH_ObjCreators are arranged like this around 
-    the shrine's Krazoa floor symbol (showing uIDs and enemyIndex):
+    the shrine's Krazoa floor symbol (showing uIDs, creatorIndex, and gamebit):
 
-               [Wall Portal]
+                      [Wall Portal]
 
-                 [Columns]
+                        [Columns]
 
-                     O
-    0x160A #0 ->  O     O  <- 0x160D #1
-                     ▲
-    0x160E #2 ->  O     O  <- 0x1617 #1
-                     O
+                            O
+    0x160A #0 (0xF6) ->  O     O  <- 0x160D #1 (0xF7)
+                            ▲
+    0x160E #2 (0xF9) ->  O     O  <- 0x1617 #1 (0xF8)
+                            O
             
-    [Entrance]
+           [Entrance]
 */
 
 typedef struct {
 /*00*/ ObjSetup base;
-/*18*/ s16 gamebitActivate; //Unused in this DLL, but the gamebit used to enable the ObjCreator in the `DFSH_Shrine` DLL is usually stored here.
+/*18*/ s16 gamebit; // Unused in this DLL, but the gamebit used to enable the ObjCreator in the `DFSH_Shrine` DLL is usually the same as the one here.
 /*1A*/ u16 _unk1A; // Unused in the DLL, but usually set to 0x1C - maybe intended as hit points?
 /*1C*/ u16 _unk1C;
 /*1E*/ s8 rotation; // yaw >> 8
-/*1F*/ s8 enemyIndex;
+/*1F*/ s8 creatorIndex; // objCreator's index around the Krazoa symbol, used to determine which gamebit activates it and the parameters for the SharpClaw it spawns
 } DFSH_ObjCreator_Setup;
 
 typedef struct {
@@ -54,8 +54,8 @@ void DFSH_ObjCreator_obj_Setup(Object* self, DFSH_ObjCreator_Setup* setup, s32 r
     self->unkE0 = 0;
     objdata->timer = 100;
     objdata->timerRate = 0;
-    self->opacityWithFade = 0xFF;
-    self->opacity = 0xFF;
+    self->opacityWithFade = OBJECT_OPACITY_MAX;
+    self->opacity = OBJECT_OPACITY_MAX;
 }
 
 // offset: 0x50 | func: 1 | export: 1
@@ -73,7 +73,7 @@ void DFSH_ObjCreator_obj_Control(Object* self) {
         return;
     }
 
-    if ((self->unkE0 == 0) && mainGetBits(BIT_DF_Shrine_Activate_ObjCreator_1 + setup->enemyIndex)) {
+    if ((self->unkE0 == 0) && mainGetBits(BIT_DF_Shrine_Activate_ObjCreator_1 + setup->creatorIndex)) {
         modgfx = dllLoad(DLL_ID_146, 1);
         modgfx->vtbl->func0(self, 0, 0, 1, -1, 0);
         modgfx->vtbl->func0(self, 1, 0, 1, -1, 0);
@@ -106,8 +106,9 @@ void DFSH_ObjCreator_obj_Control(Object* self) {
     sharpClawSetup->unk2A = self->srt.yaw >> 8;
     sharpClawSetup->unk2B = 2;
 
-    if (mainGetBits(BIT_FC)) {
-        sharpClawSetup->unk22 = 0x49;
+    if (mainGetBits(BIT_DF_Shrine_SharpClaw_Drop_Magic_Gems)) {
+        //@bug: this seems to be using an objectID, but it should be using an index from `BaddieDrop_IDs`
+        sharpClawSetup->unk22 = OBJ_BoneDust; 
     } else {
         sharpClawSetup->unk22 = -1;
     }
@@ -116,7 +117,7 @@ void DFSH_ObjCreator_obj_Control(Object* self) {
     sharpClawSetup->unk2E = -1;
     sharpClawSetup->unk34 = 0xFFFF;
 
-    switch (setup->enemyIndex) {
+    switch (setup->creatorIndex) {
     default:
         sharpClawSetup->quarterHitpoints = 3;
         break;
@@ -138,21 +139,21 @@ void DFSH_ObjCreator_obj_Control(Object* self) {
     if (sharpClaw != NULL) {
         sharpClawBaddie = sharpClaw->data;
         if (sharpClawBaddie != NULL) {
-            switch (setup->enemyIndex) {
+            switch (setup->creatorIndex) {
             default:
-                sharpClawBaddie->unk3B0 = 32;
+                sharpClawBaddie->unk3B0 = 0x20;
                 break;
             case 0:
-                sharpClawBaddie->unk3B0 = 32;
+                sharpClawBaddie->unk3B0 = 0x20;
                 break;
             case 1:
-                sharpClawBaddie->unk3B0 = 32;
+                sharpClawBaddie->unk3B0 = 0x20;
                 break;
             case 2:
-                sharpClawBaddie->unk3B0 = 160;
+                sharpClawBaddie->unk3B0 = 0x80 | 0x20;
                 break;
             case 3:
-                sharpClawBaddie->unk3B0 = 160;
+                sharpClawBaddie->unk3B0 = 0x80 | 0x20;
                 break;
             }
         }

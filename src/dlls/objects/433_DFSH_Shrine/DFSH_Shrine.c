@@ -51,10 +51,10 @@ static int DFShrine_animCallback(Object* self, Object* animObj, AnimObj_Data* an
 static void DFShrine_processObjMessages(Object* self);
 
 // offset: 0x0 | ctor
-void DFShrine_ctor(void *dll) { }
+void DFShrine_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void DFShrine_dtor(void *dll) { }
+void DFShrine_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
 void DFShrine_obj_Setup(Object* self, DFShrine_Setup* setup, s32 reset) {
@@ -343,7 +343,7 @@ void DFShrine_obj_Control(Object* self) {
 }
 
 // offset: 0xE04 | func: 2 | export: 2
-void DFShrine_obj_Update(Object *self) { }
+void DFShrine_obj_Update(Object* self) { }
 
 // offset: 0xE10 | func: 3 | export: 3
 void DFShrine_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
@@ -360,12 +360,12 @@ void DFShrine_obj_Free(Object* self, s32 onlySelf) {
 }
 
 // offset: 0xEF4 | func: 5 | export: 5
-u32 DFShrine_obj_GetModelFlags(Object *self) {
+u32 DFShrine_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0xF04 | func: 6 | export: 6
-u32 DFShrine_obj_GetDataSize(Object *self, u32 offsetAddr) {
+u32 DFShrine_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(DFShrine_Data);
 }
 

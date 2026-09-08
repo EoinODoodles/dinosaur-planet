@@ -266,7 +266,7 @@ static void WL_LevelControl_handleAct2(Object* self) {
 
         player = objGetPlayer(); //@bug: already assigned
 
-        mainSetBits(BIT_FC, 1);
+        mainSetBits(BIT_DF_Shrine_SharpClaw_Drop_Magic_Gems, 1);
 
         //Restore some magic and make sure the player has the 1st Spirit
         ((DLL_210_Player*)player->dll)->vtbl->add_magic(player, 20);
