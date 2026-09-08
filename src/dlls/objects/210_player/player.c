@@ -409,8 +409,8 @@ void dll_210_func_0(void) {
     _bss_58[26] = dll_210_func_10898;
     _bss_58[27] = dll_210_func_10A0C;
     _bss_58[28] = dll_210_func_10E94;
-    _bss_58[29] = dll_210_func_11C60;
-    _bss_58[30] = dll_210_func_1209C;
+    _bss_58[PLAYER_ASTATE_Wall_Clambering_Climb_Over] = dll_210_func_11C60;
+    _bss_58[PLAYER_ASTATE_Wall_Clambering_Drop_Down] = dll_210_func_1209C;
     _bss_58[31] = dll_210_func_125BC;
     _bss_58[32] = dll_210_func_12BF0;
     _bss_58[33] = dll_210_func_13524;
@@ -6430,115 +6430,131 @@ s32 dll_210_func_10E94(Object* player, ObjFSA_Data* fsa, f32 arg2) {
 }
 
 // offset: 0x11C60 | func: 88
-s32 dll_210_func_11C60(Object* player, ObjFSA_Data* fsa, f32 arg2) {
-    Player_Data* temp_s1;
-    Vec3f sp60;
-    f32 sp5C;
-    f32 sp58;
-    f32 sp54;
-    f32 sp50;
-    s32 temp_v0;
-    s16 pad_sp4E;
+s32 dll_210_func_11C60(Object* player, ObjFSA_Data* fsa, f32 updateRate) {
+    Player_Data* objData;
+    Vec3f jointCoords;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 tempY;
+    s32 nextState;
+    s16 pad;
     s16 sp48;
-    u32 sp44;
+    u32 soundHandle;
 
-    temp_s1 = player->data;
+    objData = player->data;
+
     if (fsa->unk308 & 0x80) {
-        sp44 = dll_amSfx->Play(player, _data_4D8[temp_s1->unk430.unk2], mathRnd(0x5A, MAX_VOLUME), NULL, NULL, 0, NULL);
-        dll_amSfx->SetPitch(sp44, ((f32) mathRnd(-0x64, 0x64) * 0.001f) + 1.0f);
+        soundHandle = dll_amSfx->Play(player, _data_4D8[objData->unk430.unk2], mathRnd(0x5A, MAX_VOLUME), NULL, NULL, 0, NULL);
+        dll_amSfx->SetPitch(soundHandle, (mathRnd(-100, 100) * 0.001f) + 1.0f);
     }
-    if (fsa->enteredAnimState != 0) {
+
+    if (fsa->enteredAnimState) {
         gDLL_2_Camera->vtbl->change_camera_module(DLL_ID_CAMNORMAL, FALSE, 1, 0, NULL, 60, Cam_Ease_All);
-        dll_amSfx->Play(player, temp_s1->unk3B8[mathRnd(0xA, 0xE)], MAX_VOLUME, NULL, NULL, 0, NULL);
-        objAnimSet(player, _data_5DC[1], 0.0f, 1U);
+        dll_amSfx->Play(player, objData->unk3B8[mathRnd(10, 14)], MAX_VOLUME, NULL, NULL, 0, NULL);
+        objAnimSet(player, _data_5DC[1], 0.0f, 1);
         objAnimSetBlend(player, _data_5E0[0], 0);
         fsa->animTickDelta = 0.012f;
-        mod_func_8001A3FC(player->modelInsts[player->modelInstIdx], 0U, 0, 1.0f, player->srt.scale, &sp60, &sp48);
-        temp_s1->unk430.unk18.y = sp60.f[2] * temp_s1->unk430.unk24.x;
-        temp_s1->unk430.unk18.z = sp60.f[2] * temp_s1->unk430.unk24.z;
-        player->srt.transl.y = temp_s1->unk430.unk4;
+        mod_func_8001A3FC(player->modelInsts[player->modelInstIdx], 0, 0, 1.0f, player->srt.scale, &jointCoords, &sp48);
+        objData->unk430.unk18.y = jointCoords.f[2] * objData->unk430.unk24.x;
+        objData->unk430.unk18.z = jointCoords.f[2] * objData->unk430.unk24.z;
+        player->srt.transl.y = objData->unk430.unk4;
         fsa->unk270 = PLAYER_ASTATE_Wall_Clambering_Climb_Over;
         fsa->animExitAction = dll_210_func_12514;
     }
+
     {
-        s32 temp_v0 = dll_210_func_EFB4(player, fsa, arg2);
-        if (temp_v0) { return temp_v0; }
+        s32 nextState = dll_210_func_EFB4(player, fsa, updateRate);
+        if (nextState) { return nextState; }
     }
+
     player->velocity.y = 0.0f;
-    objAnim_func_80024DD0(player, 0, 1, temp_s1->unk430.unk5C);
+
+    objAnim_func_80024DD0(player, 0, 1, objData->unk430.unk5C);
     if (player->animProgress > 0.99f) {
-        player->globalPosition.x = temp_s1->unk7EC.x;
-        player->globalPosition.z = temp_s1->unk7EC.z;
-        camInverseTransformPointByObject(player->globalPosition.x, 0.0f, player->globalPosition.z, player->srt.transl.f, &sp50, &player->srt.transl.z, player->parent);
-        dll_210_func_7260(player, temp_s1);
-        objAnimSet(player, (s32) *temp_s1->modAnims, 0.0f, 1U);
-        return -1;
+        player->globalPosition.x = objData->unk7EC.x;
+        player->globalPosition.z = objData->unk7EC.z;
+        camInverseTransformPointByObject(player->globalPosition.x, 0.0f, player->globalPosition.z, &player->srt.transl.x, &tempY, &player->srt.transl.z, player->parent);
+        dll_210_func_7260(player, objData);
+        objAnimSet(player, objData->modAnims[0], 0.0f, 1);
+        return FSA_NEXTSTATE_ASYNC(PLAYER_ASTATE_Standing);
     }
-    sp5C = player->srt.transl.x + (temp_s1->unk430.unk18.y * player->animProgress);
-    sp58 = player->srt.transl.y - (temp_s1->unk430.unk18.x * (1.0f - player->animProgress));
-    sp54 = player->srt.transl.z + (temp_s1->unk430.unk18.z * player->animProgress);
-    gDLL_2_Camera->vtbl->reposition_player(sp5C, sp58, sp54);
-    shadowsSetCustomObjPos(player, sp5C, sp58, sp54);
-    dll_210_func_7260(player, temp_s1);
+
+    x = player->srt.transl.x + (objData->unk430.unk18.y * player->animProgress);
+    y = player->srt.transl.y - (objData->unk430.unk18.x * (1.0f - player->animProgress));
+    z = player->srt.transl.z + (objData->unk430.unk18.z * player->animProgress);
+    gDLL_2_Camera->vtbl->reposition_player(x, y, z);
+    shadowsSetCustomObjPos(player, x, y, z);
+    dll_210_func_7260(player, objData);
+
     return 0;
 }
 
 // offset: 0x1209C | func: 89
-s32 dll_210_func_1209C(Object* player, ObjFSA_Data* fsa, f32 arg2) {
-    f32 temp_fv0;
-    Vec3f sp60;
-    f32 sp5C;
-    f32 sp58;
-    f32 sp54;
-    f32 sp50;
-    Player_Data* temp_s1;
-    s16 pad_sp4A;
+s32 dll_210_func_1209C(Object* player, ObjFSA_Data* fsa, f32 updateRate) {
+    Player_Data* objData;
+    Vec3f jointCoords;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 tempY;
+    s32 nextState;
+    s16 pad;
     s16 sp48;
-    u32 sp44;
+    u32 soundHandle;
 
-    temp_s1 = player->data;
+    objData = player->data;
+
     if (!(fsa->unk4.unk25C & 0x10) && (fsa->unk4.underwaterDist > 5.0f)) {
-        return 0x20;
+        return FSA_NEXTSTATE_SYNC(PLAYER_ASTATE_31);
     }
+
     if (fsa->unk308 & 1) {
-        dll_amSfx->Play(player, temp_s1->unk3B8[mathRnd(0xA, 0xE)], MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(player, objData->unk3B8[mathRnd(10, 14)], MAX_VOLUME, NULL, NULL, 0, NULL);
     }
+
     if (fsa->unk308 & 0x80) {
-        sp44 = dll_amSfx->Play(player, _data_4D8[temp_s1->unk430.unk2], mathRnd(0x5A, MAX_VOLUME), NULL, NULL, 0, NULL);
-        dll_amSfx->SetPitch(sp44, ((f32) mathRnd(-0x64, 0x64) * 0.001f) + 1.0f);
+        soundHandle = dll_amSfx->Play(player, _data_4D8[objData->unk430.unk2], mathRnd(0x5A, MAX_VOLUME), NULL, NULL, 0, NULL);
+        dll_amSfx->SetPitch(soundHandle, (mathRnd(-100, 100) * 0.001f) + 1.0f);
     }
-    if (fsa->enteredAnimState != 0) {
+
+    if (fsa->enteredAnimState) {
         gDLL_2_Camera->vtbl->change_camera_module(DLL_ID_CAMNORMAL, FALSE, 1, 0, NULL, 60, Cam_Ease_All);
-        objAnimSet(player, _data_5E0[1], 0.0f, 1U);
+        objAnimSet(player, _data_5E0[1], 0.0f, 1);
         objAnimSetBlend(player, _data_5E4[0], 0);
         fsa->animTickDelta = 0.015f;
-        mod_func_8001A3FC(player->modelInsts[player->modelInstIdx], 0U, 0, 1.0f, player->srt.scale, &sp60, &sp48);
-        temp_s1->unk430.unk18.y = sp60.f[2] * temp_s1->unk430.unk24.x;
-        temp_s1->unk430.unk18.z = sp60.f[2] * temp_s1->unk430.unk24.z;
-        player->srt.transl.y = temp_s1->unk430.unk8;
+        mod_func_8001A3FC(player->modelInsts[player->modelInstIdx], 0, 0, 1.0f, player->srt.scale, &jointCoords, &sp48);
+        objData->unk430.unk18.y = jointCoords.f[2] * objData->unk430.unk24.x;
+        objData->unk430.unk18.z = jointCoords.f[2] * objData->unk430.unk24.z;
+        player->srt.transl.y = objData->unk430.unk8;
         fsa->unk270 = PLAYER_ASTATE_Wall_Clambering_Drop_Down;
         fsa->animExitAction = dll_210_func_12514;
     }
+
     {
-        s32 temp_v0 = dll_210_func_EFB4(player, fsa, arg2);
-        if (temp_v0 != 0) { return temp_v0; }
+        s32 nextState = dll_210_func_EFB4(player, fsa, updateRate);
+        if (nextState != 0) { return nextState; }
     }
+
     player->velocity.y = 0.0f;
-    objAnim_func_80024DD0(player, 0, 1, temp_s1->unk430.unk5C);
+
+    objAnim_func_80024DD0(player, 0, 1, objData->unk430.unk5C);
     if (player->animProgress > 0.99f) {
-        player->globalPosition.x = temp_s1->unk7EC.x;
-        player->globalPosition.z = temp_s1->unk7EC.z;
-        camInverseTransformPointByObject(player->globalPosition.x, 0.0f, player->globalPosition.z, player->srt.transl.f, &sp50, &player->srt.transl.z, player->parent);
-        dll_210_func_7260(player, temp_s1);
-        objAnimSet(player, (s32) *temp_s1->modAnims, 0.0f, 1U);
-        return -1;
+        player->globalPosition.x = objData->unk7EC.x;
+        player->globalPosition.z = objData->unk7EC.z;
+        camInverseTransformPointByObject(player->globalPosition.x, 0.0f, player->globalPosition.z, &player->srt.transl.x, &tempY, &player->srt.transl.z, player->parent);
+        dll_210_func_7260(player, objData);
+        objAnimSet(player, objData->modAnims[0], 0.0f, 1);
+        return FSA_NEXTSTATE_ASYNC(PLAYER_ASTATE_Standing);
     }
-    sp5C = player->srt.transl.x + (temp_s1->unk430.unk18.y * player->animProgress);
-    sp58 = player->srt.transl.y - (temp_s1->unk430.unk18.x * (1.0f - player->animProgress));
-    sp54 = player->srt.transl.z + (temp_s1->unk430.unk18.z * player->animProgress);
-    gDLL_2_Camera->vtbl->reposition_player(sp5C, sp58, sp54);
-    shadowsSetCustomObjPos(player, sp5C, sp58, sp54);
-    dll_210_func_7260(player, temp_s1);
+
+    x = player->srt.transl.x + (objData->unk430.unk18.y * player->animProgress);
+    y = player->srt.transl.y - (objData->unk430.unk18.x * (1.0f - player->animProgress));
+    z = player->srt.transl.z + (objData->unk430.unk18.z * player->animProgress);
+    gDLL_2_Camera->vtbl->reposition_player(x, y, z);
+    shadowsSetCustomObjPos(player, x, y, z);
+    dll_210_func_7260(player, objData);
+
     return 0;
 }
 
