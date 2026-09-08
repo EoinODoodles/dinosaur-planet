@@ -256,7 +256,7 @@ typedef enum {
     BIT_DF_Shrine_Activate_ObjCreator_4 = 0xF9, // len:1 group:0
     BIT_FA = 0xFA, // len:1 group:0 //Set in DF Shrine once 3 SharpClaw are defeated, but doesn't seem to do anything?
     BIT_FB = 0xFB, // len:1 group:0 //Set in DF Shrine once 3 SharpClaw are defeated, but doesn't seem to do anything?
-    BIT_DF_Shrine_SharpClaw_Drop_Magic_Gems = 0xFC, // len:1 group:1 (Unused, and broken since it uses an objectID instead of `BaddieDrop_IDs`, but seems to be the intention!)
+    BIT_DF_Shrine_SharpClaw_Drop_Magic_Gems = 0xFC, // len:1 group:1 (Broken, but seems to be the intention!) TO-DO: gamebit set in Warlock Mountain after DFShrine, so maybe used outside DF?
     BIT_Shrine_Do_Exit_Warp = 0xFD, // len:1 group:0 (set by Krazoa Shrines to warp player away immediately)
     BIT_Krystal_Dino_Bag_L = 0xFE, // len:1 group:1 (not listed in shop items, so must've been obtained elsewhere!)  [INVENTORY]
     BIT_FF = 0xFF, // len:1 group:1
