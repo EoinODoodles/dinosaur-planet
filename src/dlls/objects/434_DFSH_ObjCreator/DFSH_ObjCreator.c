@@ -1,5 +1,7 @@
+#include "dll.h"
 #include "dlls/engine/33_BaddieControl.h"
 #include "dlls/engine/6_amsfx.h"
+#include "dlls/objects/215_SharpClaw.h"
 #include "game/gamebits.h"
 #include "game/objects/object.h"
 #include "game/objects/object_id.h"
@@ -7,7 +9,6 @@
 #include "sys/gfx/modgfx.h"
 #include "sys/main.h"
 #include "sys/objprint.h"
-#include "dll.h"
 
 /*
     The DFSH_ObjCreators are arranged like this around 
@@ -141,19 +142,19 @@ void DFSH_ObjCreator_obj_Control(Object* self) {
         if (sharpClawBaddie != NULL) {
             switch (setup->creatorIndex) {
             default:
-                sharpClawBaddie->unk3B0 = 0x20;
+                sharpClawBaddie->unk3B0 = SharpClaw_FLAG_20;
                 break;
             case 0:
-                sharpClawBaddie->unk3B0 = 0x20;
+                sharpClawBaddie->unk3B0 = SharpClaw_FLAG_20;
                 break;
             case 1:
-                sharpClawBaddie->unk3B0 = 0x20;
+                sharpClawBaddie->unk3B0 = SharpClaw_FLAG_20;
                 break;
             case 2:
-                sharpClawBaddie->unk3B0 = 0x80 | 0x20;
+                sharpClawBaddie->unk3B0 = SharpClaw_FLAG_20 | SharpClaw_FLAG_80_Vulnerable_During_Attack;
                 break;
             case 3:
-                sharpClawBaddie->unk3B0 = 0x80 | 0x20;
+                sharpClawBaddie->unk3B0 = SharpClaw_FLAG_20 | SharpClaw_FLAG_80_Vulnerable_During_Attack;
                 break;
             }
         }
