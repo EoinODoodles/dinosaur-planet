@@ -41,40 +41,49 @@ typedef struct {
     0xff, 0xff, 0xff, 0xff,
     0xff, 0xff, 0xff, 0xff
 };
-/*0xA4*/ static u32 data_A4[] = {
-    0x02060167, 0x01650206
-};
-/*0xAC*/ static u32 data_AC[] = {
-    0x02060167, 0x01650206, 0x00000000, 0x00000000, 0x00000000
-};
 
 /*0x0*/ static ObjFSA_StateCallback bss_0[4];
 /*0x10*/ static ObjFSA_StateCallback bss_10[6];
 
-/*0x28*/ static u8 bss_28[0x8];
-/*0x30*/ static u8 bss_30[0x4];
-/*0x34*/ static u8 bss_34[0x4];
-/*0x38*/ static u8 bss_38[0x4];
-/*0x3C*/ static u8 bss_3C[0x4];
+static int WaterBaddie_func_9D0(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static void WaterBaddie_func_C6C(Object* self, Baddie* baddie, ObjFSA_Data* fsa);
+static void WaterBaddie_func_1088(Object* self, AnimObj_Data* animData, Baddie* baddie, ObjFSA_Data* fsa);
+static void WaterBaddie_func_1238(Object* self, Baddie* baddie, ObjFSA_Data* fsa);
+static void WaterBaddie_func_13DC(Object* self, Baddie* fsa, ObjFSA_Data* baddie);
+static void WaterBaddie_func_16FC(Object* self, Baddie* fsa, ObjFSA_Data* baddie);
+
+static s32 WaterBaddie_func_1C48(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 WaterBaddie_func_1CA4(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 WaterBaddie_func_1D04(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+
+static s32 WaterBaddie_func_1D8C(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 WaterBaddie_func_1E50(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 WaterBaddie_func_1F70(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 WaterBaddie_func_203C(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 WaterBaddie_func_247C(Object* self, ObjFSA_Data* fsa, f32 updateRate);
 
 // offset: 0x0 | func: 0
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/218_WaterBaddie/WaterBaddie_func_0.s")
+static void WaterBaddie_func_0(void) {
+    bss_0[0] = WaterBaddie_func_1C48;
+    bss_0[1] = WaterBaddie_func_1CA4;
+    bss_0[2] = WaterBaddie_func_1D04;
+    
+    bss_10[0] = WaterBaddie_func_1D8C;
+    bss_10[1] = WaterBaddie_func_1E50;
+    bss_10[2] = WaterBaddie_func_1F70;
+    bss_10[3] = WaterBaddie_func_203C;
+    bss_10[4] = WaterBaddie_func_247C;
+}
 
 // offset: 0x84 | ctor
-void WaterBaddie_ctor(void* dll);
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/218_WaterBaddie/WaterBaddie_ctor.s")
+void WaterBaddie_ctor(void* dll) {
+    WaterBaddie_func_0();
+}
 
 // offset: 0xC4 | dtor
 void WaterBaddie_dtor(void* dll) { }
 
 // offset: 0xD0 | func: 1 | export: 0
-// void WaterBaddie_obj_Setup(Object* self, ObjSetup* setup, s32 reset);
-#if 1
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/218_WaterBaddie/WaterBaddie_obj_Setup.s")
-#else
-
-static int WaterBaddie_func_9D0(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
-
 void WaterBaddie_obj_Setup(Object* self, Baddie_Setup* objSetup, s32 reset) {
     Baddie* baddie;
     WaterBaddie_DataActual* objData;
@@ -118,11 +127,49 @@ void WaterBaddie_obj_Setup(Object* self, Baddie_Setup* objSetup, s32 reset) {
     objData->unkC += self->srt.transl.y;
     objData->unk18 = 0.075f;
 }
-#endif
 
 // offset: 0x3C4 | func: 2 | export: 1
-void WaterBaddie_obj_Control(Object* self);
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/218_WaterBaddie/WaterBaddie_obj_Control.s")
+void WaterBaddie_obj_Control(Object* self) {
+    Baddie* baddie;
+    Baddie_Setup* objSetup;
+
+    baddie = self->data;
+    objSetup = (Baddie_Setup*)self->setup;
+    
+    if (self->unkDC != 0) {
+        if (gDLL_29_Gplay->vtbl->did_time_expire(objSetup->base.uID)) {
+            gDLL_33_BaddieControl->vtbl->setup(self, objSetup, baddie, 3, 5, 0x100, 0x30U, 20.0f);
+            gDLL_6_AMSFX->vtbl->Play(self, 0xB20U, 0x7FU, NULL, NULL, 0, NULL);
+            baddie->fsa.unk33A = 0;
+            self->opacity = OBJECT_OPACITY_MAX;
+            self->unkAF |= 8;
+            baddie->unk3B2 |= 0x100;
+        }
+    } else {
+        if (self->unkE0 == 0) {
+            self->srt.transl.x = objSetup->base.x;
+            self->srt.transl.y = objSetup->base.y;
+            self->srt.transl.z = objSetup->base.z;
+            gDLL_3_Animation->vtbl->start_obj_sequence(objSetup->unk2E, self, -1);
+            self->unkE0 = 1;
+            return;
+        }
+        
+        if (baddie->unk3B2 & 2) {
+            gDLL_33_BaddieControl->vtbl->func9(self, &baddie->fsa, &baddie->unk34C, baddie->unk39E, (s8*)&baddie->unk3B4, 4, 0, 0, 1);
+            baddie->unk3B2 &= ~2;
+        }
+        
+        if (gDLL_33_BaddieControl->vtbl->func11(self, baddie, 1)) {
+            WaterBaddie_func_C6C(self, baddie, &baddie->fsa);
+            if ((baddie->fsa.target != NULL) && (baddie->fsa.hitpoints != 0)) {
+                WaterBaddie_func_1088(self, 0, baddie, &baddie->fsa);
+            } else {
+                WaterBaddie_func_1238(self, baddie, &baddie->fsa);
+            }
+        }
+    }
+}
 
 // offset: 0x648 | func: 3 | export: 2
 void WaterBaddie_obj_Update(Object* self) {
@@ -192,9 +239,6 @@ void WaterBaddie_Func_9C0(Object* self, u8 message) {
 }
 
 // offset: 0x9D0 | func: 10
-#if 1
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/218_WaterBaddie/WaterBaddie_func_9D0.s")
-#else
 int WaterBaddie_func_9D0(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
     Baddie_Setup* objSetup;
     Baddie* baddie;
@@ -236,7 +280,7 @@ int WaterBaddie_func_9D0(Object* self, Object* animObj, AnimObj_Data* animData, 
         case 0:
         default:
             animData->unk7A = -1;
-            animData->unk7A &= 0xFFBF;
+            animData->unk7A &= ~0x40;
             WaterBaddie_func_1238(self, baddie, &baddie->fsa);
             break;
         }
@@ -249,30 +293,18 @@ int WaterBaddie_func_9D0(Object* self, Object* animObj, AnimObj_Data* animData, 
     
     return baddie->unk3B4 != 0;
 }
-#endif
 
 // offset: 0xC6C | func: 11
-#if 1
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/218_WaterBaddie/WaterBaddie_func_C6C.s")
-#else
-
-static void WaterBaddie_func_13DC(Object* self, Baddie* fsa, ObjFSA_Data* baddie);
-static void WaterBaddie_func_16FC(Object* self, Baddie* fsa, ObjFSA_Data* baddie);
-
 void WaterBaddie_func_C6C(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
-    static SRT bss_28;
-    static f32 bss_30;
-    static f32 bss_34;
-    static f32 bss_38;
-    static f32 bss_3C;
-    
-    Object* player = objGetPlayer(); //74
+/*0x28*/ static SRT bss_28;
+    Object* player = objGetPlayer();
 /*0xA4*/ s16 data_A4[] = { 0x0206, 0x0167, 0x0165, 0x0206 };
 /*0xAC*/ s16 data_AC[] = { 0x0206, 0x0167, 0x0165, 0x0206 };
     Vec3f d;
     Object* weapon;
     s32 i;
     s32 scaleIdx;
+    
     
     if (self->linkedObject != NULL) {
         self->linkedObject->parent = self->parent;
@@ -303,9 +335,9 @@ void WaterBaddie_func_C6C(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
         
         bss_28.scale = data_A4[scaleIdx];
         gDLL_17_partfx->vtbl->spawn(self, 0x323, &bss_28, 0x200001, -1, NULL);
-        bss_34 -= self->srt.transl.x;
-        bss_38 -= self->srt.transl.f[1];
-        bss_3C -= self->srt.transl.f[2];
+        bss_28.transl.x -= self->srt.transl.x;
+        bss_28.transl.y -= self->srt.transl.y;
+        bss_28.transl.z -= self->srt.transl.z;
         bss_28.scale = data_AC[scaleIdx];
         
         for (i = 0; i < 4; i++) {
@@ -316,7 +348,6 @@ void WaterBaddie_func_C6C(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
         gDLL_6_AMSFX->vtbl->Play(self, data_C[4], MAX_VOLUME, NULL, NULL, 0, NULL);
     }
 }
-#endif
 
 // offset: 0x1088 | func: 12
 void WaterBaddie_func_1088(Object* self, AnimObj_Data* animData, Baddie* baddie, ObjFSA_Data* fsa) {
