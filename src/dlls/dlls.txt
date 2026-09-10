@@ -114,6 +114,7 @@
 215 = objects/215_SharpClaw
 216 = objects/216_SnowWorm
 217 = objects/217_GuardClaw
+218 = objects/218_WaterBaddie
 220 = objects/220_Chuka
 221 = objects/221_ChukaChuck
 222 = objects/222_SnowWormSmall
