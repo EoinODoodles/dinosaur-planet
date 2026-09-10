@@ -338,8 +338,8 @@ void CamControl_change_mode(u32 cameraMode, s32 params) {
         CamControl_change_camera_module(DLL_ID_CAMSTATIC, TRUE, 0, sizeof(staticCam), &staticCam, 120, 0xFF);
         break;
     case Camera_MODE_2_Path:
-        pathCam.unk0 = params & 0x7F; //extract lower bits
-        pathCam.unk4 = params & 0x80; //store uppermost bit
+        pathCam.pathID = params & 0x7F; //extract lower bits
+        pathCam.previousCameraEasesIn = params & 0x80; //store uppermost bit
         CamControl_change_camera_module(DLL_ID_CAMPATH, TRUE, 0, sizeof(pathCam), &pathCam, 120, 0xFF);
         break;
     case Camera_MODE_3_Normal:

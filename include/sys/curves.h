@@ -96,7 +96,7 @@ typedef struct {
         /*36*/ s16 unk36;
         /*38*/ s16 unk38;
         /*3A*/ s8 unk3A;
-        /*3B*/ u8 unk3B;
+        /*3B*/ u8 unk3B; //flags
     } campath;
 };
 } CurveSetup;

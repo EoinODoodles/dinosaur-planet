@@ -3113,8 +3113,8 @@ void anim_update_camera(void) {
     } else if (_bss_8B != 0) {
         switch (sCameraModule) {
         case DLL_ID_CAMPATH:
-            campathData.unk0 = sCamParam1;
-            campathData.unk4 = sCamParam2;
+            campathData.pathID = sCamParam1;
+            campathData.previousCameraEasesIn = sCamParam2;
             gDLL_2_Camera->vtbl->change_camera_module(DLL_ID_CAMPATH, TRUE, 3, sizeof(campathData), &campathData, sCamEaseDuration, Cam_Ease_All);
             dummy_label_1: ; // @fake
             break;
