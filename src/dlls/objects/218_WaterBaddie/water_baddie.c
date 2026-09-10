@@ -38,7 +38,7 @@ typedef enum {
 
 /*0x0*/ static s32 dCurveTypes[] = { 2, 3 };
 /*0x8*/ static u16 dWaterSounds[] = { SOUND_53F_Water_Paddle, SOUND_540_Water_Paddle };
-/*0xC*/ static u16 sBaddieSounds[] = {
+/*0xC*/ static u16 dBaddieSounds[] = {
     SOUND_541_WaterBaddie_Squeak, SOUND_542_WaterBaddie_Squeak, SOUND_543_WaterBaddie_Cry, SOUND_547_Light_Bump, SOUND_53E_Crunch
 };
 /*0x18*/ static s32 dHitAnimStateMap[] = {
@@ -389,8 +389,8 @@ void WaterBaddie_tick(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
             gDLL_17_partfx->vtbl->spawn(self, PARTICLE_324, &sFXTransform, 2, -1, NULL);
         }
         
-        dll_amSfx->Play(self, sBaddieSounds[2], MAX_VOLUME, NULL, NULL, 0, NULL);
-        dll_amSfx->Play(self, sBaddieSounds[4], MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(self, dBaddieSounds[2], MAX_VOLUME, NULL, NULL, 0, NULL);
+        dll_amSfx->Play(self, dBaddieSounds[4], MAX_VOLUME, NULL, NULL, 0, NULL);
     }
 }
 
@@ -772,7 +772,7 @@ s32 WaterBaddie_logicState3Swimming(Object* self, ObjFSA_Data* fsa, f32 updateRa
                 objData->pitchAcceleration = 0.0f;
             }
             objData->diveAmount = 0;
-            dll_amSfx->Play(self, sBaddieSounds[mathRnd(0, 1)], MAX_VOLUME, NULL, NULL, 0, NULL);
+            dll_amSfx->Play(self, dBaddieSounds[mathRnd(0, 1)], MAX_VOLUME, NULL, NULL, 0, NULL);
         } else {
             objData->pitchAcceleration += 0.0001f * objData->diveAmount;
         }
