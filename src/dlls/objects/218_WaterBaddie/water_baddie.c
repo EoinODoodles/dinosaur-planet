@@ -23,17 +23,17 @@ typedef struct {
 } WaterBaddie_DataActual;
 
 typedef enum {
-    WaterBaddie_ASTATE_0,
-    WaterBaddie_ASTATE_1,
+    WaterBaddie_ASTATE_0_Turn_To_Target,
+    WaterBaddie_ASTATE_1_Swimming,
     WaterBaddie_ASTATE_2_Hit
 } WaterBaddie_AnimStates;
 
 typedef enum {
-    WaterBaddie_LSTATE_0,
+    WaterBaddie_LSTATE_0_Hit,
     WaterBaddie_LSTATE_1_Dying,
     WaterBaddie_LSTATE_2_Dead,
-    WaterBaddie_LSTATE_3,
-    WaterBaddie_LSTATE_4
+    WaterBaddie_LSTATE_3_Swimming,
+    WaterBaddie_LSTATE_4_Top
 } WaterBaddie_LogicStates;
 
 /*0x0*/ static s32 dCurveTypes[] = { 2, 3 };
@@ -91,27 +91,27 @@ static void WaterBaddie_searchForTarget(Object* self, Baddie* baddie, ObjFSA_Dat
 static void WaterBaddie_handleRotating(Object* self, Baddie* fsa, ObjFSA_Data* baddie);
 static void WaterBaddie_handleEffects(Object* self, Baddie* fsa, ObjFSA_Data* baddie);
 
-static s32 WaterBaddie_animState0(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 WaterBaddie_animState1(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 WaterBaddie_animState0TurnToTarget(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 WaterBaddie_animState1Swimming(Object* self, ObjFSA_Data* fsa, f32 updateRate);
 static s32 WaterBaddie_animState2Hit(Object* self, ObjFSA_Data* fsa, f32 updateRate);
 
-static s32 WaterBaddie_logicState0(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 WaterBaddie_logicState0Hit(Object* self, ObjFSA_Data* fsa, f32 updateRate);
 static s32 WaterBaddie_logicState1Dying(Object* self, ObjFSA_Data* fsa, f32 updateRate);
 static s32 WaterBaddie_logicState2Dead(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 WaterBaddie_logicState3(Object* self, ObjFSA_Data* fsa, f32 updateRate);
-static s32 WaterBaddie_logicState4(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 WaterBaddie_logicState3Swimming(Object* self, ObjFSA_Data* fsa, f32 updateRate);
+static s32 WaterBaddie_logicState4Top(Object* self, ObjFSA_Data* fsa, f32 updateRate);
 
 // offset: 0x0 | func: 0
 static void WaterBaddie_initFSACallbacks(void) {
-    sAnimStateCallbacks[WaterBaddie_ASTATE_0] = WaterBaddie_animState0;
-    sAnimStateCallbacks[WaterBaddie_ASTATE_1] = WaterBaddie_animState1;
-    sAnimStateCallbacks[WaterBaddie_ASTATE_2_Hit] = WaterBaddie_animState2Hit;
+    sAnimStateCallbacks[WaterBaddie_ASTATE_0_Turn_To_Target] = WaterBaddie_animState0TurnToTarget;
+    sAnimStateCallbacks[WaterBaddie_ASTATE_1_Swimming]       = WaterBaddie_animState1Swimming;
+    sAnimStateCallbacks[WaterBaddie_ASTATE_2_Hit]            = WaterBaddie_animState2Hit;
     
-    sLogicStateCallbacks[WaterBaddie_LSTATE_0] = WaterBaddie_logicState0;
-    sLogicStateCallbacks[WaterBaddie_LSTATE_1_Dying] = WaterBaddie_logicState1Dying;
-    sLogicStateCallbacks[WaterBaddie_LSTATE_2_Dead] = WaterBaddie_logicState2Dead;
-    sLogicStateCallbacks[WaterBaddie_LSTATE_3] = WaterBaddie_logicState3;
-    sLogicStateCallbacks[WaterBaddie_LSTATE_4] = WaterBaddie_logicState4;
+    sLogicStateCallbacks[WaterBaddie_LSTATE_0_Hit]      = WaterBaddie_logicState0Hit;
+    sLogicStateCallbacks[WaterBaddie_LSTATE_1_Dying]    = WaterBaddie_logicState1Dying;
+    sLogicStateCallbacks[WaterBaddie_LSTATE_2_Dead]     = WaterBaddie_logicState2Dead;
+    sLogicStateCallbacks[WaterBaddie_LSTATE_3_Swimming] = WaterBaddie_logicState3Swimming;
+    sLogicStateCallbacks[WaterBaddie_LSTATE_4_Top]      = WaterBaddie_logicState4Top;
 }
 
 // offset: 0x84 | ctor
@@ -145,7 +145,7 @@ void WaterBaddie_obj_Setup(Object* self, Baddie_Setup* objSetup, s32 reset) {
     
     self->animCallback = WaterBaddie_animCallback;
     gDLL_18_objfsa->vtbl->set_anim_state(self, &baddie->fsa, 0);
-    baddie->fsa.logicState = WaterBaddie_LSTATE_4;
+    baddie->fsa.logicState = WaterBaddie_LSTATE_4_Top;
     
     objData = baddie->objdata;
     objData->prevYaw = self->srt.yaw;
@@ -309,7 +309,7 @@ int WaterBaddie_animCallback(Object* self, Object* animObj, AnimObj_Data* animDa
             animData->unk7A = 0;
             WaterBaddie_engageTarget(self, animData, baddie, &baddie->fsa);
             if (baddie->unk3B4 == 1) {
-                baddie->fsa.logicState = WaterBaddie_LSTATE_4;
+                baddie->fsa.logicState = WaterBaddie_LSTATE_4_Top;
                 gDLL_18_objfsa->vtbl->tick(self, &baddie->fsa, 1.0f, 1.0f, sAnimStateCallbacks, sLogicStateCallbacks);
                 animData->unk62 = 0;
             }
@@ -434,7 +434,7 @@ void WaterBaddie_searchForTarget(Object* self, Baddie* baddie, ObjFSA_Data* fsa)
     
     if (fsa->hitpoints != 0) {
         if (baddie->unk3B2 & 8) {
-            fsa->logicState = WaterBaddie_LSTATE_3;
+            fsa->logicState = WaterBaddie_LSTATE_3_Swimming;
         }
 
         target = gDLL_33_BaddieControl->vtbl->func17(self, fsa, baddie->unk3E2, 0x8000);
@@ -495,7 +495,7 @@ void WaterBaddie_handleRotating(Object* self, Baddie* baddie, ObjFSA_Data* fsa) 
         objData->createTurnRipples = TRUE;
     }
     
-    //Update pitch
+    //Update pitch and Y coordinate
     {
         pitchBobAcceleration = objData->waterHeight - self->srt.transl.y;
         objData->bobPhaseAngle += M_90_DEGREES >> 4; //@framerate-dependent
@@ -614,7 +614,7 @@ void WaterBaddie_handleEffects(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
 }
 
 // offset: 0x1C48 | func: 16
-s32 WaterBaddie_animState0(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 WaterBaddie_animState0TurnToTarget(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     fsa->unk27C = 0.0f;
     gDLL_18_objfsa->vtbl->turn_to_target(self, fsa, updateRate, 5);
     
@@ -622,7 +622,7 @@ s32 WaterBaddie_animState0(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x1CA4 | func: 17
-s32 WaterBaddie_animState1(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+s32 WaterBaddie_animState1Swimming(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     gDLL_33_BaddieControl->vtbl->func3(self, fsa, self->data, 1.0f, 12.0f);
     return 0;
 }
@@ -649,11 +649,11 @@ s32 WaterBaddie_animState2Hit(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x1D8C | func: 19
-s32 WaterBaddie_logicState0(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
-    static f32 bss_40;
+s32 WaterBaddie_logicState0Hit(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+/*40*/ static f32 sStunnedTimer; //@bug?: won't this affect all WaterBaddies when there are multiple of them?
     
     if (fsa->enteredLogicState) {
-        bss_40 = 0.0f;
+        sStunnedTimer = 0.0f;
         gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, WaterBaddie_ASTATE_2_Hit);
     }
     
@@ -661,10 +661,11 @@ s32 WaterBaddie_logicState0(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
         return FSA_NEXTSTATE_SYNC(WaterBaddie_LSTATE_1_Dying);
     }
     
-    if (bss_40 > 200.0f) {
-        return FSA_NEXTSTATE_SYNC(WaterBaddie_LSTATE_4);
+    //Drift straight ahead for about 3 seconds
+    if (sStunnedTimer > 200.0f) {
+        return FSA_NEXTSTATE_SYNC(WaterBaddie_LSTATE_4_Top);
     } else {
-        bss_40 += gUpdateRateF;
+        sStunnedTimer += gUpdateRateF;
     }
     
     return 0;
@@ -705,13 +706,13 @@ s32 WaterBaddie_logicState2Dead(Object* self, ObjFSA_Data* fsa, f32 updateRate) 
 }
 
 // offset: 0x203C | func: 22
-s32 WaterBaddie_logicState3(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
-/*0x44*/ static s32 bss_44;
+s32 WaterBaddie_logicState3Swimming(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+/*0x44*/ static s32 sCurveValue; //@bug?: won't this affect all WaterBaddies when there are multiple of them?
     
     Baddie* baddie;
     CurvesStruct* sp3C;
     UnkCurvesStruct* curves;
-    f32 temp_fa0;
+    f32 curveDelta;
     f32 dx;
     f32 dz;
     f32 speed;
@@ -727,7 +728,7 @@ s32 WaterBaddie_logicState3(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     
     dx = curves->unk0.unk68.x - self->srt.transl.x;
     dz = curves->unk0.unk68.z - self->srt.transl.z;
-    temp_fa0 = 10.0f / sqrtf(SQ(dx) + SQ(dz));
+    curveDelta = 10.0f / sqrtf(SQ(dx) + SQ(dz));
     
     if (self->animProgress > 0.01f) {
         self->animProgress -= 0.01f;
@@ -735,14 +736,14 @@ s32 WaterBaddie_logicState3(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
         self->animProgress = 0.0f;
     }
     
-    if ((curves_func_800053B0(&curves->unk0, temp_fa0) || bss_44 != curves->unk0.unk10) && 
+    if ((curves_func_800053B0(&curves->unk0, curveDelta) || sCurveValue != curves->unk0.unk10) && 
         gDLL_26_Curves->vtbl->func_4704(curves) && 
         gDLL_26_Curves->vtbl->func_4288(baddie->unk3F8, self, 400.0f, dCurveTypes, -1)
     ) {
         baddie->unk3B2 &= ~8;
     }
     
-    bss_44 = curves->unk0.unk10;
+    sCurveValue = curves->unk0.unk10;
 
     //Do a bobbing dive through the water occasionally
     if ((fsa->unk278 > 0.15f) && (objData->diveAmount == 0)) {
@@ -800,6 +801,6 @@ s32 WaterBaddie_logicState3(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
 }
 
 // offset: 0x247C | func: 23
-s32 WaterBaddie_logicState4(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
-    return FSA_NEXTSTATE_SYNC(WaterBaddie_LSTATE_3);
+s32 WaterBaddie_logicState4Top(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
+    return FSA_NEXTSTATE_SYNC(WaterBaddie_LSTATE_3_Swimming);
 }
