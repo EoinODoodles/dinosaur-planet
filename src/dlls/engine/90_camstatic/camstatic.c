@@ -281,17 +281,15 @@ static s32 camstatic_ease(Cam* cam, u8 flags) {
         }
     }
 
-    //Ease yaw
+    //Ease rotations
     if (!(flags & CamStatic_FLAG_Aim_Yaw_at_Player)) {
         cam->srt.yaw = curvesLinear(&sState->yaw, tValue, NULL);
     }
 
-    //Ease pitch
     if (!(flags & CamStatic_FLAG_Aim_Pitch_at_Player)) {
         cam->srt.pitch = curvesLinear(&sState->pitch, tValue, NULL);
     }
 
-    //Ease roll
     if (!(flags & CamStatic_FLAG_Use_Player_Roll)) {
         cam->srt.roll = curvesLinear(&sState->roll, tValue, NULL);
     }
