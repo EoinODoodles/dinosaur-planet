@@ -15,5 +15,5 @@ _exports:
 /*4*/ .dword WaterBaddie_obj_Free
 /*5*/ .dword WaterBaddie_obj_GetModelFlags
 /*6*/ .dword WaterBaddie_obj_GetDataSize
-/*7*/ .dword WaterBaddie_Func_9B0
-/*8*/ .dword WaterBaddie_Func_9C0
+/*7*/ .dword WaterBaddie_GetAnimState
+/*8*/ .dword WaterBaddie_ReceiveMessage

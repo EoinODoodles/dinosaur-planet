@@ -499,7 +499,15 @@ enum SoundID {
     SOUND_53B_Spore_Spray_Loop = 0x53B, //used by SHkillermushroom
     SOUND_53C_Mushroom_Bounce = 0x53C, //used by SHbluemushroom
 
+    SOUND_53E_Crunch = 0x53E, //WaterBaddie
+    SOUND_53F_Water_Paddle = 0x53F, //WaterBaddie
+    SOUND_540_Water_Paddle = 0x540, //WaterBaddie
+    SOUND_541_WaterBaddie_Squeak = 0x541, //WaterBaddie
+    SOUND_542_WaterBaddie_Squeak = 0x542, //WaterBaddie
+    SOUND_543_WaterBaddie_Cry = 0x543, //WaterBaddie
     SOUND_544_Wood_Struck = 0x544, //Tumbleweedbush, when struck
+ 
+    SOUND_547_Light_Bump = 0x547, //WaterBaddie
 
     SOUND_57A = 0x57A, //tesla.c
 

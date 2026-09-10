@@ -108,6 +108,8 @@ enum ParticleID {
     PARTICLE_328 = 0x328,
     /* --- DLL 43 START --- */
     PARTICLE_32A = 0x32A,
+    PARTICLE_32B = 0x32B,
+    PARTICLE_32C = 0x32C,
     PARTICLE_32D = 0x32D,
     PARTICLE_32E = 0x32E,
     PARTICLE_32F = 0x32F,
