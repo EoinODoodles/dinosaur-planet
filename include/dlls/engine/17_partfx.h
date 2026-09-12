@@ -288,7 +288,7 @@ enum PartfxFlags {
     PARTFXFLAG_10 = 0x10,
     PARTFXFLAG_800 = 0x800,
     PARTFXFLAG_10000 = 0x10000,
-    PARTFXFLAG_200000 = 0x200000,
+    PARTFXFLAG_200000 = 0x200000, //Use fxTransform SRT (arg2 of spawn func) as the particle origin, instead of the caller Object's own SRT
     PARTFXFLAG_2000000 = 0x2000000,
     PARTFXFLAG_4000000 = 0x4000000
 };
