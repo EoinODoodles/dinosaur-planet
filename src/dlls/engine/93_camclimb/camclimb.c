@@ -90,7 +90,7 @@ void camclimb_setup(Cam* cam, s32 mode, CamClimb_Params* data) {
 }
 
 // offset: 0x340 | func: 1 | export: 1
-void camclimb_func_340(Cam* cam) {
+void camclimb_control(Cam* cam) {
     Object* player;
     s32 angleDiff;
     f32 dx;
@@ -118,16 +118,18 @@ void camclimb_func_340(Cam* cam) {
         }
         dy *= (sState->speedY * gUpdateRateF);
         cam->srt.transl.y += dy;
+    }
 
+    //Set camera X and Z from player yaw and desired camera distance
+    {
         distance = sState->distance;
         distance -= sState->desiredDistance;
         distance *= (0.05f * gUpdateRateF);
         sState->desiredDistance += distance;
-    }
 
-    //Set camera X and Z from player yaw and desired camera distance
-    cam->srt.transl.x = (mathSinfInterp(player->srt.yaw) * sState->desiredDistance) + player->srt.transl.x;
-    cam->srt.transl.z = (mathCosfInterp(player->srt.yaw) * sState->desiredDistance) + player->srt.transl.z;
+        cam->srt.transl.x = (mathSinfInterp(player->srt.yaw) * sState->desiredDistance) + player->srt.transl.x;
+        cam->srt.transl.z = (mathCosfInterp(player->srt.yaw) * sState->desiredDistance) + player->srt.transl.z;
+    }
 
     gDLL_2_Camera->vtbl->get_player_to_camera_distances(cam, &dx, &dy, &dz, &distance, 0.0f);
     

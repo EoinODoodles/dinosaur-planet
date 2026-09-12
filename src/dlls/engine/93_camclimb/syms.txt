@@ -2,7 +2,7 @@
 camclimb_ctor = 0x0;
 camclimb_dtor = 0xC;
 camclimb_setup = 0x18;
-camclimb_func_340 = 0x340;
+camclimb_control = 0x340;
 camclimb_free = 0x5E8;
 camclimb_func_62C = 0x62C;
 camclimb_ease = 0x63C;
