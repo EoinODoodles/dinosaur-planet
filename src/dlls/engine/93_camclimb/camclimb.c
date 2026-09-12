@@ -8,8 +8,8 @@
 // Active camera while climbing a wall/ladder
 
 typedef struct {
-    f32 distance;           //Camera's lateral distance from the player (actual current value)
     f32 desiredDistance;    //Desired lateral distance from the player (eased value)
+    f32 distance;           //Camera's lateral distance from the player (actual current value)
     f32 speedY;             //Rate of change of y offset
     f32 minY;               //Lower bound for camera's y difference relative to the player
     f32 maxY;               //Upper bound for camera's y difference relative to the player
@@ -60,7 +60,7 @@ void camclimb_setup(Cam* cam, s32 mode, CamClimb_Params* data) {
         sState->pitchOffsetInitial = sState->pitchOffset;
         sState->minYInitial = sState->minY;
         sState->maxYInitial = sState->maxY;
-        sState->distanceInitial = sState->distance;
+        sState->distanceInitial = sState->desiredDistance;
         sState->pitchOffsetGoal = data->pitchOffset * M_1_DEGREE_F;
         sState->minYGoal = data->minY;
         sState->maxYGoal = data->maxY;
@@ -85,7 +85,7 @@ void camclimb_setup(Cam* cam, s32 mode, CamClimb_Params* data) {
     sState->distanceGoal = (distanceMax + distanceMin) * 0.5f;
     sState->easeTimer = 60;
     sState->easeDuration = 60;
-    sState->desiredDistance = distance;
+    sState->distance = distance;
     sState->speedY = 0.05f;
 }
 
@@ -122,18 +122,18 @@ void camclimb_control(Cam* cam) {
 
     //Set camera X and Z from player yaw and desired camera distance
     {
-        distance = sState->distance;
-        distance -= sState->desiredDistance;
+        distance = sState->desiredDistance;
+        distance -= sState->distance;
         distance *= (0.05f * gUpdateRateF);
-        sState->desiredDistance += distance;
+        sState->distance += distance;
 
-        cam->srt.transl.x = (mathSinfInterp(player->srt.yaw) * sState->desiredDistance) + player->srt.transl.x;
-        cam->srt.transl.z = (mathCosfInterp(player->srt.yaw) * sState->desiredDistance) + player->srt.transl.z;
+        cam->srt.transl.x = (mathSinfInterp(player->srt.yaw) * sState->distance) + player->srt.transl.x;
+        cam->srt.transl.z = (mathCosfInterp(player->srt.yaw) * sState->distance) + player->srt.transl.z;
     }
 
     gDLL_2_Camera->vtbl->get_player_to_camera_distances(cam, &dx, &dy, &dz, &distance, 0.0f);
     
-    //Set yaw (no easing)
+    //Set yaw to aim at player
     angleDiff = -mathAtan2f(dx, dz) - (cam->srt.yaw & 0xFFFF);
     angleDiff += M_180_DEGREES;
     CIRCLE_WRAP(angleDiff);
@@ -171,7 +171,7 @@ static void camclimb_ease(Cam* cam) {
     tValue = (f32) (sState->easeDuration - sState->easeTimer) / sState->easeDuration;
 
     sState->pitchOffset = sState->pitchOffsetInitial + (((u16) sState->pitchOffsetGoal - sState->pitchOffsetInitial) * tValue);
-    sState->distance = sState->distanceInitial + (sState->distanceGoal - sState->distanceInitial) * tValue;
+    sState->desiredDistance = sState->distanceInitial + (sState->distanceGoal - sState->distanceInitial) * tValue;
     sState->minY = sState->minYInitial + (sState->minYGoal - sState->minYInitial) * tValue;
     sState->maxY = sState->maxYInitial + (sState->maxYGoal - sState->maxYInitial) * tValue;
 }
