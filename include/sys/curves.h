@@ -103,8 +103,8 @@ typedef struct {
 
 // size: 0x9C
 typedef struct {
-/*00*/ f32 unk0;
-/*04*/ f32 unk4; // curveProgress? (lerp t-value from 0 to 100?)
+/*00*/ f32 unk0; // lerp t-value from 0 to 1?
+/*04*/ f32 unk4;
 /*08*/ f32 unk8;
 /*0C*/ f32 unkC;
 /*10*/ s32 unk10;
