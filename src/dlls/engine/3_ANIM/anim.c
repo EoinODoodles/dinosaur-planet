@@ -35,7 +35,6 @@
 // Maximum number of actors in an object sequence
 #define MAX_ACTORS 16
 #define MAX_ACTIVATES 16
-#define ANIMCURVES_IS_OBJSEQ2CURVE_INDEX 0x8000
 
 // Some names inferred from default.dol
 enum AnimEventType {
@@ -530,7 +529,7 @@ s32 anim_tick_obj(Object* animObj, s32 updateRate) {
         if (st->state == ANIMOBJ_STATE_Completed) {
             return 1;
         }
-        st->unk9D |= 0x80;
+        st->unk9D |= AnimData_FLAG_80_Skipped;
         actor = animObj;
         if (st->actor != NULL) {
             actor = st->actor;
@@ -1416,22 +1415,22 @@ static Object* anim_toggle_override(Object* animObj, AnimObj_Data* st, AnimObj_S
 
 // offset: 0x3170 | func: 12
 static void anim_func_3170(Object* animObj, Object* actor, AnimObj_Data* st) {
-    if (st->unk9D & 1) {
+    if (st->unk9D & AnimData_FLAG_1) {
         _bss_108[st->seqSlot] = 1;
     }
-    if (st->unk9D & 2) {
+    if (st->unk9D & AnimData_FLAG_2) {
         _bss_108[st->seqSlot] = 0;
     }
-    if (st->unk9D & 4) {
+    if (st->unk9D & AnimData_FLAG_4) {
         sEventFlags[st->seqSlot] = 1;
     }
-    if (st->unk9D & 8) {
+    if (st->unk9D & AnimData_FLAG_8) {
         sEventFlags[st->seqSlot] = 0;
     }
-    if (st->unk9D & 0x10) {
+    if (st->unk9D & AnimData_FLAG_10) {
         _bss_198[st->seqSlot] = 1;
     }
-    if (st->unk9D & 0x20) {
+    if (st->unk9D & AnimData_FLAG_20) {
         _bss_198[st->seqSlot] = 0;
     }
 }
@@ -1441,9 +1440,9 @@ static s32 anim_func_3268(Object* animObj, Object* actor, AnimObj_Data* st) {
     s32 returnVal;
 
     returnVal = 0;
-    if (st->unk9D & 0x40) {
+    if (st->unk9D & AnimData_FLAG_40) {
         returnVal = 1;
-        st->unk9D &= ~0x40;
+        st->unk9D &= ~AnimData_FLAG_40;
         st->time = st->unk80;
         st->prevTime = st->time;
     }
@@ -3659,7 +3658,7 @@ s32 anim_start_obj_sequence(s32 seqno, Object* object, s32 enabledActors) {
                 actorSetup->unk20 = 1;
                 actorSetup->unk21 = 1;
             }
-            actorSetup->sequenceIdBitfield = ((seqno & 0x7FF) * 0x10) | 0x8000 | (i & 0xF);
+            actorSetup->sequenceIdBitfield = (ANIMCURVES_IS_OBJSEQ2CURVE_INDEX | (seqno & 0x7FF) * 0x10) | (i & 0xF);
             actorSetup->unk1A = -1;
             if (i != 0) {
                 if ((_bss_5AC != 0) && (actorSetup->base.objId == OBJ_AnimCamera)) {
@@ -3844,7 +3843,7 @@ static s32 anim_get_preempt_time(Object* obj) {
 // offset: 0x9440 | func: 56 | export: 21
 void anim_func_9440(AnimObj_Data* st, s32 arg1) {
     st->unk80 = arg1;
-    st->unk9D |= 0x40;
+    st->unk9D |= AnimData_FLAG_40;
 }
 
 // offset: 0x9458 | func: 57 | export: 22
