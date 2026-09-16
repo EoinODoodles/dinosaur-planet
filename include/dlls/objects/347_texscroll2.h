@@ -8,4 +8,6 @@ DLL_INTERFACE(DLL_347_texscroll2) {
     /*7*/ void (*change_scroll_speed)(Object* self, s8 vSpeedA);
 };
 
+#define dll_TexScroll2(obj) (((DLL_347_texscroll2*)obj->dll)->vtbl)
+
 #endif // _DLLS_324_H

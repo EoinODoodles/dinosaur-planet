@@ -32,7 +32,7 @@ typedef enum {
     BIT_DF_Cradle_Powered = 0x19, // len:1 group:1
     BIT_1A = 0x1A, // len:1 group:1
     BIT_1B = 0x1B, // len:1 group:1
-    BIT_1C = 0x1C, // len:1 group:0
+    BIT_DF_Cradle_Moving_Down = 0x1C, // len:1 group:0
     BIT_1D = 0x1D, // len:2 group:1
     BIT_1E = 0x1E, // len:1 group:1
     BIT_1F = 0x1F, // len:1 group:1
