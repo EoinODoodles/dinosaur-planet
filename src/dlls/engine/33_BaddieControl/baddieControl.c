@@ -743,7 +743,7 @@ s32 BaddieControl_check_hit(Object* obj, ObjFSA_Data* fsa, Unk80009024 *arg2, s3
 }
 
 // offset: 0x1D88 | func: 16 | export: 20
-s32 BaddieControl_func_1D88(Object* obj, ObjFSA_Data* fsa, Unk80009024 *arg2, s16 arg3, u8 *arg4, s16 arg5, s16 arg6, s16 arg7) {
+s32 BaddieControl_func_1D88(Object* obj, ObjFSA_Data* fsa, Unk80009024 *arg2, s16 arg3, u8 *arg4, s16 nextlogicStateA, s16 nextlogicStateB, s16 arg7) {
     Object* sender;
     u32 mesgID;
     u32 mesgArg;
@@ -759,7 +759,7 @@ s32 BaddieControl_func_1D88(Object* obj, ObjFSA_Data* fsa, Unk80009024 *arg2, s1
                 break;
             case 0xE0000:
                 if (sender == fsa->target) {
-                    fsa->logicState = arg5;
+                    fsa->logicState = nextlogicStateA;
                     fsa->target = NULL;
                     fsa->unk33D = 0;
                 }
@@ -769,19 +769,19 @@ s32 BaddieControl_func_1D88(Object* obj, ObjFSA_Data* fsa, Unk80009024 *arg2, s1
                 break;
             case 0x1:
             case 0xA0001:
-                if (arg6 != fsa->logicState) {
-                    BaddieControl_func_148C(obj, fsa, arg2, arg3, arg4, arg5, arg7, 0, 1);
-                    fsa->logicState = arg6;
+                if (nextlogicStateB != fsa->logicState) {
+                    BaddieControl_func_148C(obj, fsa, arg2, arg3, arg4, nextlogicStateA, arg7, 0, 1);
+                    fsa->logicState = nextlogicStateB;
                     fsa->unk33D = 0;
                     fsa->target = sender;
                     return 1;
                 }
                 break;
             case 0x3:
-                if (arg6 == fsa->logicState) {
+                if (nextlogicStateB == fsa->logicState) {
                     fsa->unk33D = 0;
                     fsa->target = NULL;
-                    fsa->logicState = arg5;
+                    fsa->logicState = nextlogicStateA;
                     return 2;
                 }
                 break;
