@@ -14,6 +14,8 @@
 #include "sys/objlib.h"
 #include "dll.h"
 
+#include "prevent_bss_reordering.h"
+
 typedef struct {
 /*00:0*/ u32 pad0_0 : 8;
 /*00:8*/ u32 animFinished : 1;
