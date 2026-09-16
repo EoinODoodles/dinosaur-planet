@@ -42,7 +42,7 @@ enum CapyLogicStates {
     CAPY_LSTATE_1_DigWall = 1,
     CAPY_LSTATE_2_GoToDigSpot = 2,
     CAPY_LSTATE_3_Eating = 3,
-    CAPY_LSTATE_4_Idle = 4,
+    CAPY_LSTATE_4_Idle = 4,             //This state also handles walking to a target (Magic Plant/Energy Egg)
     CAPY_LSTATE_5_Underground = 5
 };
 
