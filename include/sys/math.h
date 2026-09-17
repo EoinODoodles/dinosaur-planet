@@ -17,6 +17,7 @@
 #define M_10_DEGREES  0x71C      // 10 degrees in the game's angle system
 #define M_15_DEGREES  0xAAA      // 15 degrees in the game's angle system
 #define M_20_DEGREES  0xE38      // 20 degrees in the game's angle system
+#define M_30_DEGREES  0x1555     // 30 degrees in the game's angle system
 #define M_45_DEGREES  0x2000     // 45 degrees in the game's angle system
 #define M_90_DEGREES  0x4000     // 90 degrees in the game's angle system
 #define M_180_DEGREES 0x8000     //180 degrees in the game's angle system
