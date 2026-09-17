@@ -734,6 +734,8 @@ static void trigger_process_commands(Object *self, Object *activator, s8 dir, s3
             break;
         case TRG_CMD_SAVE_POINT:
             // "Trigger [%d], Save Point\n" (default.dol)
+
+            //@bug: yaw is converted from angle16 to angle8 here, but Gplay's savepoint function expects an angle16 yaw argument
             gDLL_29_Gplay->vtbl->savepoint(&self->srt.transl, (self->srt.yaw >> 8), cmd->param2, mapGetLayer());
             break;
         case TRG_CMD_MAP_LAYER:
