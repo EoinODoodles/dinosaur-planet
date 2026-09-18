@@ -1115,11 +1115,11 @@ void dll_210_func_2534(Object* self, Player_Data* objData, ObjFSA_Data* fsa) {
     s32 hitDamage;
     s32 aState;
     Object *hitBy;
-    DLL_IModgfx* sp70 = NULL;
-    s32 sp60[4] = { 0x06, 0x69, 0x69, 0xff };
-    SRT sp48;
-    ModelInstance *new_var3;
-    MtxF *temp;
+    DLL_IModgfx* modGfxDLL = NULL;
+    s32 fxColour[4] = { 0x06, 0x69, 0x69, 0xff };
+    SRT fxTransform;
+    ModelInstance *modelInstance;
+    MtxF *mtx;
 
     hitType = func_80025F40(self, &hitBy, &hitSphereID, &hitDamage);
     if (func_80026724(self) == 0) {
@@ -1151,13 +1151,14 @@ void dll_210_func_2534(Object* self, Player_Data* objData, ObjFSA_Data* fsa) {
     fsa->lastHitType = hitType;
     self->curModAnimIdLayered = -1;
     aState = -1;
+
     switch (hitType) {
     // these cases might be incorrect
     case Damage_Type_2:
-    case Damage_Type_Fishing_Net: // 0x40
-    case Damage_Type_13: // 0x48
-    case Damage_Type_16: // 0x54
-    case Damage_Type_Flame_Command: // 0x64
+    case Damage_Type_Fishing_Net:
+    case Damage_Type_13:
+    case Damage_Type_16:
+    case Damage_Type_Flame_Command:
         break;
     case Damage_Type_7:
     case Damage_Type_8:
@@ -1220,14 +1221,14 @@ void dll_210_func_2534(Object* self, Player_Data* objData, ObjFSA_Data* fsa) {
                 break;
         }
         break;
-    case Damage_Type_3: // 0x8
-    case Damage_Type_6: // 0x14
-    case Damage_Type_D: // 0x30
-    case Damage_Type_E: // 0x34
-    case Damage_Type_Projectile: // 0x38
-    case Damage_Type_10: // 0x3C
-    case Damage_Type_Bullet: // 0x44
-    case Damage_Type_Ice_Blast: // 0x60
+    case Damage_Type_3:
+    case Damage_Type_6:
+    case Damage_Type_D:
+    case Damage_Type_E:
+    case Damage_Type_Projectile:
+    case Damage_Type_10:
+    case Damage_Type_Bullet:
+    case Damage_Type_Ice_Blast:
     default:
         aState = PLAYER_ASTATE_Hurt_Stagger;
         break;
@@ -1235,27 +1236,31 @@ void dll_210_func_2534(Object* self, Player_Data* objData, ObjFSA_Data* fsa) {
     
     if (objData->flags & 0x800) {
         hitDamage = 0;
+
         dll_amSfx->Play(self, SOUND_25B_Magic_Attack_Deflected, MAX_VOLUME, NULL, NULL, 0, NULL);
-        new_var3 = self->modelInsts[self->modelInstIdx];
-        temp = (MtxF *)new_var3->unk24;
-        sp48.transl.x = temp->m[hitSphereID][1] + gWorldX;
-        sp48.transl.y = temp->m[hitSphereID][2];
-        sp48.transl.z = temp->m[hitSphereID][3] + gWorldZ;
-        gDLL_17_partfx->vtbl->spawn(self, 0x328, &sp48, 0x200001, -1, NULL);
-        sp48.transl.x -= self->globalPosition.x;
-        sp48.transl.y -= self->globalPosition.y;
-        sp48.transl.z -= self->globalPosition.z;
-        sp70 = dllLoad(0x1002U, 1U);
-        sp60[1] += mathRnd(0, 0x9B);
-        sp60[2] += mathRnd(0, 0x9B);
-        sp48.yaw = 0;
-        sp48.pitch = 0;
-        sp48.roll = 0;
-        sp48.scale = 1.0f;
-        if ((s32)&sp70) {} // @fake
-        sp70->vtbl->func0(self, 0, &sp48, 1, -1, &sp60);
-        if (sp70 != NULL) {
-            dllFree(sp70);
+
+        modelInstance = self->modelInsts[self->modelInstIdx];
+        mtx = (MtxF *)modelInstance->unk24;
+        fxTransform.transl.x = mtx->m[hitSphereID][1] + gWorldX;
+        fxTransform.transl.y = mtx->m[hitSphereID][2];
+        fxTransform.transl.z = mtx->m[hitSphereID][3] + gWorldZ;
+        gDLL_17_partfx->vtbl->spawn(self, PARTICLE_328, &fxTransform, PARTFXFLAG_200000 | PARTFXFLAG_1, -1, NULL);
+
+        fxTransform.transl.x -= self->globalPosition.x;
+        fxTransform.transl.y -= self->globalPosition.y;
+        fxTransform.transl.z -= self->globalPosition.z;
+        modGfxDLL = dllLoad(DLL_ID_106, 1);
+        fxColour[1] += mathRnd(0, 155);
+        fxColour[2] += mathRnd(0, 155);
+        fxTransform.yaw = 0;
+        fxTransform.pitch = 0;
+        fxTransform.roll = 0;
+        fxTransform.scale = 1.0f;
+        if ((s32)&modGfxDLL) {} // @fake
+        modGfxDLL->vtbl->func0(self, 0, &fxTransform, 1, -1, &fxColour);
+
+        if (modGfxDLL != NULL) {
+            dllFree(modGfxDLL);
         }
     } else if (hitDamage != 0) {
         dll_amSfx->Play(self, objData->unk3B8[mathRnd(19, 21)], MAX_VOLUME, NULL, NULL, 0, NULL);
@@ -1268,7 +1273,9 @@ void dll_210_func_2534(Object* self, Player_Data* objData, ObjFSA_Data* fsa) {
             gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, aState);
         }
     }
+
     dll_210_add_health(self, -hitDamage);
+    
     if (objData->stats->health <= 0) {
         gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, PLAYER_ASTATE_Dead);
     }
