@@ -144,7 +144,7 @@ void WaterBaddie_obj_Setup(Object* self, Baddie_Setup* objSetup, s32 reset) {
     gDLL_33_BaddieControl->vtbl->setup(self, objSetup, baddie, 3, 5, 0x100, flags, 20.0f);
     
     self->animCallback = WaterBaddie_animCallback;
-    gDLL_18_objfsa->vtbl->set_anim_state(self, &baddie->fsa, 0);
+    gDLL_18_objfsa->vtbl->set_anim_state(self, &baddie->fsa, WaterBaddie_ASTATE_0_Turn_To_Target);
     baddie->fsa.logicState = WaterBaddie_LSTATE_4_Top;
     
     objData = baddie->objdata;
@@ -722,7 +722,7 @@ s32 WaterBaddie_logicState3Swimming(Object* self, ObjFSA_Data* fsa, f32 updateRa
     WaterBaddie_DataActual* objData;
 
     baddie = self->data;
-    gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, 1);
+    gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, WaterBaddie_ASTATE_1_Swimming);
     curves = baddie->unk3F8;
     objData = baddie->objdata;
     
