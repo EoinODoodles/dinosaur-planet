@@ -514,6 +514,8 @@ enum SoundID {
     SOUND_57C = 0x57C, //tesla.c
     SOUND_57D = 0x57D, //tesla.c
     SOUND_57E = 0x57E, //tesla.c
+    
+    SOUND_5B5_Explosion_Debris_Crash = 0x5B5,
 
     SOUND_5BC_SharpClaw_Laughing = 0x5BC, //"Rahhh-hehehehehhh!"
 

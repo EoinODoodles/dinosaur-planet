@@ -8,16 +8,16 @@ CFExplodeWall_obj_Print = 0x31C;
 CFExplodeWall_obj_Free = 0x334;
 CFExplodeWall_obj_GetModelFlags = 0x3C4;
 CFExplodeWall_obj_GetDataSize = 0x3D4;
-CFExplodeWall_func_3E8 = 0x3E8;
-CFExplodeWall_func_884 = 0x884;
-CFExplodeWall_func_C60 = 0xC60;
+CFExplodeWall_calculatePieceData = 0x3E8;
+CFExplodeWall_explode = 0x884;
+CFExplodeWall_createPiece = 0xC60;
 
 .rodata = 0xF54:
 str_0 = 0x0; // absolute:0xF54
 
 .data = 0x1004:
-data_0 = 0x0; // absolute:0x1004
-data_2E4 = 0x2E4; // absolute:0x12E8
+dPieceCoords = 0x0; // absolute:0x1004
+dExplodeDefs = 0x2E4; // absolute:0x12E8
 data_2E8 = 0x2E8; // absolute:0x12EC
 data_2EC = 0x2EC; // absolute:0x12F0
 data_2F0 = 0x2F0; // absolute:0x12F4
