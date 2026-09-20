@@ -1,5 +1,7 @@
 #include "common.h"
 #include "dlls/engine/6_amsfx.h"
+#include "dlls/objects/390_CFExplodeWall.h"
+#include "dlls/objects/404_CFExplodePieces.h"
 #include "game/objects/object.h"
 #include "macros.h"
 #include "sys/objtype.h"
@@ -7,51 +9,28 @@
 #define MAX_PIECES 15
 
 typedef struct {
-    ObjSetup base;
-    u8 pieceCount;
-    s16 yaw;
-    s16 pitch;
-    s16 roll;
-    Vec3s16 unk20;
-    s16 unk26;
-    s16 unk28;
-    s16 unk2A;
-    s16 unk2C;
-    s16 unk2E;
-    s16 unk30;
-    s16 unk32;
-    s16 unk34;
-    s16 unk36;
-    u16 unk38;
-    s16 unk3A;
-    s16 unk3C;
-    s16 gamebitFinished;
-    s16 gamebitExplode;
-} CFExplodeWall_Setup;
-
-typedef struct {
-    s32 unk0;
+    Object* unk0; //Unused
     Vec3f centrepoint;
-    Vec3f unk10;
-    Vec3f unk1C;
-    f32 unk28;
-    f32 unk2C;
-    f32 unk30;
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-    Vec3f unk40;
-    Vec3f unk4C;
-    f32 unk58;
-    s32 unk5C;
-    s32 unk60;
+    Vec3f positionOffset;
+    f32 yawSpeed;
+    f32 pitchSpeed;
+    f32 rollSpeed;
+    f32 yawAcceleration;
+    f32 pitchAcceleration;
+    f32 rollAcceleration;
+    Vec3f acceleration;
+    Vec3f velocity;
+    Vec3f initialPosition;
+    f32 floorOffset;
+    s32 lifetimeMax;
+    s32 fadeEndTime;
     s16 roll;
     s16 pitch;
     s16 yaw;
-    u8 unk6A;
-    u8 unk6B;
+    u8 state;
+    u8 unk6B; //Unused in practice, but possibly meant as opacity?
     u8 flags;
-    u8 unk6D;
+    u8 rotateFactor;
 } CFExplodeWall_PieceData;
 
 typedef struct {
@@ -63,23 +42,6 @@ typedef struct {
     u8 piecesConfigured[MAX_PIECES];
     u8 state;
 } CFExplodeWall_Data;
-
-typedef enum {
-    CFExplodeWall_STATE_0_Waiting,
-    CFExplodeWall_STATE_1_Exploding,
-    CFExplodeWall_STATE_2_Finished
-} CFExplodeWall_States;
-
-typedef enum {
-    CFExplodePiece_FLAG_1 = 1,
-    CFExplodePiece_FLAG_2 = 2,
-    CFExplodePiece_FLAG_4 = 4,
-    CFExplodePiece_FLAG_8 = 8,
-    CFExplodePiece_FLAG_10 = 0x10,
-    CFExplodePiece_FLAG_20 = 0x20,
-    CFExplodePiece_FLAG_40 = 0x40,
-    CFExplodePiece_FLAG_80 = 0x80
-} CFExplodePiece_Flags;
 
 /* Unused, but seem to be worldSpace coords for the pieces! */
 /*0x0*/ static Vec3f dPieceCoords[4][MAX_PIECES] = {
@@ -162,8 +124,8 @@ typedef enum {
 typedef struct {
     s32 objIDWhole;
     s32 objIDPieces;
-    s32 unk8;
-    u8 unkC;
+    s32 soundID;
+    u8 rotateSpeed;
 } ExplodeObjDef;
 
 /*0x2E4*/ static ExplodeObjDef dExplodeDefs[11] = {
@@ -240,7 +202,7 @@ void CFExplodeWall_obj_Control(Object* self) {
         if (mainGetBits(objSetup->gamebitExplode)) {
             CFExplodeWall_explode(self, objSetup, FALSE, objData);
             if (objData->explodeSoundID != NO_SOUND) {
-                gDLL_6_AMSFX->vtbl->Play(self, objData->explodeSoundID, MAX_VOLUME, NULL, NULL, 0, NULL);
+                dll_amSfx->Play(self, objData->explodeSoundID, MAX_VOLUME, NULL, NULL, 0, NULL);
             }
             objData->state = CFExplodeWall_STATE_1_Exploding;
             self->opacity = 0;
@@ -252,20 +214,20 @@ void CFExplodeWall_obj_Control(Object* self) {
     for (i = 0; i < ARRAYCOUNT(objData->pieceObjs); i++) {
         obj = objData->pieceObjs[i];
         if (obj) {
-            pieceVal = ((DLL_Unknown*)obj->dll)->vtbl->func[7].withOneArgS32(obj); //TODO: interface
+            pieceVal = dll_CFExplodePieces(obj)->GetState(obj);
             
             switch (pieceVal) {
-            case 2:
+            case CFExplodePieces_STATE_2_Finished:
                 //Free piece
                 mainSetBits(objSetup->gamebitFinished, TRUE);
                 objFreeObject(objData->pieceObjs[i]);
                 objData->pieceObjs[i] = NULL;
                 break;
-            case 0:
+            case CFExplodePieces_STATE_0_Stopped:
                 //Play piece impact sound
                 mainSetBits(objSetup->gamebitFinished, TRUE);
                 if ((objData->piecesSoundBitfield & (1 << i)) == FALSE) {
-                    gDLL_6_AMSFX->vtbl->Play(self, SOUND_5B5_Explosion_Debris_Crash, MAX_VOLUME, NULL, NULL, 0, NULL);
+                    dll_amSfx->Play(self, SOUND_5B5_Explosion_Debris_Crash, MAX_VOLUME, NULL, NULL, 0, NULL);
                     objData->piecesSoundBitfield |= 1 << i;
                 }
                 break;
@@ -317,24 +279,24 @@ static void CFExplodeWall_calculatePieceData(Object* self, CFExplodeWall_PieceDa
     f32 dx;
     f32 dy;
     f32 dz;
-    f32 sp38;
+    f32 force;
     f32 pad;
     f32 displacement;
-    s32 sp28;
+    s32 maxAngle;
 
-    mathRotateRPY((SRT*)&objSetup->yaw, piece->unk10.f);
+    mathRotateRPY((SRT*)&objSetup->yaw, piece->positionOffset.f);
     
-    piece->unk4C.x = objSetup->base.x + (piece->unk10.x * self->srt.scale);
-    piece->unk4C.y = objSetup->base.y + (piece->unk10.y * self->srt.scale);
-    piece->unk4C.z = objSetup->base.z + (piece->unk10.z * self->srt.scale);
+    piece->initialPosition.x = objSetup->base.x + (piece->positionOffset.x * self->srt.scale);
+    piece->initialPosition.y = objSetup->base.y + (piece->positionOffset.y * self->srt.scale);
+    piece->initialPosition.z = objSetup->base.z + (piece->positionOffset.z * self->srt.scale);
     
-    piece->yaw = objSetup->yaw;
+    piece->yaw   = objSetup->yaw;
     piece->pitch = objSetup->pitch;
-    piece->roll = objSetup->roll;
+    piece->roll  = objSetup->roll;
     
-    dx = piece->unk10.x - objSetup->unk20.x;
-    dy = piece->unk10.y - objSetup->unk20.y;
-    dz = piece->unk10.z - objSetup->unk20.z;
+    dx = piece->positionOffset.x - objSetup->displacementOrigin.x;
+    dy = piece->positionOffset.y - objSetup->displacementOrigin.y;
+    dz = piece->positionOffset.z - objSetup->displacementOrigin.z;
     displacement = sqrtf(SQ(dx) + SQ(dy) + SQ(dz));
     
     if (displacement == 0.0f) {
@@ -342,61 +304,62 @@ static void CFExplodeWall_calculatePieceData(Object* self, CFExplodeWall_PieceDa
         return;
     }
     
-    sp38 = objSetup->unk2C / (5.0f * displacement);
+    force = objSetup->explosionPower / (5.0f * displacement);
     if ((dx != 0.0f) || (dy != 0.0f) || (dz != 0.0f)) {
         guNormalize(&dx, &dy, &dz);
     }
     
-    piece->unk40.x = dx * sp38;
-    piece->unk40.y = dy * sp38;
-    piece->unk40.z = dz * sp38;
-    sp28 = (sp38 + 0.5f) * 200.0f;
+    piece->velocity.x = dx * force;
+    piece->velocity.y = dy * force;
+    piece->velocity.z = dz * force;
+
+    maxAngle = (force + 0.5f) * 200.0f;    
+    piece->yawSpeed   = mathRnd(0, maxAngle) / 50.0f;
+    piece->pitchSpeed = mathRnd(0, maxAngle) / 50.0f;
+    piece->rollSpeed  = mathRnd(0, maxAngle) / 50.0f;
     
-    piece->unk1C.x = mathRnd(0, sp28) / 50.0f;
-    piece->unk1C.y = mathRnd(0, sp28) / 50.0f;
-    piece->unk1C.z = mathRnd(0, sp28) / 50.0f;
-    
-    sp38 = objSetup->unk30 / 1000.0f;
-    sp28 = (sp38 + 0.5f) * 200.0f;
+    force = objSetup->acceleration / 1000.0f;
+    maxAngle = (force + 0.5f) * 200.0f;
     
     if (self->velocity.x > 0) {
-        piece->flags |= CFExplodePiece_FLAG_1;
+        piece->flags |= CFExplodePiece_FLAG_Translating_X;
     }
     if (self->velocity.z > 0) {
-        piece->flags |= CFExplodePiece_FLAG_2;
+        piece->flags |= CFExplodePiece_FLAG_Translating_Z;
     }
-    if (piece->unk1C.x > 0) {
-        piece->flags |= CFExplodePiece_FLAG_4;
+    if (piece->yawSpeed > 0) {
+        piece->flags |= CFExplodePiece_FLAG_Rotating_Yaw;
     }
-    if (piece->unk1C.y > 0) {
-        piece->flags |= CFExplodePiece_FLAG_8;
+    if (piece->pitchSpeed > 0) {
+        piece->flags |= CFExplodePiece_FLAG_Rotating_Pitch;
     }
-    if (piece->unk1C.z > 0) {
-        piece->flags |= CFExplodePiece_FLAG_10;
+    if (piece->rollSpeed > 0) {
+        piece->flags |= CFExplodePiece_FLAG_Rotating_Roll;
     }
     
-    piece->unk28 = mathRnd(0, sp28) / 200.0f;
-    piece->unk2C = mathRnd(0, sp28) / 200.0f;
-    piece->unk30 = mathRnd(0, sp28) / 200.0f;
-    piece->unk34 = dx * sp38;
-    piece->unk38 = (dy * sp38) - 0.07f;
-    piece->unk3C = dz * sp38;
+    piece->yawAcceleration   = mathRnd(0, maxAngle) / 200.0f;
+    piece->pitchAcceleration = mathRnd(0, maxAngle) / 200.0f;
+    piece->rollAcceleration  = mathRnd(0, maxAngle) / 200.0f;
+    piece->acceleration.x =  dx * force;
+    piece->acceleration.y = (dy * force) - 0.07f;
+    piece->acceleration.z =  dz * force;
 
-    if (objSetup->unk2E != 0) {
-        piece->unk58 = objSetup->unk2E;
+    if (objSetup->floorOffset != 0) {
+        piece->floorOffset = objSetup->floorOffset;
     }
     
-    piece->unk5C = objSetup->unk38;
+    piece->lifetimeMax = objSetup->lifetimeMax;
     
-    if (objSetup->unk38 != 0) {
-        piece->unk60 = ((mathRnd(0, 100) + 100) * objSetup->unk38) / 200;
+    if (objSetup->lifetimeMax != 0) {
+        piece->fadeEndTime = ((mathRnd(0, 100) + 100) * objSetup->lifetimeMax) / 200;
     } else {
-        piece->unk60 = -1;
+        piece->fadeEndTime = -1;
     }
 }
 
 // offset: 0x884 | func: 8
 void CFExplodeWall_explode(Object* self, CFExplodeWall_Setup* objSetup, s32 skipModelCentrepointCalc, CFExplodeWall_Data* objData) {
+    #define PIECE (&objData->pieceData[i])
     s32 sumX;
     s32 sumY;
     s32 sumZ;
@@ -405,13 +368,13 @@ void CFExplodeWall_explode(Object* self, CFExplodeWall_Setup* objSetup, s32 skip
     s32 vtxIdx;
     s32 objectID;
     s16 count;
-    u8 var_s7;
+    u8 rotateFactor;
     ModelInstance* modelInstance;
     Model* model;
     CFExplodeWall_PieceData* piece;
 
     objectID = -1;
-    var_s7 = 1;
+    rotateFactor = 1;
 
     if (1) { //fake?
         i = 0;
@@ -419,8 +382,8 @@ void CFExplodeWall_explode(Object* self, CFExplodeWall_Setup* objSetup, s32 skip
     for (; i < ARRAYCOUNT_S(dExplodeDefs); i++) {
         if (self->id == dExplodeDefs[i].objIDWhole) {
             objectID = dExplodeDefs[i].objIDPieces;
-            objData->explodeSoundID = dExplodeDefs[i].unk8;
-            var_s7 = dExplodeDefs[i].unkC;
+            objData->explodeSoundID = dExplodeDefs[i].soundID;
+            rotateFactor = dExplodeDefs[i].rotateSpeed;
             //@bug? doesn't break out after finding the matching objIDWhole
         }
     }
@@ -432,12 +395,12 @@ void CFExplodeWall_explode(Object* self, CFExplodeWall_Setup* objSetup, s32 skip
 
     for (i = 0; i < objData->pieceCount; i++) {
         objData->piecesConfigured[i] = TRUE;
-        (&objData->pieceData[i])->unk6D = var_s7;
+        PIECE->rotateFactor = rotateFactor;
         
         if (skipModelCentrepointCalc == FALSE) {
-            (&objData->pieceData[i])->centrepoint.x = 0.0f;
-            (&objData->pieceData[i])->centrepoint.y = 0.0f;
-            (&objData->pieceData[i])->centrepoint.z = 0.0f;
+            PIECE->centrepoint.x = 0.0f;
+            PIECE->centrepoint.y = 0.0f;
+            PIECE->centrepoint.z = 0.0f;
             
             sumX = 0;
             sumY = 0;
@@ -452,24 +415,26 @@ void CFExplodeWall_explode(Object* self, CFExplodeWall_Setup* objSetup, s32 skip
             sumX /= model->vertexCount;
             sumY /= model->vertexCount;
             sumZ /= model->vertexCount;
-            (&objData->pieceData[i])->centrepoint.x = sumX;
-            (&objData->pieceData[i])->centrepoint.y = sumY;
-            (&objData->pieceData[i])->centrepoint.z = sumZ;
+            PIECE->centrepoint.x = sumX;
+            PIECE->centrepoint.y = sumY;
+            PIECE->centrepoint.z = sumZ;
         }
         
-        (&objData->pieceData[i])->unk10.x = (&objData->pieceData[i])->centrepoint.x;
-        (&objData->pieceData[i])->unk10.y = (&objData->pieceData[i])->centrepoint.y;
-        (&objData->pieceData[i])->unk10.z = (&objData->pieceData[i])->centrepoint.z;
-        CFExplodeWall_calculatePieceData(self, (&objData->pieceData[i]), objSetup);
-        (&objData->pieceData[i])->unk6B = 0xFF;
+        PIECE->positionOffset.x = PIECE->centrepoint.x;
+        PIECE->positionOffset.y = PIECE->centrepoint.y;
+        PIECE->positionOffset.z = PIECE->centrepoint.z;
+
+        CFExplodeWall_calculatePieceData(self, PIECE, objSetup);
+
+        PIECE->unk6B = 0xFF;
         
         if (mainGetBits(objSetup->gamebitFinished)) {
-            (&objData->pieceData[i])->unk6A = 2;
+            PIECE->state = CFExplodeWall_STATE_2_Finished;
         } else {
-            (&objData->pieceData[i])->unk6A = 0;
+            PIECE->state = CFExplodeWall_STATE_0_Waiting;
         }
         
-        objData->pieceObjs[i] = CFExplodeWall_createPiece(self, objectID, &objData->pieceData[i], i);
+        objData->pieceObjs[i] = CFExplodeWall_createPiece(self, objectID, PIECE, i);
     }
 
     if (mainGetBits(objSetup->gamebitFinished)) {
@@ -484,9 +449,9 @@ void CFExplodeWall_explode(Object* self, CFExplodeWall_Setup* objSetup, s32 skip
 
 // offset: 0xC60 | func: 9
 Object* CFExplodeWall_createPiece(Object* self, s32 objectID, CFExplodeWall_PieceData* pieceData, s32 index) {
-    CFExplodeWall_Setup* setup;
+    CFExplodePieces_Setup* setup;
 
-    setup = objAllocSetup(sizeof(CFExplodeWall_Setup), objectID);
+    setup = objAllocSetup(sizeof(CFExplodePieces_Setup), objectID);
     setup->base.objId = objectID;
     setup->base.loadFlags = OBJSETUP_LOAD_MANUAL;
     setup->base.loadDistance = 0xFF;
@@ -495,23 +460,23 @@ Object* CFExplodeWall_createPiece(Object* self, s32 objectID, CFExplodeWall_Piec
     setup->base.x = self->srt.transl.x;
     setup->base.y = self->srt.transl.y;
     setup->base.z = self->srt.transl.z;
-    setup->unk20.x = pieceData->unk40.x * 100.0f;
-    setup->unk20.y = pieceData->unk40.y * 100.0f;
-    setup->unk20.z = pieceData->unk40.z * 100.0f;
-    setup->yaw = pieceData->yaw;
+    setup->velocity.x = pieceData->velocity.x * 100.0f;
+    setup->velocity.y = pieceData->velocity.y * 100.0f;
+    setup->velocity.z = pieceData->velocity.z * 100.0f;
+    setup->yaw   = pieceData->yaw;
     setup->pitch = pieceData->pitch;
-    setup->roll = pieceData->roll;
-    setup->unk2C = pieceData->unk1C.x * pieceData->unk6D;
-    setup->unk2E = pieceData->unk1C.y * pieceData->unk6D;
-    setup->unk30 = pieceData->unk1C.z * pieceData->unk6D;
-    setup->unk32 = pieceData->unk28 * 10.0f;
-    setup->unk36 = pieceData->unk30 * 10.0f;
-    setup->unk34 = pieceData->unk2C * 10.0f;
-    setup->unk26 = pieceData->unk34 * 1000.0f;
-    setup->unk28 = pieceData->unk38 * 1000.0f;
-    setup->unk2A = pieceData->unk3C * 1000.0f;
-    setup->pieceCount = index;
-    setup->unk38 = pieceData->unk5C;
-    setup->unk3A = pieceData->unk58;
+    setup->roll  = pieceData->roll;
+    setup->yawSpeed   = pieceData->yawSpeed   * pieceData->rotateFactor;
+    setup->pitchSpeed = pieceData->pitchSpeed * pieceData->rotateFactor;
+    setup->rollSpeed  = pieceData->rollSpeed  * pieceData->rotateFactor;
+    setup->yawAcceleration   = pieceData->yawAcceleration   * 10.0f;
+    setup->rollAcceleration  = pieceData->rollAcceleration  * 10.0f;
+    setup->pitchAcceleration = pieceData->pitchAcceleration * 10.0f;
+    setup->acceleration.x = pieceData->acceleration.x * 1000.0f;
+    setup->acceleration.y = pieceData->acceleration.y * 1000.0f;
+    setup->acceleration.z = pieceData->acceleration.z * 1000.0f;
+    setup->modelIdx = index;
+    setup->lifetimeMax = pieceData->lifetimeMax;
+    setup->floorOffset = (s16)pieceData->floorOffset;
     return objSetupObject(&setup->base, OBJINIT_STANDALONE | OBJINIT_FLAG4, -1, -1, NULL);
 }

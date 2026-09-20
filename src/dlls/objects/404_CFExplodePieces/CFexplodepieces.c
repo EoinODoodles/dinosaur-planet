@@ -1,28 +1,8 @@
 #include "common.h"
+#include "dlls/objects/404_CFExplodePieces.h"
 #include "game/objects/object.h"
 #include "macros.h"
 #include "sys/gfx/model.h"
-
-typedef struct {
-    ObjSetup base;
-    u8 modelIdx;
-    s16 yaw;
-    s16 pitch;
-    s16 roll;
-    Vec3s16 velocity;
-    Vec3s16 acceleration;
-    s16 yawSpeed;
-    s16 pitchSpeed;
-    s16 rollSpeed;
-    s16 yawAcceleration;
-    s16 pitchAcceleration;
-    s16 rollAcceleration;
-    u16 lifetimeMax;
-    u16 floorOffset;
-    s16 unk3C;
-    s16 gamebitFinished;
-    s16 gamebitExplode;
-} CFExplodePieces_Setup;
 
 typedef struct {
     Vec3f centrepoint;
@@ -40,20 +20,10 @@ typedef struct {
     s32 fadeEndTime;
     u8 _unk60[0x66 - 0x60];
     u8 flags;
-    u8 unk67;
-    u8 unk68;
+    u8 unk67; //Unused in practice, but possibly meant as opacity?
+    u8 _unk68;
     u8 state;
 } CFExplodePieces_Data;
-
-typedef enum {
-    CFExplodePieces_STATE_0_Stopped,
-    CFExplodePieces_STATE_1_Moving,
-    CFExplodePieces_STATE_2_Finished
-} CFExplodePieces_States;
-
-typedef enum {
-    CFExplodePieces_FLAGS_4_Touching_Ground = 4
-} CFExplodePieces_Flags;
 
 static s32 CFExplodePieces_fadeOut(Object* self, CFExplodePieces_Data* objData);
 static s32 CFExplodePieces_move(Object* self, CFExplodePieces_Data* objData);
@@ -141,9 +111,9 @@ s32 CFExplodePieces_move(Object* self, CFExplodePieces_Data* objData) {
     self->velocity.y += gUpdateRateF * objData->acceleration.y;
     self->velocity.z += gUpdateRateF * objData->acceleration.z;
     
-    objData->yawSpeed += gUpdateRateF * objData->yawAcceleration;
+    objData->yawSpeed   += gUpdateRateF * objData->yawAcceleration;
     objData->pitchSpeed += gUpdateRateF * objData->pitchAcceleration;
-    objData->rollSpeed += gUpdateRateF * objData->rollAcceleration;
+    objData->rollSpeed  += gUpdateRateF * objData->rollAcceleration;
 
     self->srt.transl.x += self->velocity.x * gUpdateRateF;
     self->srt.transl.y += self->velocity.y * gUpdateRateF;
@@ -197,9 +167,9 @@ s32 CFExplodePieces_move(Object* self, CFExplodePieces_Data* objData) {
         objData->flags &= ~CFExplodePieces_FLAGS_4_Touching_Ground;
     }
     
-    self->srt.yaw += objData->yawSpeed * gUpdateRateF;
+    self->srt.yaw   += objData->yawSpeed   * gUpdateRateF;
     self->srt.pitch += objData->pitchSpeed * gUpdateRateF;
-    self->srt.roll += objData->rollSpeed * gUpdateRateF;
+    self->srt.roll  += objData->rollSpeed  * gUpdateRateF;
     
     return FALSE;
 }
@@ -245,15 +215,15 @@ static void CFExplodePieces_setupPhysics(Object* self, CFExplodePieces_Data* obj
     self->srt.transl.x = objSetup->base.x + (objData->positionOffset.x * self->srt.scale);
     self->srt.transl.y = objSetup->base.y + (objData->positionOffset.y * self->srt.scale);
     self->srt.transl.z = objSetup->base.z + (objData->positionOffset.z * self->srt.scale);
-    self->srt.yaw = objSetup->yaw;
+    self->srt.yaw   = objSetup->yaw;
     self->srt.pitch = objSetup->pitch;
-    self->srt.roll = objSetup->roll;
+    self->srt.roll  = objSetup->roll;
     self->velocity.x = objSetup->velocity.x / 100.0f;
     self->velocity.y = objSetup->velocity.y / 100.0f;
     self->velocity.z = objSetup->velocity.z / 100.0f;
-    objData->yawSpeed = objSetup->yawSpeed;
+    objData->yawSpeed   = objSetup->yawSpeed;
     objData->pitchSpeed = objSetup->pitchSpeed;
-    objData->rollSpeed = objSetup->rollSpeed;
+    objData->rollSpeed  = objSetup->rollSpeed;
 
     if (objSetup->floorOffset == 0) {
         trackGetHeightFloor(self, self->srt.transl.x, self->srt.transl.y - 10.0f, self->srt.transl.z, &floorHeight, 0);
@@ -262,9 +232,9 @@ static void CFExplodePieces_setupPhysics(Object* self, CFExplodePieces_Data* obj
         objData->heightFromGround = self->srt.transl.y + (s16) objSetup->floorOffset;
     }
     
-    objData->yawAcceleration = objSetup->yawAcceleration / 10.0f;
+    objData->yawAcceleration   = objSetup->yawAcceleration   / 10.0f;
     objData->pitchAcceleration = objSetup->pitchAcceleration / 10.0f;
-    objData->rollAcceleration = objSetup->rollAcceleration / 10.0f;
+    objData->rollAcceleration  = objSetup->rollAcceleration  / 10.0f;
     objData->acceleration.x = objSetup->acceleration.x / 1000.0f;
     objData->acceleration.y = objSetup->acceleration.y / 1000.0f;
     objData->acceleration.z = objSetup->acceleration.z / 1000.0f;
