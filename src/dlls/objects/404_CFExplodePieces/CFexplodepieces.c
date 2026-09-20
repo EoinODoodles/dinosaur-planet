@@ -1,5 +1,6 @@
 #include "common.h"
 #include "game/objects/object.h"
+#include "macros.h"
 #include "sys/gfx/model.h"
 
 typedef struct {
@@ -8,44 +9,55 @@ typedef struct {
     s16 yaw;
     s16 pitch;
     s16 roll;
-    Vec3s16 unk20;
-    s16 unk26;
-    s16 unk28;
-    s16 unk2A;
-    s16 unk2C;
-    s16 unk2E;
-    s16 unk30;
-    s16 unk32;
-    s16 unk34;
-    s16 unk36;
-    u16 unk38;
-    u16 unk3A;
+    Vec3s16 velocity;
+    Vec3s16 acceleration;
+    s16 yawSpeed;
+    s16 pitchSpeed;
+    s16 rollSpeed;
+    s16 yawAcceleration;
+    s16 pitchAcceleration;
+    s16 rollAcceleration;
+    u16 lifetimeMax;
+    u16 floorOffset;
     s16 unk3C;
     s16 gamebitFinished;
     s16 gamebitExplode;
 } CFExplodePieces_Setup;
 
 typedef struct {
-    Vec3f unk0;
-    Vec3f unkC;
-    Vec3f unk18;
-    Vec3f unk24;
+    Vec3f centrepoint;
+    Vec3f positionOffset;
+    f32 yawSpeed;
+    f32 pitchSpeed;
+    f32 rollSpeed;
+    f32 yawAcceleration;
+    f32 pitchAcceleration;
+    f32 rollAcceleration;
     Vec3f acceleration;
-    u8 _unk3C[0x54 - 0x3C];
-    f32 unk54;
-    s32 unk58;
-    s32 unk5C;
+    SRT _unk3C;
+    f32 heightFromGround;
+    s32 fadeTimer;
+    s32 fadeEndTime;
     u8 _unk60[0x66 - 0x60];
-    u8 unk66;
+    u8 flags;
     u8 unk67;
     u8 unk68;
-    u8 unk69;
-    u8 _unk6A[0x6C - 0x6A];
+    u8 state;
 } CFExplodePieces_Data;
 
-static s32 CFExplodePieces_func_16C(Object* self, CFExplodePieces_Data* objData);
-static s32 CFExplodePieces_func_1E0(Object* self, CFExplodePieces_Data* objData);
-static void CFExplodePieces_func_804(Object* self, CFExplodePieces_Setup* objSetup, s32 reset, CFExplodePieces_Data* objData);
+typedef enum {
+    CFExplodePieces_STATE_0_Stopped,
+    CFExplodePieces_STATE_1_Moving,
+    CFExplodePieces_STATE_2_Finished
+} CFExplodePieces_States;
+
+typedef enum {
+    CFExplodePieces_FLAGS_4_Touching_Ground = 4
+} CFExplodePieces_Flags;
+
+static s32 CFExplodePieces_fadeOut(Object* self, CFExplodePieces_Data* objData);
+static s32 CFExplodePieces_move(Object* self, CFExplodePieces_Data* objData);
+static void CFExplodePieces_setupModelAndPhysics(Object* self, CFExplodePieces_Setup* objSetup, s32 reset, CFExplodePieces_Data* objData);
 
 // offset: 0x0 | ctor
 void CFExplodePieces_ctor(void* dll) { }
@@ -62,12 +74,14 @@ void CFExplodePieces_obj_Setup(Object* self, CFExplodePieces_Setup* objSetup, s3
     objData = self->data;
     self->modelInstIdx = objSetup->modelIdx;
 
-    CFExplodePieces_func_804(self, objSetup, reset, objData);
+    CFExplodePieces_setupModelAndPhysics(self, objSetup, reset, objData);
     
-    if (objSetup->unk20.x || objSetup->unk20.y || objSetup->unk20.z || objSetup->unk26 || objSetup->unk28 || objSetup->unk2A) {
-        objData->unk69 = 1;
+    if (objSetup->velocity.x || objSetup->velocity.y || objSetup->velocity.z || 
+        objSetup->acceleration.x || objSetup->acceleration.y || objSetup->acceleration.z
+    ) {
+        objData->state = CFExplodePieces_STATE_1_Moving;
     } else {
-        objData->unk69 = 0;
+        objData->state = CFExplodePieces_STATE_0_Stopped;
     }
 }
 
@@ -75,36 +89,37 @@ void CFExplodePieces_obj_Setup(Object* self, CFExplodePieces_Setup* objSetup, s3
 void CFExplodePieces_obj_Control(Object* self) {
     CFExplodePieces_Data* objData = self->data;
     
-    switch (objData->unk69) {
-    case 0:
-    case 2:
+    switch (objData->state) {
+    case CFExplodePieces_STATE_0_Stopped:
+    case CFExplodePieces_STATE_2_Finished:
         break;
-    case 1:
-        if (CFExplodePieces_func_1E0(self, objData)) {
-            objData->unk69 = 0;
+    case CFExplodePieces_STATE_1_Moving:
+        if (CFExplodePieces_move(self, objData)) {
+            objData->state = CFExplodePieces_STATE_0_Stopped;
         }
         break;
     }
     
-    if (CFExplodePieces_func_16C(self, objData)) {
-        objData->unk69 = 2;
+    if (CFExplodePieces_fadeOut(self, objData)) {
+        objData->state = CFExplodePieces_STATE_2_Finished;
     }
 }
 
 // offset: 0x16C | func: 2
-s32 CFExplodePieces_func_16C(Object* self, CFExplodePieces_Data* objData) {
+s32 CFExplodePieces_fadeOut(Object* self, CFExplodePieces_Data* objData) {
     s32 opacity;
 
-    if (objData->unk5C != -1) {
-        objData->unk58 += gUpdateRate;
-        if (objData->unk58 >= objData->unk5C) {
-            objData->unk5C = -1;
+    if (objData->fadeEndTime != -1) {
+        objData->fadeTimer += gUpdateRate;
+        if (objData->fadeTimer >= objData->fadeEndTime) {
+            objData->fadeEndTime = -1;
             self->opacity = 0;
             self->srt.flags |= OBJFLAG_INVISIBLE;
             return 1;
         } else {
-            opacity = objData->unk5C - objData->unk58;
+            opacity = objData->fadeEndTime - objData->fadeTimer;
             if (opacity < OBJECT_OPACITY_MAX) {
+                //@bug: opacity could be given a negative value here at the end
                 self->opacity = opacity;
             }
         }
@@ -114,33 +129,42 @@ s32 CFExplodePieces_func_16C(Object* self, CFExplodePieces_Data* objData) {
 }
 
 // offset: 0x1E0 | func: 3
-s32 CFExplodePieces_func_1E0(Object* self, CFExplodePieces_Data* objData) {
+/**
+  * The piece spins through the air, bounces off the ground, and eventually slides to a halt on the ground.
+  *
+  * Returns TRUE when the motion is finished.
+  */
+s32 CFExplodePieces_move(Object* self, CFExplodePieces_Data* objData) {
     f32 lateralSpeed;
 
     self->velocity.x += gUpdateRateF * objData->acceleration.x;
     self->velocity.y += gUpdateRateF * objData->acceleration.y;
     self->velocity.z += gUpdateRateF * objData->acceleration.z;
     
-    objData->unk18.x += gUpdateRateF * objData->unk24.x;
-    objData->unk18.y += gUpdateRateF * objData->unk24.y;
-    objData->unk18.z += gUpdateRateF * objData->unk24.z;
+    objData->yawSpeed += gUpdateRateF * objData->yawAcceleration;
+    objData->pitchSpeed += gUpdateRateF * objData->pitchAcceleration;
+    objData->rollSpeed += gUpdateRateF * objData->rollAcceleration;
 
     self->srt.transl.x += self->velocity.x * gUpdateRateF;
     self->srt.transl.y += self->velocity.y * gUpdateRateF;
     self->srt.transl.z += self->velocity.z * gUpdateRateF;
     
-    if (self->srt.transl.y < objData->unk54) {
+    //Bounce
+    if (self->srt.transl.y < objData->heightFromGround) {
         self->velocity.y = -self->velocity.y * 0.5f;
         objData->acceleration.y = -0.07f;
-        objData->unk24.z = -objData->unk24.z;
-        if (((self->velocity.y > 0) && (objData->unk66 & 4)) || (self->velocity.y == 0)) {
+        objData->rollAcceleration = -objData->rollAcceleration;
+
+        //Stop vertical motion, slide to a halt
+        if (((self->velocity.y > 0) && (objData->flags & CFExplodePieces_FLAGS_4_Touching_Ground)) || (self->velocity.y == 0)) {
             objData->acceleration.y = 0;
-            objData->unk24.z = 0;
-            objData->unk18.z = 0;
-            objData->unk24.y = 0;
-            objData->unk18.y = 0;
-            objData->unk24.x = 0;
-            objData->unk18.x = 0;
+
+            objData->rollAcceleration = 0;
+            objData->rollSpeed = 0;
+            objData->pitchAcceleration = 0;
+            objData->pitchSpeed = 0;
+            objData->yawAcceleration = 0;
+            objData->yawSpeed = 0;
             
             self->velocity.y = 0;
             
@@ -163,21 +187,21 @@ s32 CFExplodePieces_func_1E0(Object* self, CFExplodePieces_Data* objData) {
                 }
                 
                 if (lateralSpeed < 0.15f) {
-                    return 1;
+                    return TRUE;
                 }
             }
         }
 
-        objData->unk66 |= 4;
+        objData->flags |= CFExplodePieces_FLAGS_4_Touching_Ground;
     } else {
-        objData->unk66 &= ~4;
+        objData->flags &= ~CFExplodePieces_FLAGS_4_Touching_Ground;
     }
     
-    self->srt.yaw += objData->unk18.x * gUpdateRateF;
-    self->srt.pitch += objData->unk18.y * gUpdateRateF;
-    self->srt.roll += objData->unk18.z * gUpdateRateF;
+    self->srt.yaw += objData->yawSpeed * gUpdateRateF;
+    self->srt.pitch += objData->pitchSpeed * gUpdateRateF;
+    self->srt.roll += objData->rollSpeed * gUpdateRateF;
     
-    return 0;
+    return FALSE;
 }
 
 // offset: 0x4B8 | func: 4 | export: 2
@@ -207,54 +231,55 @@ u32 CFExplodePieces_obj_GetDataSize(Object* self, u32 offsetAddr) {
 }
 
 // offset: 0x554 | func: 9 | export: 7
-u8 CFExplodePieces_Func_554(Object* self) {
+u8 CFExplodePieces_GetState(Object* self) {
     CFExplodePieces_Data* objData = self->data;
-    return objData->unk69;
+    return objData->state;
 }
 
 /*0x24*/ static const char str_24[] = " Hieght From Ground %i ";
 
 // offset: 0x564 | func: 10
-static void CFExplodePieces_func_564(Object* self, CFExplodePieces_Data* objData, CFExplodePieces_Setup* objSetup) {
+static void CFExplodePieces_setupPhysics(Object* self, CFExplodePieces_Data* objData, CFExplodePieces_Setup* objSetup) {
     f32 floorHeight = 0.0f;
     
-    self->srt.transl.x = objSetup->base.x + (objData->unkC.x * self->srt.scale);
-    self->srt.transl.y = objSetup->base.y + (objData->unkC.y * self->srt.scale);
-    self->srt.transl.z = objSetup->base.z + (objData->unkC.z * self->srt.scale);
+    self->srt.transl.x = objSetup->base.x + (objData->positionOffset.x * self->srt.scale);
+    self->srt.transl.y = objSetup->base.y + (objData->positionOffset.y * self->srt.scale);
+    self->srt.transl.z = objSetup->base.z + (objData->positionOffset.z * self->srt.scale);
     self->srt.yaw = objSetup->yaw;
     self->srt.pitch = objSetup->pitch;
     self->srt.roll = objSetup->roll;
-    self->velocity.x = objSetup->unk20.x / 100.0f;
-    self->velocity.y = objSetup->unk20.y / 100.0f;
-    self->velocity.z = objSetup->unk20.z / 100.0f;
-    objData->unk18.x = objSetup->unk2C;
-    objData->unk18.y = objSetup->unk2E;
-    objData->unk18.z = objSetup->unk30;
+    self->velocity.x = objSetup->velocity.x / 100.0f;
+    self->velocity.y = objSetup->velocity.y / 100.0f;
+    self->velocity.z = objSetup->velocity.z / 100.0f;
+    objData->yawSpeed = objSetup->yawSpeed;
+    objData->pitchSpeed = objSetup->pitchSpeed;
+    objData->rollSpeed = objSetup->rollSpeed;
 
-    if (objSetup->unk3A == 0) {
+    if (objSetup->floorOffset == 0) {
         trackGetHeightFloor(self, self->srt.transl.x, self->srt.transl.y - 10.0f, self->srt.transl.z, &floorHeight, 0);
-        objData->unk54 = self->srt.transl.y - floorHeight;
+        objData->heightFromGround = self->srt.transl.y - floorHeight;
     } else {
-        objData->unk54 = self->srt.transl.y + (s16) objSetup->unk3A;
+        objData->heightFromGround = self->srt.transl.y + (s16) objSetup->floorOffset;
     }
     
-    objData->unk24.x = objSetup->unk32 / 10.0f;
-    objData->unk24.y = objSetup->unk34 / 10.0f;
-    objData->unk24.z = objSetup->unk36 / 10.0f;
-    objData->acceleration.x = objSetup->unk26 / 1000.0f;
-    objData->acceleration.y = objSetup->unk28 / 1000.0f;
-    objData->acceleration.z = objSetup->unk2A / 1000.0f;
-    objData->unk58 = 0;
+    objData->yawAcceleration = objSetup->yawAcceleration / 10.0f;
+    objData->pitchAcceleration = objSetup->pitchAcceleration / 10.0f;
+    objData->rollAcceleration = objSetup->rollAcceleration / 10.0f;
+    objData->acceleration.x = objSetup->acceleration.x / 1000.0f;
+    objData->acceleration.y = objSetup->acceleration.y / 1000.0f;
+    objData->acceleration.z = objSetup->acceleration.z / 1000.0f;
+    objData->fadeTimer = 0;
     
-    if (objSetup->unk38) {
-        objData->unk5C = ((mathRnd(0, 100) + 100) * objSetup->unk38) / 200;
+    //Set fade end time (randomised, anywhere from 50% to 100% of lifetimeMax)
+    if (objSetup->lifetimeMax) {
+        objData->fadeEndTime = ((mathRnd(0, 100) + 100) * objSetup->lifetimeMax) / 200;
     } else {
-        objData->unk5C = -1;
+        objData->fadeEndTime = -1;
     }
 }
 
 // offset: 0x804 | func: 11
-void CFExplodePieces_func_804(Object* self, CFExplodePieces_Setup* objSetup, s32 reset, CFExplodePieces_Data* objData) {
+void CFExplodePieces_setupModelAndPhysics(Object* self, CFExplodePieces_Setup* objSetup, s32 reset, CFExplodePieces_Data* objData) {
     Vtx* vtxs0;
     Vtx* vtxs1;
     s32 i;
@@ -265,7 +290,8 @@ void CFExplodePieces_func_804(Object* self, CFExplodePieces_Setup* objSetup, s32
     Model* model;
     
     if (reset == FALSE) {
-        objData->unk0.z = (objData->unk0.y = (objData->unk0.x = 0.0f));
+        //Calculate model centrepoint
+        objData->centrepoint.z = objData->centrepoint.y = objData->centrepoint.x = 0.0f;
         
         averageX = 0;
         averageY = 0;
@@ -283,6 +309,7 @@ void CFExplodePieces_func_804(Object* self, CFExplodePieces_Setup* objSetup, s32
         averageY /= model->vertexCount;
         averageZ /= model->vertexCount;
         
+        //Move model vertices so the centrepoint's at the origin
         vtxs0 = modelInstance->vertices[0];
         vtxs1 = modelInstance->vertices[1];
         
@@ -297,16 +324,18 @@ void CFExplodePieces_func_804(Object* self, CFExplodePieces_Setup* objSetup, s32
             } 
         } 
         
-        objData->unk0.x = averageX; 
-        objData->unk0.y = averageY; 
-        objData->unk0.z = averageZ; 
+        //Store centrepoint
+        objData->centrepoint.x = averageX; 
+        objData->centrepoint.y = averageY; 
+        objData->centrepoint.z = averageZ; 
     }
     
-    objData->unkC.x = objData->unk0.x;
-    objData->unkC.y = objData->unk0.y;
-    objData->unkC.z = objData->unk0.z;
+    //Set the original model centrepoint as the Object's initial position offset
+    objData->positionOffset.x = objData->centrepoint.x;
+    objData->positionOffset.y = objData->centrepoint.y;
+    objData->positionOffset.z = objData->centrepoint.z;
     
-    CFExplodePieces_func_564(self, objData, objSetup);
+    CFExplodePieces_setupPhysics(self, objData, objSetup);
     
     objData->unk67 = 0xFF;
 }

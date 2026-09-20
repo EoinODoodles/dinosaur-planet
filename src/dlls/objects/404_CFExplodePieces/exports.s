@@ -15,4 +15,4 @@ _exports:
 /*4*/ .dword CFExplodePieces_obj_Free
 /*5*/ .dword CFExplodePieces_obj_GetModelFlags
 /*6*/ .dword CFExplodePieces_obj_GetDataSize
-/*7*/ .dword CFExplodePieces_Func_554
+/*7*/ .dword CFExplodePieces_GetState
