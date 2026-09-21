@@ -714,7 +714,7 @@ enum SoundID {
     SOUND_855 = 0x855,
     SOUND_856 = 0x856,
     SOUND_857 = 0x857,
-    SOUND_858 = 0x858,
+    SOUND_858_Explosion = 0x858, //CFExplodeFloor/CFExplodeWall/DRSmallExplodeW/DRExplodeWall
 
     SOUND_860_Explosion_Mid = 0x860, //DRexplodeDoor
     
