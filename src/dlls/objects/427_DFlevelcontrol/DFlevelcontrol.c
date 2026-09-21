@@ -41,7 +41,7 @@ void DFlevelcontrol_obj_Setup(Object* self, ObjSetup* setup, s32 reset) {
         objdata->state = DFLevelControl_STATE_0_Shrine_Door_Closed;
     }
 
-    objdata->unk1 = mainGetBits(BIT_342);
+    objdata->unk1 = mainGetBits(BIT_DF_Demolition_Cave_Destroyed_Whirlpool_Wall_4);
     mainSetBits(BIT_8DE, 1 - objdata->unk1);
 
     objdata->mapID = -1;
@@ -66,7 +66,7 @@ void DFlevelcontrol_obj_Control(Object* self) {
     }
     objdata->mapID = mapWorldXZToMapID(player->srt.transl.x, player->srt.transl.z);
 
-    if ((objdata->unk1 == FALSE) && (mainGetBits(BIT_342))) {
+    if ((objdata->unk1 == FALSE) && (mainGetBits(BIT_DF_Demolition_Cave_Destroyed_Whirlpool_Wall_4))) {
         mainSetBits(BIT_Kyte_Flight_Curve, 70);
         mainSetBits(BIT_8DE, FALSE);
         objdata->unk1 = TRUE;
@@ -85,7 +85,7 @@ void DFlevelcontrol_obj_Control(Object* self) {
         break;
     case DFLevelControl_STATE_1_Shrine_Door_Unlocked:
         if (gDLL_29_Gplay->vtbl->get_obj_group_status(self->mapID, DF_ObjGroup11_Shrine_Door)) {
-            mainSetBits(BIT_4A1, TRUE);
+            mainSetBits(BIT_DF_Seq_0035_Shrine_Door_Opens, TRUE);
             objdata->state++;
         }
         break;

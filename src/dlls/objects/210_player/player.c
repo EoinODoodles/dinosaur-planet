@@ -807,7 +807,7 @@ void dll_210_func_11A0(Object* player, Player_Data* arg1, f32 arg2) {
             func_8002635C(player, NULL, Damage_Type_1, 0, 0);
             break;
         case 28:
-            if ((mainGetBits(BIT_21) == 0) && (arg1->unk87C != 0x1D7)) {
+            if ((mainGetBits(BIT_DF_Toxic_Cave_Destroyed_Gas_Vent) == FALSE) && (arg1->unk87C != BIT_Spell_Forcefield)) {
                 arg1->unk88E = arg1->unk88E + arg2;
                 if (arg1->unk88E >= 0x79) {
                     arg1->unk88E -= 0x78;
