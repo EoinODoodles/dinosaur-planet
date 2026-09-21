@@ -10,7 +10,7 @@
 
 typedef struct {
 /*00*/ u8 state;
-/*01*/ u8 unk1;
+/*01*/ u8 openedWhirlpoolCave;
 /*02*/ u8 mapID;
 /*03*/ u8 unk3;
 } DFlevelcontrol_Data;
@@ -32,17 +32,17 @@ void DFlevelcontrol_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
 void DFlevelcontrol_obj_Setup(Object* self, ObjSetup* setup, s32 reset) {
-    DFlevelcontrol_Data* objdata;
+    DFlevelcontrol_Data* objdata = self->data;
 
-    objdata = self->data;
-    if (mainGetBits(BIT_10D)) {
+    if (mainGetBits(BIT_DF_Shrine_Door_Opened)) {
         objdata->state = DFLevelControl_STATE_2_Finished;
     } else {
         objdata->state = DFLevelControl_STATE_0_Shrine_Door_Closed;
     }
 
-    objdata->unk1 = mainGetBits(BIT_DF_Demolition_Cave_Destroyed_Whirlpool_Wall_4);
-    mainSetBits(BIT_8DE, 1 - objdata->unk1);
+    objdata->openedWhirlpoolCave = mainGetBits(BIT_DF_Demolition_Cave_Destroyed_Whirlpool_Wall_4);
+    
+    mainSetBits(BIT_DF_8DE, 1 - objdata->openedWhirlpoolCave);
 
     objdata->mapID = -1;
 }
@@ -66,10 +66,10 @@ void DFlevelcontrol_obj_Control(Object* self) {
     }
     objdata->mapID = mapWorldXZToMapID(player->srt.transl.x, player->srt.transl.z);
 
-    if ((objdata->unk1 == FALSE) && (mainGetBits(BIT_DF_Demolition_Cave_Destroyed_Whirlpool_Wall_4))) {
+    if ((objdata->openedWhirlpoolCave == FALSE) && (mainGetBits(BIT_DF_Demolition_Cave_Destroyed_Whirlpool_Wall_4))) {
         mainSetBits(BIT_Kyte_Flight_Curve, 70);
-        mainSetBits(BIT_8DE, FALSE);
-        objdata->unk1 = TRUE;
+        mainSetBits(BIT_DF_8DE, FALSE);
+        objdata->openedWhirlpoolCave = TRUE;
     }
 
     //Shrine Door State Machine

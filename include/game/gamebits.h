@@ -272,8 +272,8 @@ typedef enum {
     BIT_109 = 0x109, // len:1 group:1
     BIT_DF_Play_Seq_0016_Kyte_Secures_Rope_Near_BWC = 0x10A, // len:1 group:0
     BIT_DF_Played_Seq_0016_Kyte_Secures_Rope_Near_BWC = 0x10B, // len:1 group:1
-    BIT_10C = 0x10C, // len:1 group:0
-    BIT_10D = 0x10D, // len:1 group:1
+    BIT_DF_Shrine_Door_Opens = 0x10C, // len:1 group:0
+    BIT_DF_Shrine_Door_Opened = 0x10D, // len:1 group:1
     BIT_DF_Play_Seq_0031_Activate_Shrine_Switch_1 = 0x10E, // len:1 group:0
     BIT_DF_Play_Seq_0032_Activate_Shrine_Switch_2 = 0x10F, // len:1 group:0
     BIT_DF_Play_Seq_0033_Activate_Shrine_Switch_3 = 0x110, // len:1 group:0
@@ -2273,7 +2273,7 @@ typedef enum {
     BIT_8DB = 0x8DB, // len:1 group:0
     BIT_8DC = 0x8DC, // len:1 group:0
     BIT_8DD = 0x8DD, // len:1 group:0
-    BIT_8DE = 0x8DE, // len:1 group:0
+    BIT_DF_8DE = 0x8DE, // len:1 group:0 //Unset when Discovery Falls' whirlpool cave is opened?
     BIT_8DF = 0x8DF, // len:1 group:0
     BIT_8E0 = 0x8E0, // len:1 group:0
     BIT_8E1 = 0x8E1, // len:1 group:0
