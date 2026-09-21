@@ -314,6 +314,13 @@ typedef struct {
 /*0b*/  s8 unkB;
 } GlobalMapCell; //size 0xC
 
+typedef struct {
+    s32 xMin;
+    s32 xMax;
+    s32 zMin;
+    s32 zMax;
+} VisGridRange;
+
 // size: 0xA
 typedef struct Struct_D_800B9768_unk4 {
     s16 xMin;
