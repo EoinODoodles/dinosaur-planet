@@ -2057,7 +2057,7 @@ s32 mapFindStreamMapIndex(s32 mapID_to_find) {
     return -1;
 }
 
-s32 map_func_80045DC0(s32 arg0, s32 arg1, s32 arg2) {
+s32 map_func_80045DC0(s32 worldGridX, s32 worldGridZ, s32 layer) {
     Struct_D_800B9768_unk4* var_v0;
     s32 temp_a2;
     s32 temp_t3;
@@ -2066,12 +2066,12 @@ s32 map_func_80045DC0(s32 arg0, s32 arg1, s32 arg2) {
 
     var_v0 = &D_800B9768.unk4[0];
     var_v1 = &D_800B9768.unk10[0];
-    arg2 = D_80092A9C[arg2] + gMapLayer;
-    for (j = 0; j < 64; j += 1) {
-        if (arg2 == D_800B9768.unkC[j]) {
-            if (arg0 >= var_v0->xMin && var_v0->xMax >= arg0) {
-                if ((arg1 >= var_v0->zMin) && (var_v0->zMax >= arg1)) {
-                    temp_t3 = (arg0 - var_v0->xMin) + ((arg1 - var_v0->zMin) * ((var_v0->xMax - var_v0->xMin) + 1));
+    layer = D_80092A9C[layer] + gMapLayer;
+    for (j = 0; j < 64; j++) {
+        if (layer == D_800B9768.unkC[j]) {
+            if (var_v0->xMin <= worldGridX && worldGridX <= var_v0->xMax) {
+                if (var_v0->zMin <= worldGridZ && worldGridZ <= var_v0->zMax) {
+                    temp_t3 = (worldGridX - var_v0->xMin) + ((worldGridZ - var_v0->zMin) * ((var_v0->xMax - var_v0->xMin) + 1));
                     if (((temp_t3 >> 3) + var_v1->unk0)[0] & (1 << (temp_t3 & 7))) {
                         return j;
                     }
@@ -2226,27 +2226,27 @@ void mapLoadMobileMap(s32 id, Object *obj) {
     D_800B4A50 = sp24;
 }
 
-void map_func_80046428(s32 worldGridX, s32 worldGridZ, GlobalMapCell* cell, s32 arg3) {
+void map_func_80046428(s32 worldGridX, s32 worldGridZ, GlobalMapCell* cell, s32 layer) {
     Struct_D_800B9768_unk4 *temp;
-    s32 sp30;
+    s32 mapID;
     s32 temp_v1_2;
     s32 mapIndex;
     MapHeader* sp24;
     s8 sp20[2];
     s16 *temp2;
 
-    sp30 = map_func_80045DC0(worldGridX, worldGridZ, arg3);
-    if (sp30 != -1) {
-        mapIndex = mapFindStreamMapIndex(sp30);
+    mapID = map_func_80045DC0(worldGridX, worldGridZ, layer);
+    if (mapID != -1) {
+        mapIndex = mapFindStreamMapIndex(mapID);
         if (mapIndex == -1) {
-            mapIndex = mapLoadStreamMapAddToTable(sp30);
+            mapIndex = mapLoadStreamMapAddToTable(mapID);
         }
         gMapStreamMapTable[mapIndex].unk06 = 1;
         sp24 = gMapStreamMapTable[mapIndex].header;
-        temp2 = (s16*)(((u8*)D_800B9768.unk8) + (sp30 << 1 << 1));
+        temp2 = (s16*)(((u8*)D_800B9768.unk8) + (mapID << 1 << 1));
         sp20[0] = temp2[0];
         sp20[1] = temp2[1];
-        cell->mapIDs[0] = sp30;
+        cell->mapIDs[0] = mapID;
         cell->mapIDs[1] = sp20[0];
         cell->mapIDs[2] = sp20[1];
         if (sp20[0] != -1) {
@@ -2264,7 +2264,7 @@ void map_func_80046428(s32 worldGridX, s32 worldGridZ, GlobalMapCell* cell, s32 
             ((s8 *)&gMapStreamMapTable[mapIndex])[6] = 1;
         }
 
-        temp = &D_800B9768.unk4[sp30];
+        temp = &D_800B9768.unk4[mapID];
         worldGridX -= temp->xMin;
         worldGridZ -= temp->zMin;
         temp_v1_2 = ((s32*) &((s8 *)sp24->blockIDs_ptr)[worldGridX * 4 + ((worldGridZ *  sp24->gridSizeX) * 4)])[0];
@@ -2464,21 +2464,21 @@ void mapUpdateStreaming(void) {
     s32 sp2F4;
     s32 sp2F0;
     s32 var_s1;
-    s32 var_s7;
-    s32 var_s3;
+    s32 layer;
+    s32 cellIdx;
     s32 var_s5;
-    s8* temp_a3;
+    s8* visGrid;
     f32 f2;
     VisGridRange range0;
     VisGridRange range1;
     VisGridRange range2;
     VisGridRange range3;
     s32 sp294;
-    s32 var_fp;
+    s32 unloadedCount;
     s32 x;
     s32 z;
     s32 sp284;
-    UnkStruct sp84[64]; // Unknown size, although 64 sounds reasonable
+    UnkStruct unloaded[64]; // Unknown size, although 64 sounds reasonable
     f32 f0;
     s32 xTemp;
     s32 zTemp;
@@ -2499,29 +2499,29 @@ void mapUpdateStreaming(void) {
     if ((sp2F4 != 7) || (sp2F0 != 7) || (sp294 != 0) || (gTrackFlags & TRACKFLAG_LAYER_CHANGED)) {
         shadows_func_8004D974(1);
         assetQueueClearMesgType(1, 0);
-        var_fp = 0;
-        for (var_s7 = 0; var_s7 < 5; var_s7++) {
-            var_v1 = gDecodedGlobalMap[var_s7];
-            temp_a3 = gBlockIndices[var_s7];
-            D_800B9714 = D_800B9700[var_s7];
-            var_s3 = 0;
+        unloadedCount = 0;
+        for (layer = 0; layer < 5; layer++) {
+            var_v1 = gDecodedGlobalMap[layer];
+            visGrid = gBlockIndices[layer];
+            D_800B9714 = D_800B9700[layer];
+            cellIdx = 0;
             for (z = 0; z < BLOCKS_GRID_SPAN; z++) {
                 for (x = 0; x < BLOCKS_GRID_SPAN; x++) {
-                    if (temp_a3[var_s3] >= 0) {
-                        sp84[var_fp].unk6 = var_s7;
-                        sp84[var_fp].unk0 = gMapCurrentStreamCoordsX + x;
-                        sp84[var_fp].unk2 = gMapCurrentStreamCoordsZ + z;
-                        sp84[var_fp].unk4 = temp_a3[var_s3];
-                        var_fp++;
+                    if (visGrid[cellIdx] >= 0) {
+                        unloaded[unloadedCount].unk6 = layer;
+                        unloaded[unloadedCount].unk0 = gMapCurrentStreamCoordsX + x;
+                        unloaded[unloadedCount].unk2 = gMapCurrentStreamCoordsZ + z;
+                        unloaded[unloadedCount].unk4 = visGrid[cellIdx];
+                        unloadedCount++;
                     }
-                    temp_a3[var_s3] = -2;
-                    D_800B9714[var_s3] = -1;
+                    visGrid[cellIdx] = -2;
+                    D_800B9714[cellIdx] = -1;
                     var_v1->blockID = -3;
                     var_v1->mapIDs[0] = -1;
                     var_v1->mapIDs[1] = -1;
                     var_v1->mapIDs[2] = -1;
                     var_v1++;
-                    var_s3++;
+                    cellIdx++;
                 }
             }
         }
@@ -2534,8 +2534,8 @@ void mapUpdateStreaming(void) {
         D_80092A60 = gWorldX;
         D_80092A64 = gWorldZ;
         func_800307C4(tempX - gWorldX, tempZ - gWorldZ);
-        for (var_s3 = 0; var_s3 < gMapNumStreamMaps; var_s3++) {
-            gMapStreamMapTable[var_s3].unk06 = 0;
+        for (cellIdx = 0; cellIdx < gMapNumStreamMaps; cellIdx++) {
+            gMapStreamMapTable[cellIdx].unk06 = 0;
         }
         D_800B4A50 = map_func_80045DC0(gMapCurrentStreamCoordsX + 7, gMapCurrentStreamCoordsZ + 7, 0);
         D_800B4A54 = -1;
@@ -2546,76 +2546,76 @@ void mapUpdateStreaming(void) {
             }
             gMapStreamMapTable[sp284].unk06 = 1;
             D_800B4A54 = sp284;
-            for (var_s7 = 0; var_s7 < ARRAYCOUNT_S(gBlockIndices); var_s7++) {
+            for (layer = 0; layer < ARRAYCOUNT_S(gBlockIndices); layer++) {
                 mapCheckBlockGrid(gMapCurrentStreamCoordsX + 7, gMapCurrentStreamCoordsZ + 7, 
-                    &range0, &range1, &range2, &range3, var_s7, 0, sp284);
-                temp_a3 = gBlockIndices[var_s7];
-                D_800B9714 = D_800B9700[var_s7];
+                    &range0, &range1, &range2, &range3, layer, 0, sp284);
+                visGrid = gBlockIndices[layer];
+                D_800B9714 = D_800B9700[layer];
                 for (z = range0.s[2]; range0.s[3] >= z; z++) {
                     for (x = range0.s[0]; range0.s[1] >= x; x++) {
-                        temp_a3[x + (((z + 7) << 4)) + 7] = -3;
+                        visGrid[x + (((z + 7) << 4)) + 7] = -3;
                     }
                 }
 
                 for (z = range1.s[2]; range1.s[3] >= z; z++) {
                     for (x = range1.s[0]; range1.s[1] >= x; x++) {
-                        temp_a3[x + (((z + 7) << 4)) + 7] = -3;
+                        visGrid[x + (((z + 7) << 4)) + 7] = -3;
                     }
                 }
 
                 for (z = range2.s[2]; range2.s[3] >= z; z++) {
                     for (x = range2.s[0]; range2.s[1] >= x; x++) {
-                        temp_a3[x + (((z + 7) << 4)) + 7] = -3;
+                        visGrid[x + (((z + 7) << 4)) + 7] = -3;
                     }
                 }
 
                 for (z = range3.s[2]; range3.s[3] >= z; z++) {
                     for (x = range3.s[0]; range3.s[1] >= x; x++) {
                 if (z) {}
-                        temp_a3[x + (((z + 7) << 4)) + 7] = -3;
+                        visGrid[x + (((z + 7) << 4)) + 7] = -3;
                     }
                 }
 
-                var_s3 = 0;
+                cellIdx = 0;
                 var_s5 = 0;
                 for (z = 0; z < BLOCKS_GRID_SPAN; z++) {
                     for (x = 0; x < BLOCKS_GRID_SPAN; x++) {
                         xTemp = gMapCurrentStreamCoordsX + x;
                         zTemp = gMapCurrentStreamCoordsZ + z;
-                        if (temp_a3[var_s3] == -3) {
-                            if (map_func_800485FC(x, z, xTemp, zTemp, var_s7) == 0) {
-                                temp_a3[var_s3] = -2;
+                        if (visGrid[cellIdx] == -3) {
+                            if (map_func_800485FC(x, z, xTemp, zTemp, layer) == 0) {
+                                visGrid[cellIdx] = -2;
                             } else {
-                                D_800B9714[var_s3] = var_s5++;
+                                D_800B9714[cellIdx] = var_s5++;
                             }
                         }
-                        var_s3++;
+                        cellIdx++;
                     }
                 }
             }
         }
         pad2 = TRUE;
-        for (var_s3 = gMapNumStreamMaps - 1; var_s3 >= 0; var_s3--) {
-            if ((s8) gMapStreamMapTable[var_s3].unk06 == 0) {
-                if (gMapStreamMapTable[var_s3].header != NULL) {
-                    var_s1 = gMapStreamMapTable[var_s3].mapID;
-                    mapInitObjSetupList(gMapStreamMapTable[var_s3].header, &gMapObjSetupLists[var_s1], var_s1, 1);
-                    mmFree(gMapStreamMapTable[var_s3].header);
+        for (cellIdx = gMapNumStreamMaps - 1; cellIdx >= 0; cellIdx--) {
+            if ((s8) gMapStreamMapTable[cellIdx].unk06 == 0) {
+                if (gMapStreamMapTable[cellIdx].header != NULL) {
+                    var_s1 = gMapStreamMapTable[cellIdx].mapID;
+                    mapInitObjSetupList(gMapStreamMapTable[cellIdx].header, &gMapObjSetupLists[var_s1], var_s1, 1);
+                    mmFree(gMapStreamMapTable[cellIdx].header);
                     gLoadedMapsDataTable[var_s1] = NULL;
                 }
-                gMapStreamMapTable[var_s3].header = NULL;
-                gMapStreamMapTable[var_s3].mapID = -1;
+                gMapStreamMapTable[cellIdx].header = NULL;
+                gMapStreamMapTable[cellIdx].mapID = -1;
             }
             if (pad2 != FALSE) {
-                if (gMapStreamMapTable[var_s3].header == NULL) {
+                if (gMapStreamMapTable[cellIdx].header == NULL) {
                     gMapNumStreamMaps -= 1;
                 } else {
                     pad2 = FALSE;
                 }
             }
         }
-        for (var_s3 = 0; var_s3 < var_fp; var_s3++) {
-            blockFree(sp84[var_s3].unk4);
+        for (cellIdx = 0; cellIdx < unloadedCount; cellIdx++) {
+            blockFree(unloaded[cellIdx].unk4);
         }
         map_func_8004530C();
     }
@@ -3085,7 +3085,7 @@ void map_func_800484A8(void) {
     mmSetDelay(2);
 }
 
-s32 map_func_800485FC(s32 x, s32 z, s32 worldGridX, s32 worldGridZ, s32 globalMapIdx) {
+s32 map_func_800485FC(s32 x, s32 z, s32 worldGridX, s32 worldGridZ, s32 layer) {
     GlobalMapCell* currentMap;
     s16 blockID;
     s32 fieldIndex;
@@ -3093,10 +3093,10 @@ s32 map_func_800485FC(s32 x, s32 z, s32 worldGridX, s32 worldGridZ, s32 globalMa
     s8* currentBlockIndices;
 
     fieldIndex = GRID_INDEX(z, x);
-    currentBlockIndices = gBlockIndices[globalMapIdx];
-    currentMap = gDecodedGlobalMap[globalMapIdx];
+    currentBlockIndices = gBlockIndices[layer];
+    currentMap = gDecodedGlobalMap[layer];
     currentMap += fieldIndex;
-    map_func_80046428(worldGridX, worldGridZ, currentMap, globalMapIdx);
+    map_func_80046428(worldGridX, worldGridZ, currentMap, layer);
     blockID = currentMap->blockID;
     if (blockID < 0) {
         blockID = -1;
@@ -3113,7 +3113,7 @@ s32 map_func_800485FC(s32 x, s32 z, s32 worldGridX, s32 worldGridZ, s32 globalMa
             return 1;
         }
     }
-    blockLoad(blockID, fieldIndex, globalMapIdx, /*fromAssetThread=*/FALSE);
+    blockLoad(blockID, fieldIndex, layer, /*fromAssetThread=*/FALSE);
     return 1;
 }
 
