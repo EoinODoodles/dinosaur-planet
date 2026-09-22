@@ -28,6 +28,8 @@
 #include "dll.h"
 #include "dongle.h"
 
+#include "prevent_bss_reordering.h"
+
 // official filename: game/anim.c (default.dol)
 
 // Maximum number of active object sequences
