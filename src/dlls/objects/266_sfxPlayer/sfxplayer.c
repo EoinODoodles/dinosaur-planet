@@ -48,9 +48,13 @@ void sfxPlayer_obj_Setup(Object* self, SfxPlayer_Setup* objSetup, s32 reset) {
 
     objData = self->data;
     setup = (SfxPlayer_Setup*)self->setup;
+
     objData->prevGamebitValue = mainGetBits(objSetup->gamebit);
 
-    if ((setup->flags & SfxPlayer_FLAG_1_Looping_Sound) && (objData->prevGamebitValue == FALSE) && (setup->flags & SfxPlayer_FLAG_4_Play_if_Gamebit_Unset)) {
+    if ((setup->flags & SfxPlayer_FLAG_1_Looping_Sound) && 
+        (objData->prevGamebitValue == FALSE) && 
+        (setup->flags & SfxPlayer_FLAG_4_Play_if_Gamebit_Unset)
+    ) {
         objData->prevGamebitValue = TRUE;
     }
 
@@ -158,11 +162,11 @@ void sfxPlayer_obj_Free(Object* self, s32 onlySelf) {
 }
 
 // offset: 0x51C | func: 5 | export: 5
-u32 sfxPlayer_get_model_flags(Object* self) {
+u32 sfxPlayer_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x52C | func: 6 | export: 6
-u32 sfxPlayer_get_data_size(Object* self, u32 offsetAddr) {
+u32 sfxPlayer_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(SfxPlayer_Data);
 }

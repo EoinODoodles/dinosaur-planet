@@ -13,5 +13,5 @@ _exports:
 .dword sfxPlayer_obj_Update
 .dword sfxPlayer_obj_Print
 .dword sfxPlayer_obj_Free
-.dword sfxPlayer_get_model_flags
-.dword sfxPlayer_get_data_size
+.dword sfxPlayer_obj_GetModelFlags
+.dword sfxPlayer_obj_GetDataSize
