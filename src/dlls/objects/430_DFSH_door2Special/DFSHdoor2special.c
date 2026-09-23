@@ -1,29 +1,5 @@
 #include "common.h"
-
-typedef struct {
-/*00*/ ObjSetup base;
-/*18*/ s16 gamebitOpened;
-/*1A*/ s16 gamebitB;
-/*1C*/ s16 seqPreemptTime;
-/*1E*/ s8 seqIndex;
-/*1F*/ u8 yaw;
-/*20*/ u8 enabledActors;
-/*21*/ u8 scale;
-/*22*/ s16 gamebitLit;
-} DFSH_DoorSpecial_Setup;
-
-typedef struct {
-    u16 phase;
-    u8 state;
-    u8 glowState;
-    u8 runControl;
-} DFSH_DoorSpecial_Data;
-
-typedef enum {
-    DFSH_DoorSpecial_GLOW_0_Unlit,
-    DFSH_DoorSpecial_GLOW_1_Fade_In,
-    DFSH_DoorSpecial_GLOW_2_Pulse
-} DFSH_DoorSpecial_GlowStates;
+#include "dlls/objects/429_DFSH_Door1Special.h"
 
 static int DFSH_Door2Special_animCallback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 prevCallbackValue);
 
