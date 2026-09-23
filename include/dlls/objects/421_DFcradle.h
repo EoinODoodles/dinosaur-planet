@@ -4,8 +4,8 @@
 #include "dll.h"
 
 typedef struct {
-    /* 0000 */ f32 unk0;
-    /* 0004 */ f32 unk4; // curveProgress? (lerp t-value from 0 to 100?)
+    /* 0000 */ f32 unk0; // lerp t-value from 0 to 1
+    /* 0004 */ f32 unk4;
     /* 0008 */ f32 unk8;
     /* 000C */ f32 unkC;
     /* 0010 */ s32 unk10;
