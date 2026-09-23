@@ -34,16 +34,16 @@ typedef enum {
     DFSH_DoorSpecial_GLOW_2_Pulse
 } DFSH_DoorSpecial_GlowStates;
 
-static int DFSH_Door1Special_anim_callback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 prevCallbackResult);
+static int DFSH_Door1Special_animCallback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 prevCallbackResult);
 
 // offset: 0x0 | ctor
-void DFSH_Door1Special_ctor(void *dll) { }
+void DFSH_Door1Special_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void DFSH_Door1Special_dtor(void *dll) { }
+void DFSH_Door1Special_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void DFSH_Door1Special_setup(Object* self, DFSH_Door1Special_Setup* objSetup, s32 reset) {
+void DFSH_Door1Special_obj_Setup(Object* self, DFSH_Door1Special_Setup* objSetup, s32 reset) {
     DFSH_DoorSpecial_Data* objData;
     TextureAnimator* texAnim;
 
@@ -69,7 +69,7 @@ void DFSH_Door1Special_setup(Object* self, DFSH_Door1Special_Setup* objSetup, s3
     
     objData->runControl = TRUE;
     self->srt.yaw = objSetup->yaw << 8;
-    self->animCallback = DFSH_Door1Special_anim_callback;
+    self->animCallback = DFSH_Door1Special_animCallback;
     
     //Set scale
     {
@@ -94,7 +94,7 @@ void DFSH_Door1Special_setup(Object* self, DFSH_Door1Special_Setup* objSetup, s3
 }
 
 // offset: 0x1B0 | func: 1 | export: 1
-void DFSH_Door1Special_control(Object* self) {
+void DFSH_Door1Special_obj_Control(Object* self) {
     DFSH_DoorSpecial_Data* objData;
     DFSH_Door1Special_Setup* objSetup;
     s32 enabledActors;
@@ -123,30 +123,30 @@ void DFSH_Door1Special_control(Object* self) {
 }
 
 // offset: 0x290 | func: 2 | export: 2
-void DFSH_Door1Special_update(Object *self) { }
+void DFSH_Door1Special_obj_Update(Object* self) { }
 
 // offset: 0x29C | func: 3 | export: 3
-void DFSH_Door1Special_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+void DFSH_Door1Special_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
     if (visibility) {
         objprintDrawModel(self, gdl, mtxs, vtxs, pols, 1.0f);
     }
 }
 
 // offset: 0x2F0 | func: 4 | export: 4
-void DFSH_Door1Special_free(Object *self, s32 onlySelf) { }
+void DFSH_Door1Special_obj_Free(Object* self, s32 onlySelf) { }
 
 // offset: 0x300 | func: 5 | export: 5
-u32 DFSH_Door1Special_get_model_flags(Object *self) {
+u32 DFSH_Door1Special_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x310 | func: 6 | export: 6
-u32 DFSH_Door1Special_get_data_size(Object *self, u32 offsetAddr) {
+u32 DFSH_Door1Special_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(DFSH_DoorSpecial_Data);
 }
 
 // offset: 0x324 | func: 7
-int DFSH_Door1Special_anim_callback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 prevCallbackResult) {
+int DFSH_Door1Special_animCallback(Object* self, Object* overrideObj, AnimObj_Data* animData, s8 prevCallbackResult) {
     DFSH_DoorSpecial_Data* objData;
     DFSH_Door1Special_Setup* objSetup;
     TextureAnimator* texAnim;
