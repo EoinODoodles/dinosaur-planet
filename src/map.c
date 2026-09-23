@@ -2477,7 +2477,7 @@ void mapUpdateStreaming(void) {
     s32 unloadedCount;
     s32 x;
     s32 z;
-    s32 sp284;
+    s32 mapIdx;
     UnkStruct unloaded[64]; // Unknown size, although 64 sounds reasonable
     f32 f0;
     s32 xTemp;
@@ -2540,15 +2540,15 @@ void mapUpdateStreaming(void) {
         D_800B4A50 = map_func_80045DC0(gMapCurrentStreamCoordsX + 7, gMapCurrentStreamCoordsZ + 7, 0);
         D_800B4A54 = -1;
         if (D_800B4A50 != -1) {
-            sp284 = mapFindStreamMapIndex(D_800B4A50);
-            if (sp284 == -1) {
-                sp284 = mapLoadStreamMapAddToTable(D_800B4A50);
+            mapIdx = mapFindStreamMapIndex(D_800B4A50);
+            if (mapIdx == -1) {
+                mapIdx = mapLoadStreamMapAddToTable(D_800B4A50);
             }
-            gMapStreamMapTable[sp284].unk06 = 1;
-            D_800B4A54 = sp284;
+            gMapStreamMapTable[mapIdx].unk06 = 1;
+            D_800B4A54 = mapIdx;
             for (layer = 0; layer < ARRAYCOUNT_S(gBlockIndices); layer++) {
                 mapCheckBlockGrid(gMapCurrentStreamCoordsX + 7, gMapCurrentStreamCoordsZ + 7, 
-                    &range0, &range1, &range2, &range3, layer, 0, sp284);
+                    &range0, &range1, &range2, &range3, layer, FALSE, mapIdx);
                 visGrid = gBlockIndices[layer];
                 D_800B9714 = D_800B9700[layer];
                 for (z = range0.s[2]; range0.s[3] >= z; z++) {
