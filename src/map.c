@@ -2646,7 +2646,7 @@ void mapCheckBlockGrid(s32 gridX, s32 gridZ, VisGridRange* range0, VisGridRange*
     u32 temp;
     u32* gridA;
     u32* gridB;
-    u32 *grid;
+    u32* grid;
     Struct_D_800B9768_unk4* temp_v1;
 
     temp_v1 = &D_800B9768.unk4[gMapStreamMapTable[streamMapIdx].mapID];
