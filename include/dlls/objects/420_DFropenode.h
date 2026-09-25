@@ -10,7 +10,7 @@ DLL_INTERFACE(DLL_420_DFRopeNode) {
     /*08*/ void (*func8)(Object* self, f32 arg1, f32* ox, f32* oy, f32* oz);
     /*09*/ void (*func9)(Object* self, f32* arg1, f32 arg2);
     /*10*/ s16 (*func10)(Object* self, f32 arg1, f32 arg2);
-    /*11*/ UnknownDLLFunc func11;
+    /*11*/ s32 (*func11)(Object* self, f32 x, f32 y, f32 z, f32* arg4, f32* arg5, s8* arg6); //TODO: verify
     /*12*/ s16 (*func12)(Object* self);
     /*13*/ void (*func13)(Object* self, u32 arg1); //Set connection state?
     /*14*/ s16 (*func14)(Object* self); //Check if disconnected?
