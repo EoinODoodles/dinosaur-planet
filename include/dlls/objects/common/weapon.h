@@ -32,7 +32,8 @@ DLL_INTERFACE(DLL_IWeapon) {
 	/*15*/ UnknownDLLFunc func15;
 	/*16*/ UnknownDLLFunc func16;
 	/*17*/ UnknownDLLFunc func17;
-	/*14*/ void (*func18)(Object *, f32, f32);
+	/*18*/ void (*func18)(Object *, f32, f32);
+	/*19*/ s32 (*func19)(Object* self);
 };
 
 #endif //_DLLS_COMMON_WEAPON_H

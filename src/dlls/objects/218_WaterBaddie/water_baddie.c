@@ -1,5 +1,6 @@
 #include "common.h"
 #include "dlls/engine/18_objfsa.h"
+#include "dlls/objects/common/weapon.h"
 #include "game/objects/interaction_arrow.h"
 #include "sys/gfx/model.h"
 #include "sys/math.h"
@@ -373,7 +374,7 @@ void WaterBaddie_tick(Object* self, Baddie* baddie, ObjFSA_Data* fsa) {
     //Handle being hit
     if (gDLL_33_BaddieControl->vtbl->check_hit(self, fsa, &baddie->unk34C, baddie->unk39E, dHitAnimStateMap, dHitDamageMap, 0, &baddie->unk3A8, &sFXTransform)) {
         weapon = player->linkedObject;
-        scaleIdx = ((DLL_Unknown*)weapon->dll)->vtbl->func[19].withOneArgS32(weapon);
+        scaleIdx = ((DLL_IWeapon*)weapon->dll)->vtbl->func19(weapon);
         if (scaleIdx > 3) {
             scaleIdx = 3;
         }
