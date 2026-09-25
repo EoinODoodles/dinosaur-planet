@@ -2338,7 +2338,7 @@ typedef enum {
     BIT_91C = 0x91C, // len:1 group:0
     BIT_91D = 0x91D, // len:1 group:0
     BIT_91E = 0x91E, // len:1 group:1
-    BIT_91F = 0x91F // len:1 group:0
+    BIT_DF_Defeated_Shrine_Entrance_SharpClaw = 0x91F // len:1 group:0
 } GameBits;
 
 #endif // _GAME_GAMEBITS_H
