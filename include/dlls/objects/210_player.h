@@ -417,7 +417,7 @@ DLL_INTERFACE(DLL_210_Player) {
     /*42*/ u8 (*func42)(Object* player);
     /*43*/ int (*func43)(Object* player);
     /*44*/ s32 (*func44)(Object* player); //is player currently blinking
-    /*45*/ Object *(*func45)(Object* player);
+    /*45*/ Object *(*func45)(Object* player); //get player's DFropenode Object?
     /*46*/ u8 (*func46)(Object* player);
     /*47*/ u8 (*func47)(Object* player, Object *arg1, u8* arg2);
     /*48*/ s16 (*func48)(Object* player); //returns objectID of player's held object (returns 0 if none held, or when player's objData->flags 0x10000 is set)

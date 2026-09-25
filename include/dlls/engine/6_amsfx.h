@@ -466,6 +466,12 @@ enum SoundID {
     SOUND_43D_Transporter_Fire = 0x43D,
     SOUND_43E_Stone_Block_Moving = 0x43e,
 
+    SOUND_482_RopeBaddie_Squawk = 0x482, //RopeBaddie
+    SOUND_483_RopeBaddie_Squeak = 0x483, //RopeBaddie
+    SOUND_484_RopeBaddie_Roar = 0x484,   //RopeBaddie
+    SOUND_485_RopeBaddie_Babble = 0x485, //RopeBaddie
+    SOUND_486_RopeBaddie_Cry = 0x486,    //RopeBaddie
+
     SOUND_WM_Sun_Whoosh = 0x487, //used by WMsun
 
     SOUND_491 = 0x491,

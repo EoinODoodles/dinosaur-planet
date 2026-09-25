@@ -802,7 +802,7 @@ Object* BaddieControl_func_1FAC(Object* arg0, Baddie* baddie, u16 *arg2, s32 arg
 /*0x24*/ static f32 _data_24 = 25.0f;
 
 // offset: 0x2000 | func: 18 | export: 21
-void BaddieControl_setup(Object* obj, Baddie_Setup* setup, Baddie* baddie, s32 arg3, s32 arg4, s32 arg5, u8 arg6, f32 arg7) {
+void BaddieControl_setup(Object* obj, Baddie_Setup* setup, Baddie* baddie, s32 totalAnimStates, s32 totalLogicStates, s32 arg5, u8 arg6, f32 arg7) {
     s32 sp4C[] = { 0x2 };
     u8 sp4B;
     u8 hitpoints;
@@ -818,7 +818,7 @@ void BaddieControl_setup(Object* obj, Baddie_Setup* setup, Baddie* baddie, s32 a
         objAddObjectType(obj, OBJTYPE_Baddie);
         objInitMesgQueue(obj, 4);
     }
-    gDLL_18_objfsa->vtbl->func0(obj, &baddie->fsa, arg3, arg4);
+    gDLL_18_objfsa->vtbl->func0(obj, &baddie->fsa, totalAnimStates, totalLogicStates);
     baddie->fsa.flags = 0;
     baddie->fsa.unk33D = 0;
     baddie->fsa.unk278 = 0.0f;
