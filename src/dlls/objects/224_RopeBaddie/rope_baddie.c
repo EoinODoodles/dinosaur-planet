@@ -532,7 +532,7 @@ s32 RopeBaddie_animState2Turning(Object* self, ObjFSA_Data* fsa, f32 updateRate)
     u16 turnAmount;
     s16 yawDiff;
     u16 distance;
-    f32 var_fv1;
+    f32 delta;
     Baddie* baddie;
     RopeBaddie_DataActual* objData;
     s32 direction;
@@ -560,16 +560,16 @@ s32 RopeBaddie_animState2Turning(Object* self, ObjFSA_Data* fsa, f32 updateRate)
         direction = objData->direction == 0;
         self->srt.yaw = objData->ropeYaw + (direction << 0xF);
 
-        var_fv1 = (mathRnd(50, 100) / 100.0f) * ((objData->direction * 2) - 1);
+        delta = (mathRnd(50, 100) / 100.0f) * ((objData->direction * 2) - 1);
         if ((turnAmount < 4) || (turnAmount >= 12)) {
             if (distance > 500) {
-                var_fv1 *= 1.0f + (distance / 100.0f);
+                delta *= 1.0f + (distance / 100.0f);
             } else {
-                var_fv1 *= 1.0f + (distance / 300.0f);
+                delta *= 1.0f + (distance / 300.0f);
             }
         }
 
-        objData->goalPosition = objData->ropePosition - var_fv1;
+        objData->goalPosition = objData->ropePosition - delta;
 
         if (objData->goalPosition > 1.0f) {
             objData->goalPosition = objData->goalPosition;
@@ -652,7 +652,7 @@ s32 RopeBaddie_animState5Bite(Object* self, ObjFSA_Data* fsa, f32 updateRate) {
     gDLL_18_objfsa->vtbl->func12(self, fsa, 0, 0, dBiteSounds);
     self->srt.pitch = RopeBaddie_getPitchAngle(objData);
 
-    //@bug?: can the animState get stuck here temporarily?
+    //@bug: the animState can get stuck here temporarily if the Baddie loses its target and stays in logicState0
 
     return 0;
 }
@@ -831,15 +831,20 @@ s32 RopeBaddie_logicState2Chase(Object* self, ObjFSA_Data* fsa, f32 updateRate) 
     s32 yawDiff;
 
     target = fsa->target;
+
+    //Return to non-combat state if the target's lost, or if the player's no longer on a rope
     if ((target == NULL) || dll_player(target)->func45(target) == NULL) {
         gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, RopeBaddie_ASTATE_0_Walking);
         return FSA_NEXTSTATE_SYNC(RopeBaddie_LSTATE_0_Top);
     }
 
     if (fsa->animState != RopeBaddie_ASTATE_6_Attack) {
+        //Get the angle to the player
         dx = self->srt.transl.x - target->srt.transl.x;
         dz = self->srt.transl.z - target->srt.transl.z;
         yawDiff = (mathAtan2f(dx, dz) - self->srt.yaw) & 0xFFFF;
+        
+        //Check if the player's behind the Baddie, or get their distance when they're in front
         if ((yawDiff > M_90_DEGREES) && (yawDiff < M_90_DEGREES * 3)) {
             dx = -100.0f;
         } else {
@@ -852,12 +857,16 @@ s32 RopeBaddie_logicState2Chase(Object* self, ObjFSA_Data* fsa, f32 updateRate) 
             distance = dx;
         }
 
+        //Attack when the player's close
         if (distance < 1.0f && (fsa->animState == RopeBaddie_ASTATE_1_Running || (fsa->animState == RopeBaddie_ASTATE_5_Bite && fsa->unk33A))) {
             gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, RopeBaddie_ASTATE_6_Attack);
         } else if (fsa->animState != RopeBaddie_ASTATE_1_Running) {
+            //Chase forward
             if ((dx > 2.5f) && (fsa->animState != RopeBaddie_ASTATE_4_Combat_Idle) && (fsa->animState != RopeBaddie_ASTATE_5_Bite || fsa->unk33A)) {
                 gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, RopeBaddie_ASTATE_1_Running);
             }
+
+            //Backpedal if the player is too close
             if (dx < -2.5f) {
                 gDLL_18_objfsa->vtbl->set_anim_state(self, fsa, RopeBaddie_ASTATE_1_Running);
             }
@@ -867,6 +876,7 @@ s32 RopeBaddie_logicState2Chase(Object* self, ObjFSA_Data* fsa, f32 updateRate) 
             if (dx > 0.0f) {
                 fsa->animTickDelta = 0.04f;
             } else {
+                //Backpedal if the player is too close
                 fsa->animTickDelta = -0.07f;
             }
         }
