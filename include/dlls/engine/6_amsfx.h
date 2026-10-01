@@ -560,6 +560,7 @@ enum SoundID {
     SOUND_601_Worm_Croak = 0x601, //SnowWormSmall
     SOUND_602_Emerge_Snowy = 0x602, //SnowWormSmall
     
+    SOUND_612_Lantern_Crackle_Loop = 0x612,  // DF_Lantern
     SOUND_613_Gold_Bounce = 0x613,  // used in SCcollectables
     SOUND_614_Tumbleweed_Squeak_1 = 0x614, // used in DLL 227
     SOUND_615_Tumbleweed_Squeak_2 = 0x615, // used in DLL 227

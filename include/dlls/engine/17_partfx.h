@@ -183,6 +183,7 @@ enum ParticleID {
     PARTICLE_425 = 0x425, //smoke
     PARTICLE_426 = 0x426, //embers
     PARTICLE_427 = 0x427,
+    PARTICLE_42B = 0x42B, //dockpoint beacons, DF torches
     PARTICLE_44B = 0x44B,
     /* --- DLL 39 END --- */
     /* --- DLL 46 START --- */
