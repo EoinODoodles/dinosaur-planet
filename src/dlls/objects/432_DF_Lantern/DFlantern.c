@@ -11,33 +11,33 @@ typedef struct {
     u8 roll;
     u8 pitch;
     u8 yaw;
-    u8 useOtherLFXConfig;
+    u8 useOtherLFXConfig;  //Boolean, affects which lightAction indices are used
     f32 scale;
     u8 unk20;
     u8 unk21;
     u8 unk22;
-    u8 flags;
+    u8 flags;              //See `DF_Lantern_Flags`, used so indoor lanterns are always lit (instead of just at night), or to use fadeDistance for camera range
 } DF_Lantern_Setup;
 
 typedef struct {
-    u16 lfxActionIdxOn;
-    u16 lfxActionIdxOff;
-    u16 camDistance;
-    u16 playerRange;
-    u16 camRange;
-    u8 useOtherLFXConfig;
-    u8 flags;
-    u8 prevFlags;
-    u32 soundHandle;
+    u16 lfxActionIdxOn;    //LightAction to use when the player is near the lantern
+    u16 lfxActionIdxOff;   //LightAction to use when the player isn't near the lantern
+    u16 camDistance;       //Camera's current distance from the lantern
+    u16 playerRange;       //Range (2D) for emitting a lightAction point light, and playing sound loop
+    u16 camRange;          //Range (3D) for drawing the partFX glow (with expensive occlusion checks), and playing sound loop
+    u8 useOtherLFXConfig;  //Boolean, affects which lightAction indices are used (TODO: what's the difference between them? Maybe one pair are night-only?)
+    u8 flags;              //See `DF_Lantern_Flags`
+    u8 prevFlags;          //Used to handle when flags change
+    u32 soundHandle;       //For the crackling sound loop
 } DF_Lantern_Data;
 
 typedef enum {
-    DF_Lantern_FLAG_1_Player_Collision = 1,
-    DF_Lantern_FLAG_2_Emit_Light = 2,
-    DF_Lantern_FLAG_4_Show_PartFX_Glow = 4,
-    DF_Lantern_FLAG_8_Play_Sound = 8,
-    DF_Lantern_FLAG_10_Always_Lit = 0x10,
-    DF_Lantern_FLAG_20_Use_Fade_Distance = 0x20
+    DF_Lantern_FLAG_1_Player_Collision = 1,     //Toggle objHits during setup (doesn't seem to work, but probably meant to decide whether the lantern burns you?)
+    DF_Lantern_FLAG_2_Emit_Light = 2,           //Apply a lightAction
+    DF_Lantern_FLAG_4_Show_PartFX_Glow = 4,     //Draw the partFX
+    DF_Lantern_FLAG_8_Play_Sound = 8,           //Play a crackling sound loop when near the lantern
+    DF_Lantern_FLAG_10_Always_Lit = 0x10,       //For indoor lanterns - always lit, instead of only at night-time
+    DF_Lantern_FLAG_20_Use_Fade_Distance = 0x20 //Use the objSetup fadeDistance as the camera range for the partFX glow
 } DF_Lantern_Flags;
 
 // offset: 0x0 | ctor
