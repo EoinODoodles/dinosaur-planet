@@ -1,4 +1,9 @@
-#include "common.h"
+#include "dll.h"
+#include "game/objects/object.h"
+#include "game/objects/object_id.h"
+#include "sys/main.h"
+#include "sys/objects.h"
+#include "sys/objhits.h"
 
 typedef struct {
     ObjSetup base;
