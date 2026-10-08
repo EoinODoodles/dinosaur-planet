@@ -801,6 +801,8 @@ enum SoundID {
 
     SOUND_9A3_Magic_Reverse_Cymbal = 0x9A3,
 
+    SOUND_9A7 = 0x9A7,
+    
     SOUND_9AA = 0x9AA,
     SOUND_9AB = 0x9AB,
     SOUND_9AC = 0x9AC,
