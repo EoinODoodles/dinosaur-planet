@@ -103,13 +103,9 @@ typedef enum {
 
 typedef struct AnimObj_Data {
 /*000*/ Object* actor; // the target of the anim obj (e.g. the target of an Override object)
-/*004*/ f32 unk4;
-/*008*/ f32 unk8;
-/*00C*/ f32 unkC;
+/*004*/ Vec3f positionOffset;
 /*010*/ f32 unk10;
-/*014*/ s16 unk14;
-/*016*/ s16 unk16;
-/*018*/ s16 unk18;
+/*014*/ Vec3s16 rotationOffset;
 /*01A*/ s16 seqYaw; // base yaw of the whole object sequence?
 /*004*/ s8 unk1C[0x20 - 0x1C];
 /*020*/ f32 unk20;

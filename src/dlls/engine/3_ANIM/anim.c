@@ -332,8 +332,8 @@ typedef struct {
 /*0x9C*/ static s16 sPendingWarpID;
 /*0xA0*/ static f32 _bss_A0;
 /*0xA4*/ static s8 sSeqEnded; // when true, the seq for the current object ended
-/*0xA8*/ static s8 _bss_A8[MAX_SEQSLOTS];
-/*0xD8*/ static s8 _bss_D8[MAX_SEQSLOTS];
+/*0xA8*/ static s8 _bss_A8[MAX_SEQSLOTS]; // animCallback return values
+/*0xD8*/ static s8 _bss_D8[MAX_SEQSLOTS]; // animCallback return values
 /*0x108*/ static s8 _bss_108[MAX_SEQSLOTS];
 /*0x138*/ static s8 sEventFlags[MAX_SEQSLOTS];
 /*0x168*/ static s8 sSlotInUse[MAX_SEQSLOTS];
@@ -585,6 +585,7 @@ s32 anim_tick_obj(Object* animObj, s32 updateRate) {
         }
         return 0;
     }
+
     if (st->state == ANIMOBJ_STATE_WaitingForActors) {
         if (st->actor != NULL) {
             actor->animObj = animObj;
@@ -592,6 +593,7 @@ s32 anim_tick_obj(Object* animObj, s32 updateRate) {
         }
         return 0;
     }
+
     if (_bss_490[st->seqSlot] == 1) {
         st->time = _bss_2B8[st->seqSlot];
         st->prevTime = st->time;
@@ -599,7 +601,9 @@ s32 anim_tick_obj(Object* animObj, s32 updateRate) {
     } else {
         st->time = _bss_1F8[st->seqSlot];
     }
+
     anim_tick_seq_sfx(st, updateRate);
+
     _bss_33 = 0;
     do {
         sEnvFxQueueCount = 0;
@@ -607,6 +611,7 @@ s32 anim_tick_obj(Object* animObj, s32 updateRate) {
             animObj->opacity = 0;
             return 1;
         }
+        
         actor = animObj;
         if (st->actor != NULL) {
             actor = st->actor;
@@ -615,26 +620,30 @@ s32 anim_tick_obj(Object* animObj, s32 updateRate) {
         } else if ((st->unk87 == 0) && (st->unk62 < 4)) {
             st->unk62 = -1;
         }
+
         if (_bss_A8[st->seqSlot] != 0) {
             if (_bss_1C8[st->seqSlot] != 0) {
                 st->time -= _bss_1C8[st->seqSlot];
                 if (st->time < 0) {
                     st->time = 0;
                 }
-                st->prevTime = (s16) (st->time - 1);
+                st->prevTime = st->time - 1;
                 anim_time_skip(animObj, actor, st, 1);
             }
         }
+
         sProcessedAnimCallback = FALSE;
         if (actor != animObj) {
             anim_do_obj_anim_callback(actor, animObj, st, _bss_A8[st->seqSlot]);
             sProcessedAnimCallback = TRUE;
         }
+
         anim_func_3170(animObj, actor, st);
         if (st->state == ANIMOBJ_STATE_Ready) {
             anim_activate_obj(animObj, &actor, st, setup, &actorModelInst);
             return 0;
         }
+
         if (_bss_A8[st->seqSlot] == 1) {
             updateRate = 0;
         } else if (_bss_A8[st->seqSlot] == 2) {
@@ -648,12 +657,15 @@ s32 anim_tick_obj(Object* animObj, s32 updateRate) {
                 st->prevTime = st->time;
             }
         }
+
         if ((st->actor != NULL) && (st->actor->seqSlot != SEQSLOT_NONE) && !(_bss_3A8[st->seqSlot] & ACTORUSETTING_NO_LETTERBOX)) {
             gDLL_2_Camera->vtbl->set_letterbox_goal(30, TRUE);
         }
+
         if (_bss_378[st->seqSlot] != 0) {
             st->seqYaw = _bss_318[st->seqSlot];
         }
+
         if (st->pauseCond != 0) {
             if (anim_check_condition(st->pauseCond - 1, st, setup) == 0) {
                 // No longer paused
@@ -663,19 +675,20 @@ s32 anim_tick_obj(Object* animObj, s32 updateRate) {
                 return 0;
             }
         }
+
         // Progress sequence
         st->time += updateRate;
-        if (st->duration < st->time) {
+        if (st->time > st->duration) {
             st->time = st->duration;
         }
         currTime = st->time;
         anim_apply_channel_values(animObj, actor, st, currTime);
-        animObj->srt.transl.x += st->unk4;
-        animObj->srt.transl.y += st->unk8;
-        animObj->srt.transl.z += st->unkC;
-        animObj->srt.roll += st->unk18;
-        animObj->srt.pitch += st->unk16;
-        animObj->srt.yaw += st->unk14;
+        animObj->srt.transl.x += st->positionOffset.x;
+        animObj->srt.transl.y += st->positionOffset.y;
+        animObj->srt.transl.z += st->positionOffset.z;
+        animObj->srt.roll += st->rotationOffset.s[2];
+        animObj->srt.pitch += st->rotationOffset.s[1];
+        animObj->srt.yaw += st->rotationOffset.s[0];
         actorModelInst = actor->modelInsts[actor->modelInstIdx];
         sCodeEvtQueueCount = 0;
         if (actorModelInst != NULL) {
@@ -968,16 +981,15 @@ static void anim_update_actor_transform(Object* animObj, Object* actor, AnimObj_
 // offset: 0x1C04 | func: 8
 static void anim_apply_channel_values(Object* animObj, Object* actor, AnimObj_Data* st, s32 time) {
     f32 value;
-    f32 sp58;
-    f32 sp54;
-    f32 sp50;
+    f32 sinYaw;
+    f32 cosPitch;
+    f32 cosYaw;
     s32 _pad;
     f32 sp48;
-    f32 sp44;
+    f32 sinPitch;
     f32 sp40;
     ObjSetup* setup;
     Object* player;
-    // s32 _pad2;
     SeqJoint* headSeqJoint;
 
     setup = animObj->setup;
@@ -1005,9 +1017,9 @@ static void anim_apply_channel_values(Object* animObj, Object* actor, AnimObj_Da
         }
 
         if (!(st->unk8C & 2)) {
-            animObj->srt.yaw = (s16) (anim_channel_value(st, CHANNEL_rotateY, time) * 182.044f);
-            animObj->srt.pitch = (s16) (anim_channel_value(st, CHANNEL_rotateX, time) * 182.044f);
-            animObj->srt.roll = (s16) (anim_channel_value(st, CHANNEL_rotateZ, time) * 182.044f);
+            animObj->srt.yaw = anim_channel_value(st, CHANNEL_rotateY, time) * 182.044f;
+            animObj->srt.pitch = anim_channel_value(st, CHANNEL_rotateX, time) * 182.044f;
+            animObj->srt.roll = anim_channel_value(st, CHANNEL_rotateZ, time) * 182.044f;
             _bss_5E0 = anim_channel_value(st, CHANNEL_translateX, time);
             _bss_5E4 = anim_channel_value(st, CHANNEL_translateY, time);
             _bss_5E8 = anim_channel_value(st, CHANNEL_translateZ, time);
@@ -1022,21 +1034,21 @@ static void anim_apply_channel_values(Object* animObj, Object* actor, AnimObj_Da
         } else {
             _bss_5E4 = anim_channel_value(st, CHANNEL_translateY, time);
             _bss_5E8 = anim_channel_value(st, CHANNEL_translateZ, time);
-            animObj->srt.yaw = (s16) (anim_channel_value(st, CHANNEL_rotateY, time) * 182.044f);
-            animObj->srt.pitch = (s16) (anim_channel_value(st, CHANNEL_rotateX, time) * 182.044f);
-            sp58 = mathSinfInterp(animObj->srt.yaw - 0x4000);
-            sp50 = mathCosfInterp(animObj->srt.yaw - 0x4000);
-            sp54 = mathCosfInterp(animObj->srt.pitch);
-            sp44 = mathSinfInterp(animObj->srt.pitch);
-            sp44 = _bss_5E8 * sp44;
-            sp40 = _bss_5E8 * sp54;
-            sp48 = sp40 * sp50;
-            sp40 = sp40 * sp58;
+            animObj->srt.yaw = anim_channel_value(st, CHANNEL_rotateY, time) * 182.044f;
+            animObj->srt.pitch = anim_channel_value(st, CHANNEL_rotateX, time) * 182.044f;
+            sinYaw = mathSinfInterp(animObj->srt.yaw - M_90_DEGREES);
+            cosYaw = mathCosfInterp(animObj->srt.yaw - M_90_DEGREES);
+            cosPitch = mathCosfInterp(animObj->srt.pitch);
+            sinPitch = mathSinfInterp(animObj->srt.pitch);
+            sinPitch = _bss_5E8 * sinPitch;
+            sp40 = _bss_5E8 * cosPitch;
+            sp48 = sp40 * cosYaw;
+            sp40 = sp40 * sinYaw;
             player = objGetPlayer();
             animObj->srt.transl.x = player->srt.transl.x + sp48;
-            animObj->srt.transl.y = player->srt.transl.y + _bss_5E4 + sp44;
+            animObj->srt.transl.y = player->srt.transl.y + _bss_5E4 + sinPitch;
             animObj->srt.transl.z = player->srt.transl.z + sp40;
-            animObj->srt.yaw = 0x8000 - animObj->srt.yaw;
+            animObj->srt.yaw = M_180_DEGREES - animObj->srt.yaw;
             animObj->srt.pitch = -animObj->srt.pitch;
             _bss_24 = animObj->srt.transl.x - setup->x;
             _bss_28 = animObj->srt.transl.y - setup->y;
@@ -1069,7 +1081,7 @@ static void anim_apply_channel_values(Object* animObj, Object* actor, AnimObj_Da
             if (value > OBJECT_OPACITY_MAX) {
                 value = OBJECT_OPACITY_MAX;
             }
-            actor->opacity = (u8) value;
+            actor->opacity = value;
         }
         if (st->channelTotalKeys[CHANNEL_dayTime] != 0) {
             gDLL_7_Newday->vtbl->func9(anim_channel_value(st, CHANNEL_dayTime, time) * 60.0f);
