@@ -934,9 +934,9 @@ static void amSfx_func_22FC(f32 x, f32 y, f32 z, SoundDef* soundDef, s8* outVolu
         y /= range;
         y = 1.0f - y;
         *outVolume = (MAX_VOLUME_F * y);
-        return;
+    } else {
+        *outVolume = MAX_VOLUME;
     }
-    *outVolume = MAX_VOLUME;
 }
 
 // offset: 0x2438 | func: 27
