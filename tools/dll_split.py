@@ -213,6 +213,10 @@ class DLLSplitter:
         "GetDataSize"
     ]
 
+    MODGFX_INTERFACE = [
+        "Spawn",
+    ]
+
     def __default_symbol_names(self, dll: AnalyzedDLL, prefix: str):
         # Defaults to cover static functions
         for sym in dll.context.globalSegment.symbols.values():
@@ -244,10 +248,18 @@ class DLLSplitter:
             addr = sym.vram - dll.text.vram
             func_name = f"Func_{addr:X}"
             
-            # TODO: modgfx/projgfx support
-            if dll.number >= 210 and i < len(self.OBJECT_INTERFACE):
+            # TODO: projgfx support
+            if dll.number >= 210:
                 # Object DLL
-                func_name = f"obj_{self.OBJECT_INTERFACE[i]}"
+                if i < len(self.OBJECT_INTERFACE):
+                    func_name = f"obj_{self.OBJECT_INTERFACE[i]}"
+            elif dll.number >= 186:
+                # projgfx DLL
+                pass
+            elif dll.number >= 104:
+                # modgfx DLL
+                if i < len(self.MODGFX_INTERFACE):
+                    func_name = f"modgfx_{self.MODGFX_INTERFACE[i]}"
             
             sym.name = f"{prefix}_{func_name}"
 
@@ -590,6 +602,7 @@ class DLLSplitter:
                         c_file.write(f'#pragma GLOBAL_ASM("{asm_path.as_posix()}/{func.getName()}.s")\n')
 
     EMPTY_CTOR_DTOR = [0xAFA40000, 0x03E00008, 0x00000000]
+    DEFAULT_MODGFX_SPAWN = [0xAFA40000, 0xAFA50004, 0xAFA60008, 0xAFA7000C, 0x00001025, 0x03E00008, 0x00000000, 0x00000000, 0x00000000, 0x00000000]
     DEFAULT_OBJ_SETUP = [0xAFA40000, 0xAFA50004,  0xAFA60008, 0x03E00008, 0x000000]
     DEFAULT_OBJ_CONTROL = [0xAFA40000, 0x03E00008, 0x00000000]
     DEFAULT_OBJ_UPDATE = [0xAFA40000, 0x03E00008, 0x00000000]
@@ -619,7 +632,7 @@ class DLLSplitter:
             else:
                 c_file.write(f'void {func.getName()}(void* dll);\n')
             return False
-        
+
         if dll.number >= 210:
             # Object DLL, check for function defaults
             if export_idx == 0:
@@ -671,6 +684,17 @@ class DLLSplitter:
                     return True
                 else:
                     c_file.write(f'u32 {func.getName()}(Object* self, u32 offsetAddr);\n')
+        elif dll.number >= 186:
+            # Projgfx DLL
+            pass
+        elif dll.number >= 104:
+            # Modgfx DLL, check for function defaults
+            if export_idx == 0:
+                if self.__instructions_equal(func, self.DEFAULT_MODGFX_SPAWN):
+                    c_file.write(f's32 {func.getName()}(Object* obj, s32 type, SRT* transform, u32 flags, s32 arg4, void* data) {{\n    return 0;\n}}\n')
+                    return True
+                else:
+                    c_file.write(f's32 {func.getName()}(Object* obj, s32 type, SRT* transform, u32 flags, s32 arg4, void* data);\n')
         
         return False
 
