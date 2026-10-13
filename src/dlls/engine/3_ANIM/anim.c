@@ -967,7 +967,7 @@ static void anim_update_actor_transform(Object* animObj, Object* actor, AnimObj_
 
 // offset: 0x1C04 | func: 8
 static void anim_apply_channel_values(Object* animObj, Object* actor, AnimObj_Data* st, s32 time) {
-    f32 var_fv1;
+    f32 value;
     f32 sp58;
     f32 sp54;
     f32 sp50;
@@ -977,7 +977,7 @@ static void anim_apply_channel_values(Object* animObj, Object* actor, AnimObj_Da
     f32 sp40;
     ObjSetup* setup;
     Object* player;
-    s32 _pad2;
+    // s32 _pad2;
     SeqJoint* headSeqJoint;
 
     setup = animObj->setup;
@@ -987,19 +987,23 @@ static void anim_apply_channel_values(Object* animObj, Object* actor, AnimObj_Da
     animObj->srt.pitch = 0;
     animObj->srt.yaw = 0;
     animObj->srt.roll = 0;
+
     if (st->unk7A & ANIM7AFLAG_OVERRIDE_OPACITY) {
-        actor->opacity = 0xFF;
+        actor->opacity = OBJECT_OPACITY_MAX;
     }
+
     _bss_5E0 = 0.0f;\
     _bss_5E4 = 0.0f;\
     _bss_5E8 = 0.0f;
+
     if (st->animCurvesKeyframes != NULL) {
-        var_fv1 = anim_channel_value(st, CHANNEL_soundVolume, time);
-        if (var_fv1 > 0.0f) {
+        value = anim_channel_value(st, CHANNEL_soundVolume, time);
+        if (value > 0.0f) {
             if (st->sfxHandles[3] != 0) {
-                dll_amSfx->SetVol(st->sfxHandles[3], var_fv1);
+                dll_amSfx->SetVol(st->sfxHandles[3], value);
             }
         }
+
         if (!(st->unk8C & 2)) {
             animObj->srt.yaw = (s16) (anim_channel_value(st, CHANNEL_rotateY, time) * 182.044f);
             animObj->srt.pitch = (s16) (anim_channel_value(st, CHANNEL_rotateX, time) * 182.044f);
@@ -1040,61 +1044,63 @@ static void anim_apply_channel_values(Object* animObj, Object* actor, AnimObj_Da
             _bss_30 = animObj->srt.yaw;
             _bss_32 = 1;
         }
+
         if (st->channelTotalKeys[CHANNEL_fieldOfView] != 0) {
-            var_fv1 = anim_channel_value(st, CHANNEL_fieldOfView, time);
+            value = anim_channel_value(st, CHANNEL_fieldOfView, time);
             if (st->unk87 != 0) {
-                if (var_fv1 < 35.0f) {
-                    var_fv1 = 35.0f;
+                if (value < 35.0f) {
+                    value = 35.0f;
                 }
-                if (var_fv1 > 120.0f) {
-                    var_fv1 = 125.0f;
+                if (value > 120.0f) {
+                    value = 125.0f;
                 }
                 _data_30 = 1;
-                _bss_5DC = var_fv1;
+                _bss_5DC = value;
             } else {
-                st->unk10 = var_fv1;
+                st->unk10 = value;
             }
         }
+
         if ((st->unk7A & ANIM7AFLAG_OVERRIDE_OPACITY) && (st->channelTotalKeys[CHANNEL_opacity] != 0)) {
-            var_fv1 = anim_channel_value(st, CHANNEL_opacity, time);
-            if (var_fv1 < 0.0f) {
-                var_fv1 = 0.0f;
+            value = anim_channel_value(st, CHANNEL_opacity, time);
+            if (value < 0.0f) {
+                value = 0.0f;
             }
-            if (var_fv1 > 255.0f) {
-                var_fv1 = 255.0f;
+            if (value > OBJECT_OPACITY_MAX) {
+                value = OBJECT_OPACITY_MAX;
             }
-            actor->opacity = (u8) (u32) var_fv1;
+            actor->opacity = (u8) value;
         }
         if (st->channelTotalKeys[CHANNEL_dayTime] != 0) {
             gDLL_7_Newday->vtbl->func9(anim_channel_value(st, CHANNEL_dayTime, time) * 60.0f);
         }
         if ((st->unk7A & ANIM7AFLAG_OVERRIDE_SCALE) && (st->channelTotalKeys[CHANNEL_scale] != 0)) {
-            var_fv1 = anim_channel_value(st, CHANNEL_scale, time);
-            actor->srt.scale = actor->def->scale * var_fv1;
+            value = anim_channel_value(st, CHANNEL_scale, time);
+            actor->srt.scale = actor->def->scale * value;
         }
         if (st->unk7A & ANIM7AFLAG_OVERRIDE_HEAD) {
             headSeqJoint = objExpr_func_80034804(actor, 0);
             if (headSeqJoint != NULL) {
                 if (st->channelTotalKeys[CHANNEL_headRotateX] != 0) {
-                    var_fv1 = anim_channel_value(st, CHANNEL_headRotateX, time);
+                    value = anim_channel_value(st, CHANNEL_headRotateX, time);
                 } else {
-                    var_fv1 = 0.0f;
+                    value = 0.0f;
                 }
-                headSeqJoint->pitch = st->unk122 + (s16) (var_fv1 * 182.044f);
+                headSeqJoint->pitch = st->headBasePitch + (s16) (value * 182.044f);
                 
                 if (st->channelTotalKeys[CHANNEL_headRotateY] != 0) {
-                    var_fv1 = anim_channel_value(st, CHANNEL_headRotateY, time);
+                    value = anim_channel_value(st, CHANNEL_headRotateY, time);
                 } else {
-                    var_fv1 = 0.0f;
+                    value = 0.0f;
                 }
-                headSeqJoint->yaw = st->unk120 + (s16) (var_fv1 * 182.044f);
+                headSeqJoint->yaw = st->headBaseYaw + (s16) (value * 182.044f);
 
                 if (st->channelTotalKeys[CHANNEL_headRotateZ] != 0) {
-                    var_fv1 = anim_channel_value(st, CHANNEL_headRotateZ, time);
+                    value = anim_channel_value(st, CHANNEL_headRotateZ, time);
                 } else {
-                    var_fv1 = 0.0f;
+                    value = 0.0f;
                 }
-                headSeqJoint->roll = (s16) (var_fv1 * 182.044f);
+                headSeqJoint->roll = (s16) (value * 182.044f);
 
                 if (st->unk7A & ANIM7AFLAG_UNK400) {
                     anim_func_9EC8(actor, headSeqJoint, st->unk142_4);
@@ -1106,51 +1112,55 @@ static void anim_apply_channel_values(Object* animObj, Object* actor, AnimObj_Da
             headSeqJoint = objExpr_func_80034804(actor, 1);
             if (headSeqJoint != NULL) {
                 if (st->channelTotalKeys[CHANNEL_jaw] != 0) {
-                    var_fv1 = anim_channel_value(st, CHANNEL_jaw, time);
+                    value = anim_channel_value(st, CHANNEL_jaw, time);
                 } else {
-                    var_fv1 = 0.0f;
+                    value = 0.0f;
                 }
-                headSeqJoint->pitch = (s16) (var_fv1 * 182.044f);
+                headSeqJoint->pitch = (s16) (value * 182.044f);
             }
             if (1){} // @fake
         }
+
         if (st->unk7A & ANIM7AFLAG_OVERRIDE_EYES) {
-            TextureAnimator* temp_v0_6;
-            TextureAnimator* var_v1;
-            TextureAnimator* temp_s0;
-            temp_s0 = objExprGetTexAnimator(actor, HEAD_ANIMATION_TAG_Pupil_R, 0);
-            var_v1 = objExprGetTexAnimator(actor, HEAD_ANIMATION_TAG_Pupil_L, 0);
-            if ((temp_s0 != NULL) || (var_v1 != NULL)) {
+            TextureAnimator* lidL;
+            TextureAnimator* lidR;
+            TextureAnimator* eyeL;
+            TextureAnimator* eyeR;
+            eyeR = objExprGetTexAnimator(actor, HEAD_ANIMATION_TAG_Pupil_R, 0);
+            eyeL = objExprGetTexAnimator(actor, HEAD_ANIMATION_TAG_Pupil_L, 0);
+            if ((eyeR != NULL) || (eyeL != NULL)) {
                 if (st->channelTotalKeys[CHANNEL_eyeX] != 0) {
-                    var_fv1 = anim_channel_value(st, CHANNEL_eyeX, time);
+                    value = anim_channel_value(st, CHANNEL_eyeX, time);
                 } else {
-                    var_fv1 = 0.0f;
+                    value = 0.0f;
                 }
-                if (temp_s0 != NULL) {
-                    temp_s0->positionU = (s16) var_fv1;
+                if (eyeR != NULL) {
+                    eyeR->positionU = (s16) value;
                 }
-                if (var_v1 != NULL) {
-                    var_v1->positionU = -(s16) var_fv1;
+                if (eyeL != NULL) {
+                    eyeL->positionU = -(s16) value;
                 }
+                
                 if (st->channelTotalKeys[CHANNEL_eyeY] != 0) {
-                    var_fv1 = anim_channel_value(st, CHANNEL_eyeY, time);
+                    value = anim_channel_value(st, CHANNEL_eyeY, time);
                 } else {
-                    var_fv1 = 0.0f;
+                    value = 0.0f;
                 }
-                if (temp_s0 != NULL) {
-                    temp_s0->positionV = -(s16) var_fv1;
+                if (eyeR != NULL) {
+                    eyeR->positionV = -(s16) value;
                 }
-                if (var_v1 != NULL) {
-                    var_v1->positionV = -(s16) var_fv1;
+                if (eyeL != NULL) {
+                    eyeL->positionV = -(s16) value;
                 }
             }
-            temp_s0 = objExprGetTexAnimator(actor, HEAD_ANIMATION_TAG_Eyelid_R, 0);
-            temp_v0_6 = objExprGetTexAnimator(actor, HEAD_ANIMATION_TAG_Eyelid_L, 0);
-            if (temp_s0 != NULL) {
-                temp_s0->frame = st->blinkFrameR << 8;
+
+            lidR = objExprGetTexAnimator(actor, HEAD_ANIMATION_TAG_Eyelid_R, 0);
+            lidL = objExprGetTexAnimator(actor, HEAD_ANIMATION_TAG_Eyelid_L, 0);
+            if (lidR != NULL) {
+                lidR->frame = st->blinkFrameR << 8;
             }
-            if (temp_v0_6 != NULL) {
-                temp_v0_6->frame = st->blinkFrameL << 8;
+            if (lidL != NULL) {
+                lidL->frame = st->blinkFrameL << 8;
             }
         }
     } else {
@@ -4000,8 +4010,8 @@ s32 anim_func_9524(Object* actor, AnimObj_Data* st, s16 arg2, s16 arg3, s16 arg4
             st->unk62 = 0;
             st->unk7A |= ANIM7AFLAG_OVERRIDE_HEAD;
             seqJoint = objExpr_func_80034804(actor, 0);
-            st->unk120 = seqJoint->yaw;
-            st->unk122 = seqJoint->pitch;
+            st->headBaseYaw = seqJoint->yaw;
+            st->headBasePitch = seqJoint->pitch;
             if (st->unk58 > 1.0f) {
                 st->unk7A |= ANIM7AFLAG_OVERRIDE_MODEL;
             }

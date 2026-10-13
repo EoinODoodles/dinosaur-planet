@@ -168,8 +168,8 @@ typedef struct AnimObj_Data {
 /*0FC*/ UnkFunc_80024108Struct unkFC;
 /*118*/ s32 actorUID;
 /*11C*/ Object* overrideTarget; // same as actor, but only set if override was enabled
-/*120*/ s16 unk120;
-/*122*/ s16 unk122;
+/*120*/ s16 headBaseYaw;   //seqJoint rotation, used as a base value for the head rotation keyframes
+/*122*/ s16 headBasePitch; //seqJoint rotation, used as a base value for the head rotation keyframes
 /*124*/ s16 decisionTimes[MAX_DECISION]; // timestamp of decision target
 /*138*/ u8 decisionConditions[MAX_DECISION]; // condition of decision
 /*142*/ u8 unk142_4: 4;
