@@ -2730,22 +2730,23 @@ void dll_210_func_6DD8(Object* player, Player_Data* objdata, s32 arg2) {
 #endif
 
 // offset: 0x7180 | func: 34
-void dll_210_func_7180(Object* player, Player_Data* arg1, f32 updateRate) {
-    TextureAnimator* animator;
-    TextureAnimator* animator2;
+void dll_210_func_7180(Object* player, Player_Data* objData, f32 updateRate) {
+    TextureAnimator* eyelidR;
+    TextureAnimator* eyelidL;
 
-    objExpr_func_800328F0(player, &arg1->unk354, arg1->unk0.unk278);
-    if (arg1->stats->health > 0) {
-        objExprEyeIdle(player, &arg1->unk354);
-        return;
-    }
-    animator = objExprGetTexAnimator(player, 5, 0);
-    animator2 = objExprGetTexAnimator(player, 4, 0);
-    if (animator != NULL) {
-        animator->frame = 0x200;
-    }
-    if (animator2 != NULL) {
-        animator2->frame = 0x200;
+    objExpr_func_800328F0(player, &objData->unk354, objData->unk0.unk278);
+    if (objData->stats->health > 0) {
+        objExprEyeIdle(player, &objData->unk354);
+    } else {
+        //Close eyelids when dead
+        eyelidR = objExprGetTexAnimator(player, 5, 0);
+        eyelidL = objExprGetTexAnimator(player, 4, 0);
+        if (eyelidR != NULL) {
+            eyelidR->frame = 0x200;
+        }
+        if (eyelidL != NULL) {
+            eyelidL->frame = 0x200;
+        }
     }
 }
 
