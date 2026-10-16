@@ -315,7 +315,7 @@ enum SoundID {
     SOUND_222_NW_Tricky_Sharpclaw_Help = 0x222,
 
     SOUND_226_Fall_Impact = 0x226,
-
+    SOUND_227_Thud = 0x227,
     SOUND_228_Laser_Zap = 0x228,
 
     SOUND_236_SharpClaw_Argh = 0x236, //DR_NiceSharpy

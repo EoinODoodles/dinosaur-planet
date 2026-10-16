@@ -9582,8 +9582,8 @@ s32 dll_210_func_1C620(Object* player, ObjFSA_Data* fsa, f32 updateRate) {
         case Player_MODANIM_450:
             fsa->animTickDelta = 0.02f;
             if ((player->velocity.f[1] < 1.0f) && (fsa->unk4.unk25C & 0x10)) {
-                //@bug: this accesses the sound array way out-of-bounds, and is probably intended to be SOUND_227
-                dll_amSfx->Play(player, objdata->unk3B8[0x227], MAX_VOLUME, NULL, NULL, 0, NULL);
+                //@bug: this accesses the sound array way out-of-bounds, and is probably intended to be SOUND_227_Thud
+                dll_amSfx->Play(player, objdata->unk3B8[SOUND_227_Thud], MAX_VOLUME, NULL, NULL, 0, NULL);
                 objAnimSet(player, Player_MODANIM_C3, 0.0f, 0);
             }
             lateralSpeed = SQ(player->velocity.x) + SQ(player->velocity.z);
@@ -9596,8 +9596,8 @@ s32 dll_210_func_1C620(Object* player, ObjFSA_Data* fsa, f32 updateRate) {
         case Player_MODANIM_C1:
             fsa->animTickDelta = 0.05f;
             if ((player->velocity.f[1] < 1.0f) && (fsa->unk4.unk25C & 0x10)) {
-                //@bug: this accesses the sound array way out-of-bounds, and is probably intended to be SOUND_227
-                dll_amSfx->Play(player, objdata->unk3B8[0x227], MAX_VOLUME, NULL, NULL, 0, NULL);
+                //@bug: this accesses the sound array way out-of-bounds, and is probably intended to be SOUND_227_Thud
+                dll_amSfx->Play(player, objdata->unk3B8[SOUND_227_Thud], MAX_VOLUME, NULL, NULL, 0, NULL);
                 objAnimSet(player, Player_MODANIM_C3, 0.0f, 0);
             }
             lateralSpeed = SQ(player->velocity.x) + SQ(player->velocity.z);
@@ -9613,7 +9613,7 @@ s32 dll_210_func_1C620(Object* player, ObjFSA_Data* fsa, f32 updateRate) {
                 if (objdata->stats->health > 0) {
                     objAnimSet(player, Player_MODANIM_C5, 0.0f, 0);
                 } else {
-                    dll_210_func_9F1C(player, 0);
+                    dll_210_func_9F1C(player, FALSE);
                     return FSA_NEXTSTATE_ASYNC(PLAYER_ASTATE_78);
                 }
             }
