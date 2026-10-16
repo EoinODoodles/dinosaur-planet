@@ -293,7 +293,7 @@ void fish_obj_Control(Object* self) {
         //Create bubble particles when the player's nearby
         {
             timerSq = SQ(objdata->timer);
-            timerPow4 = SQ(SQ(objdata->timer));
+            timerPow4 = SQ(timerSq);
             objdata->bubbleTimer += gUpdateRateF;
 
             bubblesPerSecond = SQ(timerPow4) * objdata->bubbleRate;
