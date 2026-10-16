@@ -9568,77 +9568,88 @@ s32 dll_210_func_1C564(Object* player, ObjFSA_Data* arg1, f32 arg2) {
 }
 
 // offset: 0x1C620 | func: 146
-s32 dll_210_func_1C620(Object* player, ObjFSA_Data* arg1, f32 arg2) {
-    f32 f0;
-    s32 var_v1;
+/**
+  * PLAYER_ASTATE_Hurt_Knocked_Down
+  */
+s32 dll_210_func_1C620(Object* player, ObjFSA_Data* fsa, f32 updateRate) {
+    f32 lateralSpeed;
+    s32 yawDiff;
     Player_Data* objdata;
 
     objdata = player->data;
+
     switch (player->curModAnimId) {
-        case 0x450:
-            arg1->animTickDelta = 0.02f;
-            if ((player->velocity.f[1] < 1.0f) && (arg1->unk4.unk25C & 0x10)) {
+        case Player_MODANIM_450:
+            fsa->animTickDelta = 0.02f;
+            if ((player->velocity.f[1] < 1.0f) && (fsa->unk4.unk25C & 0x10)) {
+                //@bug: this accesses the sound array way out-of-bounds, and is probably intended to be SOUND_227
                 dll_amSfx->Play(player, objdata->unk3B8[0x227], MAX_VOLUME, NULL, NULL, 0, NULL);
-                objAnimSet(player, 0xC3, 0.0f, 0U);
+                objAnimSet(player, Player_MODANIM_C3, 0.0f, 0);
             }
-            f0 = SQ(player->velocity.x) + SQ(player->velocity.z);
-            if (f0 > 1.0f) {
-                var_v1 = mathAtan2f(player->velocity.x, player->velocity.z) - (player->srt.yaw & 0xFFFF);
-                CIRCLE_WRAP(var_v1)
-                player->srt.yaw += (var_v1 * (s32) arg2) >> 3;
+            lateralSpeed = SQ(player->velocity.x) + SQ(player->velocity.z);
+            if (lateralSpeed > 1.0f) {
+                yawDiff = mathAtan2f(player->velocity.x, player->velocity.z) - (player->srt.yaw & 0xFFFF);
+                CIRCLE_WRAP(yawDiff)
+                player->srt.yaw += (yawDiff * (s32) updateRate) >> 3;
             }
             break;
-        case 0xC1:
-            arg1->animTickDelta = 0.05f;
-            if ((player->velocity.f[1] < 1.0f) && (arg1->unk4.unk25C & 0x10)) {
+        case Player_MODANIM_C1:
+            fsa->animTickDelta = 0.05f;
+            if ((player->velocity.f[1] < 1.0f) && (fsa->unk4.unk25C & 0x10)) {
+                //@bug: this accesses the sound array way out-of-bounds, and is probably intended to be SOUND_227
                 dll_amSfx->Play(player, objdata->unk3B8[0x227], MAX_VOLUME, NULL, NULL, 0, NULL);
-                objAnimSet(player, 0xC3, 0.0f, 0U);
+                objAnimSet(player, Player_MODANIM_C3, 0.0f, 0);
             }
-            f0 = SQ(player->velocity.x) + SQ(player->velocity.z);
-            if (f0 > 1.0f) {
-                var_v1 = mathAtan2f(player->velocity.x, player->velocity.z) - (player->srt.yaw & 0xFFFF);
-                CIRCLE_WRAP(var_v1)
-                player->srt.yaw += (var_v1 * (s32) arg2) >> 3;
+            lateralSpeed = SQ(player->velocity.x) + SQ(player->velocity.z);
+            if (lateralSpeed > 1.0f) {
+                yawDiff = mathAtan2f(player->velocity.x, player->velocity.z) - (player->srt.yaw & 0xFFFF);
+                CIRCLE_WRAP(yawDiff)
+                player->srt.yaw += (yawDiff * (s32) updateRate) >> 3;
             }
             break;
-        case 0xC3:
-            arg1->animTickDelta = 0.05f;
-            if (arg1->unk33A != 0) {
+        case Player_MODANIM_C3:
+            fsa->animTickDelta = 0.05f;
+            if (fsa->unk33A) {
                 if (objdata->stats->health > 0) {
-                    objAnimSet(player, 0xC5, 0.0f, 0U);
+                    objAnimSet(player, Player_MODANIM_C5, 0.0f, 0);
                 } else {
                     dll_210_func_9F1C(player, 0);
-                    return -0x4E;
+                    return FSA_NEXTSTATE_ASYNC(PLAYER_ASTATE_78);
                 }
             }
             player->velocity.x = 0.0f;
             player->velocity.z = 0.0f;
             break;
-        case 0xC5:
-            arg1->animTickDelta = 0.01f;
-            if (arg1->unk33A != 0) {
-                return -1;
+        case Player_MODANIM_C5:
+            fsa->animTickDelta = 0.01f;
+            if (fsa->unk33A) {
+                return FSA_NEXTSTATE_ASYNC(PLAYER_ASTATE_Standing);
             }
             break;
         default:
-            objAnimSet(player, 0xC1, 0.0f, 0U);
+            objAnimSet(player, Player_MODANIM_C1, 0.0f, 0);
             break;
     }
-    arg1->unk340 |= 2;
+
+    fsa->unk340 |= 2;
+
     player->velocity.f[0] *= 0.96f;
     player->velocity.f[2] *= 0.96f;
+
     return 0;
 }
 
 // offset: 0x1C9D8 | func: 147
-s32 dll_210_func_1C9D8(Object* player, ObjFSA_Data* arg1, f32 arg2) {
+s32 dll_210_func_1C9D8(Object* player, ObjFSA_Data* fsa, f32 updateRate) {
     Player_Data* objdata = player->data;
 
-    arg1->unk341 = 3;
+    fsa->unk341 = 3;
+
     if (objdata->stats->health > 0) {
-        objAnimSet(player, 0xC5, 0.0f, 0);
-        return -0x4D;
+        objAnimSet(player, Player_MODANIM_C5, 0.0f, 0);
+        return FSA_NEXTSTATE_ASYNC(PLAYER_ASTATE_Hurt_Knocked_Down);
     }
+
     return 0;
 }
 

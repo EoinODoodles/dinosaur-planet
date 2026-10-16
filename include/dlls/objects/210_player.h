@@ -290,7 +290,15 @@ typedef struct {
 typedef enum {
     Player_MODANIM_0_Idle = 0,
 
-    Player_MODANIM_447_Carrying_Idle = 0x447
+    Player_MODANIM_C1 = 0xC1,
+
+    Player_MODANIM_C3 = 0xC3,
+
+    Player_MODANIM_C5 = 0xC5,
+
+    Player_MODANIM_447_Carrying_Idle = 0x447,
+    
+    Player_MODANIM_450 = 0x450
 } Player_Modanims;
 
 typedef enum {
@@ -370,7 +378,7 @@ typedef enum {
     PLAYER_ASTATE_75 = 75,
     PLAYER_ASTATE_76 = 76,
     PLAYER_ASTATE_Hurt_Knocked_Down = 77, //when knocked to floor by WM lasers, etc.
-    PLAYER_ASTATE_78 = 78,
+    PLAYER_ASTATE_78 = 78, //dying while knocked down?
     PLAYER_ASTATE_Hurt_Stagger = 79,
     PLAYER_ASTATE_Hurt_Stagger_80 = 80, //Diamond Bay tendril enemies cause this state
     PLAYER_ASTATE_81 = 81
