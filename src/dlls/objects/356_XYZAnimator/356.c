@@ -1,24 +1,28 @@
 #include "common.h"
+#include "sys/map.h"
 
 typedef struct {
     ObjSetup base;
-    u8 unk18;
-    u16 unk1A;
+    s16 unk18;
+    s16 unk1A;
     s16 unk1C;
     s16 unk1E;
     s16 unk20;
     s16 unk22;
     s16 unk24;
     s16 unk26;
-    u16 unk28;
-    u16 unk2A;
+    s8 unk28;
+    s8 unk29;
+    s8 unk2A;
+    s8 unk2B;
     u8 unk2C;
+    u16 unk2E;
 } XYZAnimator_Setup;
 
 typedef struct {
-    s32 _unk0;
+    s32 unk0;
     s32 unk4;
-    u8 _unk8[0xC - 8];
+    f32 unk8;
     f32 unkC;
     f32 unk10;
     f32* unk14;
@@ -31,10 +35,14 @@ typedef struct {
     s16* unk30;
     Vec3f unk34;
     s8 unk40; //animatorID
-    s8 _unk41;
-    s8 _unk42;
+    s8 unk41;
+    s8 unk42;
     s8 unk43;
 } XYZAnimator_Data; //0x44
+
+static void XYZAnimator_func_1174(XYZAnimator_Data* objData, XYZAnimator_Setup* objSetup, Block* block);
+static void XYZAnimator_func_17EC(Object* self, XYZAnimator_Data* objData);
+static void XYZAnimator_func_1A04(Object* self, XYZAnimator_Data* objData);
 
 // offset: 0x0 | ctor
 void XYZAnimator_ctor(void* dll) { }
@@ -50,8 +58,319 @@ void XYZAnimator_obj_Setup(Object* self, XYZAnimator_Setup* objSetup, s32 reset)
 }
 
 // offset: 0x34 | func: 1 | export: 1
-void XYZAnimator_obj_Control(Object* self);
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/356_XYZAnimator/XYZAnimator_obj_Control.s")
+void XYZAnimator_obj_Control(Object* self) {
+    XYZAnimator_Setup* objSetup;
+    XYZAnimator_Data* objData;
+    Block* block;
+    s32 var_v0;
+    s32 count;
+    
+    objSetup = (XYZAnimator_Setup*)self->setup;
+    objData = self->data;
+    
+    block = mapGetBlockByIndex(mapWorldCoordsToBlockIndex(self->srt.transl.x, self->srt.transl.y, self->srt.transl.z));
+    if (block == NULL) {
+        objData->unk42 = 0;
+        return;
+    }
+    
+    if ((block->vtxFlags & 8) == FALSE) {
+        return;
+    }
+    
+    if (objData->unk4 == 0) {
+        objData->unk40 = objSetup->unk28;
+        objData->unk4 = blockGetAnimatorVertexCount(self, objData->unk40);
+        objData->unk0 = blockGetAnimatorShapeCount(self, objData->unk40);
+        if (objData->unk4 == 0) {
+            objData->unk40 = 0;
+        }
+        
+        if (objData->unk40 == 0) {
+            return;
+        }
+        
+        objData->unk8 = 0.0f;
+        objData->unkC = 0.0f;
+        objData->unk10 = objSetup->unk2E;
+        
+        if (objSetup->unk18 == NO_GAMEBIT) {
+            objData->unk41 = 1;
+        } else {
+            objData->unk41 = mainGetBits(objSetup->unk18);
+        }
+        
+        objData->unk34.x = objSetup->unk1C;
+        objData->unk34.y = objSetup->unk1E;
+        objData->unk34.z = objSetup->unk20;
+        
+        if (objSetup->unk1A != NO_GAMEBIT && mainGetBits(objSetup->unk1A)) {
+            objData->unk34.x = objSetup->unk22;
+            objData->unk34.y = objSetup->unk24;
+            objData->unk34.z = objSetup->unk26;
+            objData->unk41 = 1;
+            objData->unk8 = objData->unk10 + 1.0f;
+        }
+        
+        if (objSetup->unk2C == 3) {
+            objData->unk14 = mmAlloc(objData->unk4 * 4, 5, NULL);
+            XYZAnimator_func_17EC(self, objData);
+        }
+        
+        objData->unk18 = mmAlloc((objData->unk4 * (sizeof(s16))) * 3, ALLOC_TAG_TRACK_COL, NULL);
+        objData->unk1C = mmAlloc(objData->unk0 * (sizeof(s16)), ALLOC_TAG_TRACK_COL, NULL);
+        objData->unk20 = mmAlloc(objData->unk0 * (sizeof(s16)), ALLOC_TAG_TRACK_COL, NULL);
+        objData->unk24 = mmAlloc(objData->unk0 * (sizeof(s16)), ALLOC_TAG_TRACK_COL, NULL);
+        objData->unk28 = mmAlloc(objData->unk0 * (sizeof(s16)), ALLOC_TAG_TRACK_COL, NULL);
+        objData->unk2C = mmAlloc(objData->unk0 * (sizeof(s16)), ALLOC_TAG_TRACK_COL, NULL);
+        objData->unk30 = mmAlloc(objData->unk0 * (sizeof(s16)), ALLOC_TAG_TRACK_COL, NULL);
+        XYZAnimator_func_1A04(self, objData);
+        
+        if (objSetup->unk2C != 4) {
+            XYZAnimator_func_1174(objData, objSetup, block);
+            block->vtxFlags ^= 1;
+            XYZAnimator_func_1174(objData, objSetup, block);
+            block->vtxFlags ^= 1;
+        }
+    }
+    
+    if (objData->unk40 == 0) {
+        return;
+    }
+    
+    if (objSetup->unk2C == 2) {
+        objData->unk41 = mainGetBits(objSetup->unk18);
+        if (objData->unk42 >= 3) {
+            if (objData->unk41 != objData->unk43) {
+                objData->unk42 = 0;
+                objData->unk43 = objData->unk41;
+            }
+        }
+        
+        if (objData->unk42 >= 3) {
+            return;
+        }
+    } else if ((objData->unk42 >= 3)) {
+        return;
+    } else if (objData->unk41 == 0) {
+        objData->unk41 = mainGetBits(objSetup->unk18);
+        if (objData->unk41 == 0) {
+            return;
+        }
+    }
+    
+    switch (objSetup->unk2C) {
+    case 0:
+    case 4:
+        count = 0;
+        if (objSetup->unk22 < objSetup->unk1C) {
+            objData->unk34.x -= (objSetup->unk29 * gUpdateRate) * 0.1f;
+            if (objData->unk34.x <= objSetup->unk22) {
+                objData->unk34.x = objSetup->unk22;
+                count = 1;
+            }
+        } else {
+            objData->unk34.x += (objSetup->unk29 * gUpdateRate) * 0.1f;
+            if (objData->unk34.x >= objSetup->unk22) {
+                objData->unk34.x = objSetup->unk22;
+                count = 1;
+            }
+        }
+        
+        if (objSetup->unk24 < objSetup->unk1E) {
+            objData->unk34.y -= (objSetup->unk2A * gUpdateRate) * 0.1f;
+            if (objData->unk34.y <= objSetup->unk24) {
+                objData->unk34.y = objSetup->unk24;
+                count++;
+            }
+        } else {
+            objData->unk34.y += (objSetup->unk2A * gUpdateRate) * 0.1f;
+            if (objData->unk34.y >= objSetup->unk24) {
+                objData->unk34.y = objSetup->unk24;
+                count++;
+            }
+        }
+        
+        if (objSetup->unk26 < objSetup->unk20) {
+            objData->unk34.z -= (objSetup->unk2B * gUpdateRate) * 0.1f;
+            if (objData->unk34.z <= objSetup->unk26) {
+                objData->unk34.z = objSetup->unk26;
+                count++;
+            }
+        } else {
+            objData->unk34.z += (objSetup->unk2B * gUpdateRate) * 0.1f;
+            if (objData->unk34.z >= objSetup->unk26) {
+                objData->unk34.z = objSetup->unk26;
+                count++;
+            }
+        }
+        
+        if (count == 3) {
+            if (objSetup->unk1A != NO_GAMEBIT) {
+                mainSetBits(objSetup->unk1A, 1);
+            }
+            objData->unk42++;
+        }
+        break;
+    case 1:
+        if (objSetup->unk22 < objSetup->unk1C) {
+            objData->unk34.x -= (objSetup->unk29 * gUpdateRate) * 0.1f;
+            if (objData->unk34.x < objSetup->unk22) {
+                var_v0 = objSetup->unk22 - objData->unk34.x;
+                objData->unk34.x = objSetup->unk1C - var_v0;
+            }
+        } else {
+            objData->unk34.x += (objSetup->unk29 * gUpdateRate) * 0.1f;
+            if (objSetup->unk1C < objData->unk34.x) {
+                var_v0 = objData->unk34.x - objSetup->unk22;
+                objData->unk34.x = objSetup->unk22 + var_v0;
+            }
+        }
+        
+        if (objSetup->unk24 < objSetup->unk1E) {
+            objData->unk34.y -= (objSetup->unk2A * gUpdateRate) * 0.1f;
+            if (objData->unk34.y < objSetup->unk24) {
+                var_v0 = objSetup->unk24 - objData->unk34.y;
+                objData->unk34.y = objSetup->unk1E - (var_v0 * 0.1f);
+            }
+        } else {
+            objData->unk34.y += (objSetup->unk2A * gUpdateRate) * 0.1f;
+            if (objSetup->unk1E < objData->unk34.y) {
+                var_v0 = objData->unk34.y - objSetup->unk24;
+                objData->unk34.y = objSetup->unk24 + var_v0;
+            }
+        }
+        
+        if (objSetup->unk26 < objSetup->unk20) {
+            objData->unk34.z -= (objSetup->unk2B * gUpdateRate) * 0.1f;
+            if (objData->unk34.z < objSetup->unk26) {
+                var_v0 = objSetup->unk26 - objData->unk34.z;
+                objData->unk34.z = objSetup->unk20 - var_v0;
+            }
+        } else {
+            objData->unk34.z += (objSetup->unk2B * gUpdateRate) * 0.1f;
+            if (objSetup->unk20 < objData->unk34.z) {
+                var_v0 = objData->unk34.z - objSetup->unk26;
+                if (((!objSetup->unk26) && (!objSetup->unk26)) && (!objSetup->unk26)) { } //fake
+                objData->unk34.z = objSetup->unk26 + var_v0;
+            }
+        }
+        break;
+    case 2:
+        count = 0;
+        if (objData->unk41) {
+            if (objSetup->unk22 < objSetup->unk1C) {
+                objData->unk34.x -= (objSetup->unk29 * gUpdateRate) * 0.1f;
+                if (objData->unk34.x <= objSetup->unk22) {
+                    objData->unk34.x = objSetup->unk22;
+                    count = 1;
+                }
+            } else {
+                objData->unk34.x += (objSetup->unk29 * gUpdateRate) * 0.1f;
+                if (objData->unk34.x >= objSetup->unk22) {
+                    objData->unk34.x = objSetup->unk22;
+                    count = 1;
+                }
+            }
+            
+            if (objSetup->unk24 < objSetup->unk1E) {
+                objData->unk34.y -= (objSetup->unk2A * gUpdateRate) * 0.1f;
+                if (objData->unk34.y <= objSetup->unk24) {
+                    objData->unk34.y = objSetup->unk24;
+                    count++;
+                }
+            } else {
+                objData->unk34.y += (objSetup->unk2A * gUpdateRate) * 0.1f;
+                if (objData->unk34.y >= objSetup->unk24) {
+                    objData->unk34.y = objSetup->unk24;
+                    count++;
+                }
+            }
+            
+            if (objSetup->unk26 < objSetup->unk20) {
+                objData->unk34.z -= (objSetup->unk2B * gUpdateRate) * 0.1f;
+                if (objData->unk34.z <= objSetup->unk26) {
+                objData->unk34.z = objSetup->unk26;
+                count++;
+                }
+            } else {
+                objData->unk34.z += (objSetup->unk2B * gUpdateRate) * 0.1f;
+                if (objData->unk34.z >= objSetup->unk26) {
+                    objData->unk34.z = objSetup->unk26;
+                    count++;
+                }
+            }
+            
+            if (count == 3) {
+                if (objSetup->unk1A != NO_GAMEBIT) {
+                    mainSetBits(objSetup->unk1A, 1);
+                }
+                objData->unk42++; 
+            } 
+        } else {
+            if (objSetup->unk22 < objSetup->unk1C) { 
+                objData->unk34.x += (objSetup->unk29 * gUpdateRate) * 0.1f; 
+                if (objData->unk34.x >= objSetup->unk1C) { 
+                    objData->unk34.x = objSetup->unk1C; 
+                    count = 1; 
+                } 
+            } else {
+                objData->unk34.x -= (objSetup->unk29 * gUpdateRate) * 0.1f;
+                if (objData->unk34.x <= objSetup->unk1C) {
+                    objData->unk34.x = objSetup->unk1C;
+                    count = 1;
+                }
+            }
+            
+            if (objSetup->unk24 < objSetup->unk1E) {
+                objData->unk34.y += (objSetup->unk2A * gUpdateRate) * 0.1f;
+                if (objData->unk34.y >= objSetup->unk1E) {
+                    objData->unk34.y = objSetup->unk1E;
+                    count++;
+                }
+            } else {
+                objData->unk34.y -= (objSetup->unk2A * gUpdateRate) * 0.1f;
+                if (objData->unk34.y <= objSetup->unk1E) {
+                    objData->unk34.y = objSetup->unk1E;
+                    count++;
+                }
+            }
+            
+            if (objSetup->unk26 < objSetup->unk20) {
+                objData->unk34.z += (objSetup->unk2B * gUpdateRate) * 0.1f;
+                if (objData->unk34.z >= objSetup->unk20) {
+                    objData->unk34.z = objSetup->unk20;
+                    count++;
+                }
+            } else {
+                objData->unk34.z -= (objSetup->unk2B * gUpdateRate) * 0.1f;
+                if (objData->unk34.z <= objSetup->unk20) {
+                    objData->unk34.z = objSetup->unk20;
+                    count++;
+                }
+            }
+            
+            if (count == 3) {
+                if (objSetup->unk1A != NO_GAMEBIT) {
+                    mainSetBits(objSetup->unk1A, 1);
+                }
+                objData->unk42++;
+            }
+        }
+        break;
+    case 3:
+        objData->unk8 += (objSetup->unk29 * gUpdateRateF) * 0.1f;
+        if (objData->unk8 > objData->unk10) {
+            objData->unk8 = objData->unk10;
+            mainSetBits(objSetup->unk1A, 1);
+            objData->unk42++;
+        }
+        objData->unkC = objData->unk8 - 50.0f;
+        break;
+    }
+    
+    XYZAnimator_func_1174(objData, objSetup, block);
+}
 
 // offset: 0x1174 | func: 2
 static void XYZAnimator_func_1174(XYZAnimator_Data* objData, XYZAnimator_Setup* objSetup, Block* block) {
@@ -211,11 +530,11 @@ void XYZAnimator_func_17EC(Object* self, XYZAnimator_Data* objData) {
         return;
     }
     
-    blockWorldGridX = floorf((self->srt.transl.x - gWorldX) / 640.0f);
-    blockWorldGridZ = floorf((self->srt.transl.z - gWorldZ) / 640.0f);
+    blockWorldGridX = floorf((self->srt.transl.x - gWorldX) / BLOCKS_GRID_UNIT_F);
+    blockWorldGridZ = floorf((self->srt.transl.z - gWorldZ) / BLOCKS_GRID_UNIT_F);
 
-    localX = self->srt.transl.x - ((blockWorldGridX * 640.0f) + gWorldX);
-    localZ = self->srt.transl.z - ((blockWorldGridZ * 640.0f) + gWorldZ);
+    localX = self->srt.transl.x - ((blockWorldGridX * BLOCKS_GRID_UNIT_F) + gWorldX);
+    localZ = self->srt.transl.z - ((blockWorldGridZ * BLOCKS_GRID_UNIT_F) + gWorldZ);
     
     shapes = block->shapes;
 
