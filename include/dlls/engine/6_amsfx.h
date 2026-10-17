@@ -166,6 +166,8 @@ enum SoundID {
     SOUND_B0_Put_Back_Staff = 0xB0,
 
     SOUND_B6_Weapon_Whoosh = 0xB6,
+    SOUND_B7_Weapon_Whish = 0xB7,
+    SOUND_B8_Weapon_Whiff = 0xB8,
 
     SOUND_C2_CloudRunner_Chirp_Double = 0xC2,  
     SOUND_C3_CloudRunner_Chirp = 0xC3,  
