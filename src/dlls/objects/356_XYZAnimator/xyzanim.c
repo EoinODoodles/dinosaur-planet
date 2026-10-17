@@ -1,5 +1,9 @@
-#include "common.h"
+
+#include "game/gamebits.h"
+#include "sys/main.h"
 #include "sys/map.h"
+#include "sys/memory.h"
+#include "sys/objprint.h"
 
 typedef struct {
     ObjSetup base;
