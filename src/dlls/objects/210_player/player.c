@@ -69,7 +69,7 @@ static void dll_210_func_A024(Object* player, ObjFSA_Data* fsa);
 static s32 dll_210_func_BA38(Object* player, ObjFSA_Data* fsa, f32 arg2);
 static void dll_210_func_B4C8(Object* player, ObjFSA_Data *fsa);
 static s32 dll_210_func_C1F4(Object* player, ObjFSA_Data* fsa, f32 arg2);
-static void dll_210_func_D510(ObjFSA_Data* fsa, f32 arg1);
+static void dll_210_func_D510(ObjFSA_Data* fsa, f32 updateRate);
 static void dll_210_func_EF8C(Object *player, ObjFSA_Data *fsa);
 static s32 dll_210_func_EFB4(Object* player, ObjFSA_Data* fsa, f32 arg2);
 static void dll_210_func_12514(Object* player, ObjFSA_Data *fsa);
