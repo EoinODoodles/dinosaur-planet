@@ -58,9 +58,7 @@ void DFPLift_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
 void DFPLift_obj_Setup(Object* self, DFPLift_Setup* setup, s32 reset) {
-    DFPLift_Data* objdata;
-
-    objdata = (DFPLift_Data*)self->data;
+    DFPLift_Data* objdata = self->data;
 
     self->animCallback = DFPLift_animCallback;
     self->srt.yaw = setup->rotation * 256;
