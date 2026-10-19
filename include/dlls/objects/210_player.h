@@ -296,6 +296,8 @@ typedef enum {
 
     Player_MODANIM_C5 = 0xC5,
 
+    Player_MODANIM_426_Hop = 0x426, //For a rarely-used HITS variety (e.g. around WC's Transporter pad)
+
     Player_MODANIM_447_Carrying_Idle = 0x447,
     
     Player_MODANIM_450 = 0x450

@@ -391,7 +391,7 @@ void dll_210_func_0(void) {
     _bss_58[7] = dll_210_func_B864;
     _bss_58[8] = dll_210_func_BA38;
     _bss_58[9] = dll_210_func_C1F4;
-    _bss_58[10] = dll_210_func_C264;
+    _bss_58[PLAYER_ASTATE_Hop] = dll_210_func_C264;
     _bss_58[11] = dll_210_func_C3D0;
     _bss_58[12] = dll_210_func_CAA8;
     _bss_58[13] = dll_210_func_CC24;
@@ -4605,27 +4605,37 @@ static s32 dll_210_func_C1F4(Object* player, ObjFSA_Data* fsa, f32 arg2) {
 }
 
 // offset: 0xC264 | func: 67
-s32 dll_210_func_C264(Object* player, ObjFSA_Data* fsa, f32 arg2) {
-    fsa->flags |= 0x200000;
+/**
+  * PLAYER_ASTATE_Hop
+  */
+s32 dll_210_func_C264(Object* player, ObjFSA_Data* fsa, f32 updateRate) {
+    fsa->flags |= OBJFSA_FLAG_200000;
     fsa->unk27C = 0.0f;
-    dll_210_func_D510(fsa, arg2);
-    if (player->curModAnimId == 0x426) {
+
+    dll_210_func_D510(fsa, updateRate);
+
+    if (player->curModAnimId == Player_MODANIM_426_Hop) {
+        #define HOP_INTO_WALK_THRESHOLD 0.42000002f
         if (player->animProgress > 0.95f) {
-            if ((fsa->prevAnalogInputPower >= 0.42000002f) && (fsa->analogInputPower >= 0.42000002f) && (*_data_6FC <= fsa->speed)) {
-                if (fsa->unk328 < 0x5A) {
-                    return 5;
+            if ((fsa->prevAnalogInputPower >= HOP_INTO_WALK_THRESHOLD) && (fsa->analogInputPower >= HOP_INTO_WALK_THRESHOLD) && (_data_6FC[0] <= fsa->speed)) {
+                if (fsa->unk328 < 90) {
+                    return FSA_NEXTSTATE_SYNC(PLAYER_ASTATE_Walking);
+                } else {
+                    return FSA_NEXTSTATE_SYNC(PLAYER_ASTATE_Standing);
                 }
-                return 2;
+            } else {
+                return FSA_NEXTSTATE_SYNC(PLAYER_ASTATE_Standing);
             }
-            return 2;
         }
     } else {
-        player->velocity.f[1] = 2.6f;
+        player->velocity.y = 2.6f;
         fsa->unk278 = 0.72f;
         fsa->animTickDelta = 0.026f;
-        objAnimSet(player, 0x426, 0.0f, 0U);
+        objAnimSet(player, Player_MODANIM_426_Hop, 0.0f, 0);
     }
-    player->velocity.f[1] -= 0.15f;
+
+    player->velocity.y -= 0.15f;
+
     return 0;
 }
 
@@ -4949,22 +4959,24 @@ s32 dll_210_func_D480(Object* player, ObjFSA_Data* fsa, f32 arg2) {
 }
 
 // offset: 0xD510 | func: 73
-static void dll_210_func_D510(ObjFSA_Data* fsa, f32 arg1) {
-    f32 var_fv1;
+static void dll_210_func_D510(ObjFSA_Data* fsa, f32 updateRate) {
+    f32 tValue;
 
     if (fsa->analogInputPower < 0.05f) {
         fsa->unk328 = 0;
         fsa->unk32A = 0;
         fsa->analogInputPower = 0.0f;
     }
-    var_fv1 = (fsa->analogInputPower - 0.4f) / 0.6f;
-    if (var_fv1 < 0.0f) {
-        var_fv1 = 0.0f;
+
+    tValue = (fsa->analogInputPower - 0.4f) / 0.6f;
+    if (tValue < 0.0f) {
+        tValue = 0.0f;
     }
-    if (var_fv1 > 1.0f) {
-        var_fv1 = 1.0f;
+    if (tValue > 1.0f) {
+        tValue = 1.0f;
     }
-    fsa->speed += (((var_fv1 * 1.6f) - fsa->speed) / fsa->unk2B0) * arg1;
+    
+    fsa->speed += (((tValue * 1.6f) - fsa->speed) / fsa->unk2B0) * updateRate;
     if (fsa->speed > 1.65f) {
         fsa->speed = 1.65f;
     }
