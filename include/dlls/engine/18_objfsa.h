@@ -55,10 +55,10 @@ typedef struct ObjFSA_Data {
         // Whether the current logic state was just entered 
         // (only true for the first call since transitioning to the state)
 /*273*/ s8 enteredLogicState;
-/*274*/ Vec3f *unk274;
-/*278*/ f32 unk278; // rate of turning (yaw only)?
-/*27C*/ f32 unk27C; // rate of turning (yaw only)?
-/*280*/ f32 unk280;
+/*274*/ Vec3f* unk274;
+/*278*/ f32 unk278; // rate of turning (yaw only)? (forward lateral velocity?)
+/*27C*/ f32 unk27C; // rate of turning (yaw only)? (sideways lateral velocity?)
+/*280*/ f32 unk280; // (vertical velocity?)
 /*284*/ f32 yAnalogInput; // y-axis analog input (-backward/+forward) [-65, 65] (player overflows to [-70, 70])
 /*288*/ f32 xAnalogInput; // x-axis analog input (-left/+right) [-65, 65] (player overflows to [-70, 70])
 /*28C*/ f32 speed;
