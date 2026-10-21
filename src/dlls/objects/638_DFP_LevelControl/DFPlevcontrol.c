@@ -10,10 +10,11 @@
 #include "sys/objmsg.h"
 #include "sys/lfx.h"
 #include "sys/envfx.h"
+#include "sys/gfx/textable.h"
 #include "dlls/engine/17_partfx.h"
 #include "dlls/objects/210_player.h"
 
-#include "dlls/objects/638_DFPlevcontrol.h"
+#include "dlls/objects/638_DFP_LevelControl.h"
 
 /** Textures for electric arcing effect? */
 /*0x0*/ static Texture* dTexElectricity = NULL;
@@ -26,24 +27,24 @@
 /** Tracks whether extra LightAction has been applied during Visit 1 to DFPT */
 /*0x10*/ static u32 dLitVisit1 = FALSE;
 
-static int DFP_LevelControl_anim_callback(Object* self, Object *override, AnimObj_Data *aData, s8 arg3);
-static void DFP_LevelControl_handle_visit_1(Object* self);
-static void DFP_LevelControl_handle_visit_2(Object* self);
-static void DFP_LevelControl_handle_visit_3(Object* self);
+static int DFP_LevelControl_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue);
+static void DFP_LevelControl_handleAct1(Object* self);
+static void DFP_LevelControl_handleAct2(Object* self);
+static void DFP_LevelControl_handleAct3(Object* self);
 
 // offset: 0x0 | ctor
-void DFP_LevelControl_ctor(void *dll) { }
+void DFP_LevelControl_ctor(void* dll) { }
 
 // offset: 0xC | dtor
-void DFP_LevelControl_dtor(void *dll) { }
+void DFP_LevelControl_dtor(void* dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void DFP_LevelControl_setup(Object* self, DFPTLevelControl_Setup* objSetup, s32 arg2) {
+void DFP_LevelControl_obj_Setup(Object* self, DFPTLevelControl_Setup* objSetup, s32 reset) {
     u8 act;
 
     objAddObjectType(self, OBJTYPE_LevelControl);
-    dTexElectricity = texLoadTexture(1132);
-    self->animCallback = DFP_LevelControl_anim_callback;
+    dTexElectricity = texLoadTexture(TEXTABLE_46C);
+    self->animCallback = DFP_LevelControl_animCallback;
     gDLL_29_Gplay->vtbl->set_act(self->mapID, 1);
     act = gDLL_29_Gplay->vtbl->get_act(self->mapID);
 
@@ -74,10 +75,10 @@ void DFP_LevelControl_setup(Object* self, DFPTLevelControl_Setup* objSetup, s32 
 }
 
 // offset: 0x260 | func: 1 | export: 1
-void DFP_LevelControl_control(Object* self) {
+void DFP_LevelControl_obj_Control(Object* self) {
     static s16 dTimerControl = 130;
     static s16 dMagicRefillTimer = 0;
-    Object *player;
+    Object* player;
     s32 mapID;
     s32 act;
     
@@ -87,7 +88,7 @@ void DFP_LevelControl_control(Object* self) {
     dMagicRefillTimer++; //@bug: framerate dependent
     if (dMagicRefillTimer > 1000) {
         dMagicRefillTimer = 0;
-        ((DLL_210_Player*)player->dll)->vtbl->add_magic(player, 20);
+        dll_player(player)->add_magic(player, 20);
     }
     
     mapWorldXZToMapID(player->srt.transl.x, player->srt.transl.z); //@bug: unused
@@ -103,7 +104,7 @@ void DFP_LevelControl_control(Object* self) {
                 dTimerControl = 0;
             }
         }
-        DFP_LevelControl_handle_visit_1(self);
+        DFP_LevelControl_handleAct1(self);
         return;
     case 2:
         //Refill magic, apply light/envFxActions, and grant Forcefield spell after ~2s
@@ -115,58 +116,60 @@ void DFP_LevelControl_control(Object* self) {
                 lfxAction(self, self, 0x166, 0, 0, 0);
                 dll_amSfx->Play(self, SOUND_78C, MAX_VOLUME, 0, 0, 0, 0);
                 dll_amSfx->Play(self, SOUND_793, MAX_VOLUME, 0, 0, 0, 0);
-                ((DLL_210_Player*)player->dll)->vtbl->add_magic(player, 20);
+                dll_player(player)->add_magic(player, 20);
                 mainSetBits(BIT_Spell_Forcefield, 1);
             }
         }
-        DFP_LevelControl_handle_visit_2(self);
+        DFP_LevelControl_handleAct2(self);
         break;
     case 3:
-        DFP_LevelControl_handle_visit_3(self);
+        DFP_LevelControl_handleAct3(self);
         break;
     }
 }
 
 // offset: 0x51C | func: 2 | export: 2
-void DFP_LevelControl_update(Object *self) { }
+void DFP_LevelControl_obj_Update(Object* self) { }
 
 // offset: 0x528 | func: 3 | export: 3
-void DFP_LevelControl_print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
+void DFP_LevelControl_obj_Print(Object* self, Gfx** gdl, Mtx** mtxs, Vertex** vtxs, Triangle** pols, s8 visibility) {
 }
 
 // offset: 0x540 | func: 4 | export: 4
-void DFP_LevelControl_free(Object* self, s32 arg1) {
+void DFP_LevelControl_obj_Free(Object* self, s32 onlySelf) {
     objFreeObjectType(self, OBJTYPE_LevelControl);
+
     gDLL_29_Gplay->vtbl->set_obj_group_status(
         MAP_DESERT_FORCE_POINT_TEMPLE_TOP, DFPT_ObjGroup2_Bottom_BigDoor, 0);
+
     texFreeTexture(dTexElectricity);
     dTexElectricity = NULL;
 }
 
 // offset: 0x5C0 | func: 5 | export: 5
-u32 DFP_LevelControl_get_model_flags(Object *self) {
+u32 DFP_LevelControl_obj_GetModelFlags(Object* self) {
     return MODFLAGS_NONE;
 }
 
 // offset: 0x5D0 | func: 6 | export: 6
-u32 DFP_LevelControl_get_data_size(Object *self, u32 a1) {
+u32 DFP_LevelControl_obj_GetDataSize(Object* self, u32 offsetAddr) {
     return sizeof(DFPTLevelControl_Data);
 }
 
 // offset: 0x5E4 | func: 7 | export: 7
 /** Copies the indices of the safe (non-electrified) floor tiles to an argument array */
-void DFP_LevelControl_export_safe_floor_tiles(Object* self, u8* floorTileIndices) {
+void DFP_LevelControl_GetSafeFloorTiles(Object* self, u8* oFloorTileIndices) {
     s16 i;
 
     for (i = 0; i < 9; i++){
-        floorTileIndices[i] = dFloorTiles[i];
+        oFloorTileIndices[i] = dFloorTiles[i];
     }
 }
 
 // offset: 0x62C | func: 8
-static int DFP_LevelControl_anim_callback(Object* self, Object *override, AnimObj_Data *aData, s8 arg3) {
-    DFPTLevelControl_Data *objdata;
-    Object *player;
+static int DFP_LevelControl_animCallback(Object* self, Object* animObj, AnimObj_Data* animData, s8 prevCallbackValue) {
+    DFPTLevelControl_Data* objdata;
+    Object* player;
 
     objdata = self->data;
     player = objGetPlayer();
@@ -174,14 +177,14 @@ static int DFP_LevelControl_anim_callback(Object* self, Object *override, AnimOb
     //Create electrocution effects over player model
     if (objdata->zappedTimer > 0){
         objdata->zappedTimer -= (s16)gUpdateRateF;
-        ((DLL_210_Player*)player->dll)->vtbl->func72(player, PARTICLE_51E);
+        dll_player(player)->func72(player, PARTICLE_51E);
     }
 
     return 0;
 }
 
 // offset: 0x6C4 | func: 9
-void DFP_LevelControl_handle_visit_1(Object* self) {
+void DFP_LevelControl_handleAct1(Object* self) {
     static u8 dInitialiseVisit1 = TRUE;
     DFPTLevelControl_Data* objData;
     s16 i;
@@ -195,7 +198,7 @@ void DFP_LevelControl_handle_visit_1(Object* self) {
         //Grant required Spells and refill magic
         mainSetBits(BIT_Spell_Projectile, 1);
         mainSetBits(BIT_Spell_Forcefield, 1);
-        ((DLL_210_Player*)player->dll)->vtbl->add_magic(player, 20);
+        dll_player(player)->add_magic(player, 20);
 
         //Zero out all floor tile rows
         for (i = 3; i < 9; i++){ 
@@ -261,7 +264,7 @@ void DFP_LevelControl_handle_visit_1(Object* self) {
 }
 
 // offset: 0xB2C | func: 10
-void DFP_LevelControl_handle_visit_2(Object* self) {
+void DFP_LevelControl_handleAct2(Object* self) {
     static u8 dInitialiseVisit2 = TRUE;
     DFPTLevelControl_Data* objData;
     s16 i;
@@ -275,7 +278,7 @@ void DFP_LevelControl_handle_visit_2(Object* self) {
         //Grant required Spells and refill magic
         mainSetBits(BIT_Spell_Projectile, 1);
         mainSetBits(BIT_Spell_Forcefield, 1);
-        ((DLL_210_Player*)player->dll)->vtbl->add_magic(player, 20);
+        dll_player(player)->add_magic(player, 20);
 
         //Zero out all floor tile rows
         for (i = 6; i < 9; i++){ 
@@ -329,7 +332,7 @@ void DFP_LevelControl_handle_visit_2(Object* self) {
 }
 
 // offset: 0xECC | func: 11
-void DFP_LevelControl_handle_visit_3(Object* self) {
+void DFP_LevelControl_handleAct3(Object* self) {
     static u8 dInitialiseVisit3 = TRUE;
     DFPTLevelControl_Data* objData;
     s16 i;
@@ -344,7 +347,7 @@ void DFP_LevelControl_handle_visit_3(Object* self) {
         mainSetBits(BIT_Spell_Projectile, 1);
         mainSetBits(BIT_Spell_Forcefield, 1);
         mainSetBits(BIT_Krazoa_Translator, 1);
-        ((DLL_210_Player*)player->dll)->vtbl->add_magic(player, 20);
+        dll_player(player)->add_magic(player, 20);
 
         //Set safe tile indices for all 9 rows
         for (i = 0; i < 9; i++){ 
