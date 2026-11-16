@@ -381,6 +381,7 @@
 466 = objects/466_mmshrine
 469 = objects/469_ECSHshrine
 470 = objects/470_ECSH_Cup
+471 = objects/471_ECSH_Creator
 472 = objects/472_GPSH_Shrine
 473 = objects/473_GPSH_ObjCreator
 474 = objects/474_GPSH_Scene

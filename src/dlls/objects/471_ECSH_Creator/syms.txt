@@ -1,0 +1,13 @@
+.text = 0x0:
+ECSH_Creator_ctor = 0x0;
+ECSH_Creator_dtor = 0xC;
+ECSH_Creator_obj_Setup = 0x18;
+ECSH_Creator_obj_Control = 0x70;
+ECSH_Creator_obj_Update = 0x2E8;
+ECSH_Creator_obj_Print = 0x2F4;
+ECSH_Creator_obj_Free = 0x348;
+ECSH_Creator_obj_GetModelFlags = 0x358;
+ECSH_Creator_obj_GetDataSize = 0x368;
+
+.rodata = 0x3C4:
+_oob_rodata_0 = 0x0; // absolute:0x3C4

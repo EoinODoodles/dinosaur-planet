@@ -90,10 +90,10 @@ void DFSH_ObjCreator_obj_Control(Object* self) {
     sharpClawSetup->base.y = setup->base.y;
     sharpClawSetup->base.z = setup->base.z;
     sharpClawSetup->base.loadFlags = setup->base.loadFlags;
-    sharpClawSetup->base.byte5 = setup->base.byte5;
-    sharpClawSetup->base.byte6 = setup->base.byte6;
+    sharpClawSetup->base.fadeFlags = setup->base.fadeFlags;
+    sharpClawSetup->base.loadDistance = setup->base.loadDistance;
     sharpClawSetup->base.fadeDistance = setup->base.fadeDistance;
-    sharpClawSetup->initialWeaponID = 3;
+    sharpClawSetup->initialWeaponID = BADDIE_WEAPON_CLUB;
     sharpClawSetup->unk18 = BIT_DF_Shrine_SharpClaw_Defeated;
     sharpClawSetup->unk30 = -1;
     sharpClawSetup->unk2A = self->srt.yaw >> 8;

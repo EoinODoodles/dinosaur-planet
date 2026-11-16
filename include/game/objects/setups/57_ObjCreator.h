@@ -11,7 +11,8 @@ typedef struct {
 /*1C*/ u8 _unk1C[0x1E - 0x1C];
 /*1E*/ s8 yaw8;
 /*1F*/ s8 creatorIndex;
-/*20*/ u8 _unk20[0x24 - 0x20];
+/*20*/ u8 quarterHP; //A Baddie's health points. An extra half-hitpoint is added to this in practice (used by `ECSH_Creator` when creating `ClubSharpClaw`).
+/*21*/ u8 _unk21[0x24 - 0x21];
 } ObjCreator_Setup;
 
 #endif
