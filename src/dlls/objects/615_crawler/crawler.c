@@ -4,6 +4,7 @@
 #include "sys/objhits.h"
 #include "sys/objmsg.h"
 #include "sys/objtype.h"
+#include "dlls/engine/11_newlfx.h"
 
 //Used by Skeetlas/Scorpions
 
@@ -43,10 +44,12 @@ typedef struct {
     0x0000, 0x0002, 0x0004, 0x0001, 0x000c, 0x03f7, 0x0167, 0x050c
 };
 /*0x10*/ static f32 _data_10 = 0.1;
-/*0x14*/ static u32 _data_14 = 0x00000000;
+/*0x14*/ static u8 _data_14 = 0;
 /*0x18*/ static Vec3f _data_18 = VEC3F(0, 0, 0);
 /*0x24*/ static f32 _data_24 = 10;
 
+static void dll_615_func_19FC(Object* self, TrackHeightResult* arg1);
+static void dll_615_func_1AE8(Object* self);
 static int dll_615_func_1AC8(Object* self, Object* animObj, AnimObj_Data* animData);
 
 // offset: 0x0 | ctor
@@ -115,8 +118,386 @@ void dll_615_setup(Object* self, DLL615_Setup* objSetup, s32 reset) {
 }
 
 // offset: 0x288 | func: 1 | export: 1
-void dll_615_control(Object *self);
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/615_crawler/dll_615_control.s")
+void dll_615_control(Object* self) {
+    DLL615_Data* objData;
+    Object* sp88; //88
+    Object* sidekick; //84
+    f32 dy;
+    s32 i; //7C
+    s32 sp78; //78
+    Vec3f sp6C; //6C
+    f32 range; //68
+    f32 sp64; //64
+    s32 count;
+    f32 speedSq;
+    u8 sp5B; //5B
+    TrackHeightResult** sp54; //54
+    f32 distance;
+    f32 sp4C; //4C
+
+    objData = self->data;
+    sp78 = 0;
+    sp54 = NULL;
+    range = 1000.0f;
+    sp64 = 1.0f;
+    sp4C = 10000.0f;
+    sp5B = 0;
+    
+    if (!(objData->unk290 & 0x10)) {
+        sp88 = objGetPlayer();
+    } else {
+        sp88 = objGetNearestTypeTo(0xB, self, &sp4C);
+    }
+    
+    if (sp88 == NULL) {
+        return;
+    }
+    
+    _data_10 = (mainGetBits(0x789) * 0.1f) + 0.1f;
+    
+    if (objData->unk292 == 6) {
+        self->unkAF |= 8;
+        if (self->curModAnimId != 1) {
+            objAnimSet(self, 1, 0.0f, 0);
+            gDLL_6_AMSFX->vtbl->Play(self, 0x7F9, MAX_VOLUME, NULL, NULL, 0, NULL);
+        }
+        if (self->animProgress > 0.4f) {
+            self->srt.scale *= 0.95f;
+        }
+        if (objAnimAdvance(self, 0.01f, gUpdateRate, NULL) != 0) {
+            if ((objData->unk28E != 0) && (objData->unk28E != -1)) {
+                mainSetBits(objData->unk28E, mainGetBits(objData->unk28E) + 1);
+            }
+            dll_615_func_1AE8(self);
+        }
+        return;
+    } 
+    
+    if (objData->unk290 & 8) {
+        if (objData->unk286 != 0) {
+            objData->unk286 -= gUpdateRate;
+            if (objData->unk286 <= 0) {
+                objData->unk286 = 0;
+
+                for (i = 0; i != 0x1E; i++) {
+                    gDLL_17_partfx->vtbl->spawn(self, 0x1A3, NULL, 0U, -1, NULL);
+                }
+                
+                objData->unk288 = 0x64;
+                return;
+            }
+        } else if (objData->unk288 != 0) {
+            self->unkAF |= 8;
+            objData->unk288 -= gUpdateRate;
+            if (objData->unk288 <= 0) {
+                objData->unk288 = 0;
+                dll_615_func_1AE8(self);
+            }
+            return;
+        }
+    } 
+    
+    if (func_80025F40(self, NULL, NULL, NULL) != 0) {
+        if (objData->unk290 & 0x100) {
+            objData->unk292 = 6;
+        } else {
+            dll_615_func_1AE8(self);
+        }
+        return;
+    } 
+        
+    for (i = 0; i < 6; i++) {
+        sp5B += mainGetBits(i + 0x2AA);
+    }
+    
+    if (sp5B >= 6) {
+        dll_615_func_1AE8(self);
+        return;
+    }
+    
+    func_80025F40(self, NULL, NULL, NULL);
+    
+    if (objData->unk284 != 0) {
+        objData->unk284 -= gUpdateRate;
+        if (objData->unk284 < 0) {
+            objData->unk284 = 0;
+        }
+        return;
+    } 
+    
+    if (((objData->unk292 == 3) || (objData->unk292 == 1) || (objData->unk292 == 5)) && !(objData->unk290 & 0x80)) {
+        if (objData->unk292 == 5) {
+            distance = gDLL_11_Newlfx->vtbl->FindClosestLight(&self->srt.transl, objData->unk268 + 50.0f);
+            if ((distance < 0.0f) || ((objData->unk268 + 30.0f) < distance)) {
+                objData->unk292 = 3;
+                objData->unk284 = 0x14;
+            }
+        } else {
+            //Ooh, so Skeetlas do react to light sources!!
+            distance = gDLL_11_Newlfx->vtbl->FindClosestLight(&self->srt.transl, objData->unk268 + 20.0f);
+            if ((distance >= 0.0f) && (distance < objData->unk268)) {
+                if (mathRnd(0, 0x32) == 0) {
+                    gDLL_6_AMSFX->vtbl->Play(self, 0x7FA, MAX_VOLUME, NULL, NULL, 0, NULL);
+                }
+                
+                if (objData->unk28C <= 0) {
+                    if (objData->unk290 & 0x100) {
+                        objData->unk292 = 6;
+                    } else {
+                        dll_615_func_1AE8(self);
+                    }
+                    return;
+                } else if (objData->unk292 != 5) {
+                    if (objData->unk260 != 0) {
+                        gDLL_6_AMSFX->vtbl->Stop(objData->unk260);
+                        objData->unk260 = 0;
+                    }
+                    
+                    objData->unk292 = 5;
+                    
+                    self->velocity.x = -self->velocity.x / 4.0f;
+                    self->velocity.z = -self->velocity.z / 4.0f;
+                }
+            }
+        }
+    } 
+    
+    if ((objData->unk290 & 0x200) && (objData->unk292 != 5)) {
+        sidekick = objGetSidekick();
+        if (sidekick != NULL) {
+            if ((vec3Distance(&self->globalPosition, &sidekick->globalPosition) < 30.0f) && (((DLL_Unknown*)sidekick->dll)->vtbl->func[25].withOneArgS32(sidekick))) {
+                objData->unk292 = 5;
+                gDLL_6_AMSFX->vtbl->Play(self, 0x7FA, MAX_VOLUME, NULL, NULL, 0, NULL);
+            }
+        }
+    }
+    
+    if (objData->unk292 == 5) {
+        if (objData->unk290 & 2) {
+            gDLL_27->vtbl->func_1E8(self, &objData->unk0, gUpdateRateF);
+            gDLL_27->vtbl->func_5A8(self, &objData->unk0);
+            gDLL_27->vtbl->func_624(self, &objData->unk0, gUpdateRateF);
+        }
+
+        speedSq = SQ(self->velocity.x) + SQ(self->velocity.z);
+        if (speedSq != 0.0f) {
+            sp64 = sqrtf(speedSq);
+        }
+        
+        objData->unk280 = -0.065f * sp64;
+        objAnimAdvance(self, objData->unk280, gUpdateRate, NULL);
+        self->srt.transl.x += self->velocity.x * gUpdateRateF;
+        self->srt.transl.z += self->velocity.z * gUpdateRateF;
+        objData->unk28C -= gUpdateRate;
+        
+        if (objData->unk290 & 4) {
+            sp4C = 10000.0f;
+            count = trackGetHeight(self, self->srt.transl.x, self->srt.transl.y, self->srt.transl.z, &sp54, 0, 0);
+            for (i = 0; i < count; i++) {
+                dy = sp54[i]->y - self->srt.transl.f[1];
+                if (dy < 0) {
+                    dy *= -1.0f;
+                }
+                if (dy < sp4C) {
+                    sp78 = i;
+                    sp4C = dy;
+                }
+            }
+            
+            if (sp54 != NULL) {
+                self->srt.transl.y = sp54[sp78]->y;
+                dll_615_func_19FC(self, sp54[sp78]);
+            } else {
+                self->srt.transl.y = objData->unk26C.y;
+            }
+        } else {
+            self->srt.transl.y = objData->unk26C.y;
+        }
+        
+        if (!(objData->unk290 & 0x80) && (objData->unk28C <= 0)) {
+            if (objData->unk290 & 0x100) {
+                objData->unk292 = 6;
+                return;
+            }
+            objData->unk292 = 0;
+            
+            if (objData->unk260 != 0) {
+                gDLL_6_AMSFX->vtbl->Stop(objData->unk260);
+                objData->unk260 = 0;
+            }
+            
+            self->srt.transl.x = objData->unk26C.x;
+            self->srt.transl.y = objData->unk26C.y + objData->unk28A;
+            self->srt.transl.z = objData->unk26C.z;
+        } else if ((objData->unk290 & 0x200) && (mathRnd(0, 0x14) == 0)) {
+            objData->unk292 = 3;
+            objData->unk284 = mathRnd(0, 0x14) + 0x32;
+        }
+    } else {
+        range = vec3DistanceXZ(&sp88->globalPosition, &self->globalPosition);
+        if ((range < objData->unk264) || (mainGetBits(0x1D9) != 0)) {
+            if (objData->unk292 == 0) {
+                objData->unk292 = 1;
+                objData->unk284 = 1;
+                self->srt.roll = 0;
+            } else if (objData->unk292 == 1) {
+                if (self->velocity.f[1] > -10.0f) {
+                    self->velocity.f[1] += (-0.1f * gUpdateRateF);
+                }
+
+                if (self->srt.transl.f[1] < objData->unk26C.y) {
+                    self->srt.transl.f[1] = objData->unk26C.y;
+                    self->velocity.f[1] = 0.0f;
+                    objData->unk292 = 3;
+                    objData->unk284 = mathRnd(0, 0x14) + 0x32;
+                    objData->unk264 *= 2.0f;
+                    objAnimSet(self, 0, 0.0f, 0);
+                }
+            } else if (objData->unk292 == 3) {
+                if (objData->unk260 == 0) {
+                    gDLL_6_AMSFX->vtbl->Play(self, 0x669, 0x39, &objData->unk260, NULL, 0, NULL);
+                }
+                
+                if (objData->unk290 & 2) {
+                    gDLL_27->vtbl->func_1E8(self, &objData->unk0, gUpdateRateF);
+                    gDLL_27->vtbl->func_5A8(self, &objData->unk0);
+                    gDLL_27->vtbl->func_624(self, &objData->unk0, gUpdateRateF);
+                }
+                
+                if (objData->unk290 & 4) {
+                    sp4C = 10000.0f;
+                    count = trackGetHeight(self, self->srt.transl.x, self->srt.transl.f[1], self->srt.transl.f[2], &sp54, 0, 0);
+                    for (i = 0; i < count; i++) {
+                        dy = sp54[i]->y - self->srt.transl.f[1];
+                        if (dy < 0) {
+                            dy *= -1.0f;
+                        }
+                        if (dy < sp4C) {
+                            sp78 = i;
+                            sp4C = dy;
+                        }
+                    }
+                        
+                    if (sp54 != NULL) {
+                        self->srt.transl.f[1] = sp54[sp78]->y;
+                        dll_615_func_19FC(self, sp54[sp78]);
+                    } else {
+                        self->srt.transl.f[1] = objData->unk26C.y;
+                    }
+                } else {
+                    self->srt.transl.f[1] = objData->unk26C.y;
+                }
+                
+                sp6C.f[0] = sp88->srt.transl.x - self->srt.transl.x;
+                sp6C.f[1] = sp88->srt.transl.y - self->srt.transl.y;
+                sp6C.f[2] = sp88->srt.transl.z - self->srt.transl.z;
+                self->velocity.x = (sp6C.f[0] / 300.0f) * gUpdateRateF;
+                self->velocity.y = (sp6C.f[1] / 300.0f) * gUpdateRateF;
+                self->velocity.z = (sp6C.f[2] / 300.0f) * gUpdateRateF;
+                
+                if (objData->unk290 & 0x20) {
+                    if (_data_10 < sqrtf(SQ(self->velocity.f[0]) + SQ(self->velocity.f[1]) + SQ(self->velocity.f[2]))) {
+                        vec3Normalize(&self->velocity);
+                        self->velocity.x *= gUpdateRateF * _data_10;
+                        self->velocity.y *= gUpdateRateF * _data_10;
+                        self->velocity.z *= gUpdateRateF * _data_10;
+                    }
+                }
+                
+                diPrintf(" Range %f  ", &range);
+                
+                if ((self->curModAnimId == 0) && (objData->unk290 & 0x400) && (range < 15.0f)) {
+                    gDLL_6_AMSFX->vtbl->Play(self, 0xB5B, MAX_VOLUME, NULL, NULL, 0, NULL);
+                    objAnimSet(self, 2, 0.0f, 0);
+                }
+                
+                if ((range < 13.0f) || ((objData->unk290 & 0x10) && (self->objhitInfo->unk58 & 8) && (range < 50.0f))) {
+                    _data_14++;
+                    if (self->curModAnimId == 2) {
+                        if ((self->animProgress > 0.3f) && (self->animProgress < 0.7f)) {
+                            objSendMesg(sp88, 0x60004, self, (void* )1);
+                            _data_14 = 0;
+                        }
+                    }
+                    
+                    if (mainGetBits(0x1D9) != 0) {
+                        _data_14 = 0;
+                    } else if ((_data_14 >= 3) || ((objData->unk290 & 0x10) && (_data_14 >= 3))) {
+                        gDLL_6_AMSFX->vtbl->Play(self, 0x7F8, MAX_VOLUME, NULL, NULL, 0, NULL);
+                        if (!(objData->unk290 & 0x10)) {
+                            objSendMesg(sp88, 0x60004, self, (void* )1);
+                        } else {
+                            objData->unk295_0 = 1;
+                        }
+                        _data_14 = 0;
+                    }
+                    
+                    if ((objData->unk290 & 0x10) == 0) {
+                        self->srt.transl.x += (-self->velocity.x * 26.0f);
+                        self->srt.transl.z += (-self->velocity.z * 26.0f);
+                    } else {
+                        self->srt.transl.x += (-self->velocity.x * 8.0f);
+                        self->srt.transl.z += (-self->velocity.z * 8.0f);
+                    }
+                    objData->unk284 = mathRnd(0, 0x14) + 100;
+                }
+
+                self->srt.yaw = mathAtan2f(sp88->srt.transl.x - self->srt.transl.x, sp88->srt.transl.z - self->srt.transl.z) + (M_180_DEGREES - 1);
+                
+                speedSq = SQ(self->velocity.x) + SQ(self->velocity.z);
+                if (speedSq != 0.0f) {
+                    sp64 = sqrtf(speedSq);
+                }
+                
+                switch (self->curModAnimId) {
+                case 0:
+                    objData->unk280 = 0.065f * sp64;
+                    break;
+                case 2:
+                    objData->unk280 = 0.03f;
+                    break;
+                case 1:
+                    objData->unk280 = 0.01f;
+                    break;
+                }
+                
+                if ((objAnimAdvance(self, objData->unk280, gUpdateRate, NULL) != 0) && (self->curModAnimId != 0)) {
+                    objAnimSet(self, 0, 0.0f, 0);
+                }
+                
+                self->srt.transl.x += self->velocity.x * gUpdateRateF;
+                self->srt.transl.z += self->velocity.z * gUpdateRateF;
+            }
+        } else if (objData->unk292 == 1) {
+            if (self->velocity.y > -1.0f) {
+                self->velocity.y += -0.01f * gUpdateRateF;
+            }
+
+            if (self->srt.transl.y < objData->unk26C.y) {
+                self->srt.transl.y = objData->unk26C.y;
+                self->velocity.y = 0.0f;
+                objData->unk292 = 3;
+                objData->unk284 = mathRnd(0, 0x14) + 0x32;
+                objData->unk264 = 2.0f * objData->unk264;
+                objAnimSet(self, 0, 0.0f, 0);
+            }
+            self->srt.transl.y += self->velocity.y * gUpdateRateF;
+        }
+        
+        if (objData->unk292 == 1) {
+            self->srt.transl.y += self->velocity.y * gUpdateRateF;
+        }
+        
+        if (mathRnd(0, 0x32) == 0) {
+            gDLL_6_AMSFX->vtbl->Play(self, mathRnd(0, 2) + 0x7BB, MAX_VOLUME, NULL, NULL, 0, NULL);
+        }
+    }
+}
+
+static const char str1[] = " Set MOve ";
+static const char str2[] = " BITE ";
+static const char str3[] = " Free CRawler";
+static const char str4[] = " Deactivateing Crawler ";
 
 // offset: 0x17B0 | func: 2 | export: 2
 void dll_615_update(Object* self) {
@@ -182,26 +563,26 @@ u32 dll_615_get_data_size(Object *self, u32 a1) {
 }
 
 // offset: 0x19FC | func: 7
-void dll_615_func_19FC(Object* self, f32* arg1) {
-    SRT sp38;
-    Vec3f sp2C;
+void dll_615_func_19FC(Object* self, TrackHeightResult* trackResult) {
+    SRT xfm;
+    Vec3f surfNorm;
     s32 angle;
     s32 pad;
 
-    sp2C.x = arg1[1];
-    sp2C.y = arg1[2];
-    sp2C.z = arg1[3];
-    sp38.transl.x = 0.0f;
-    sp38.transl.y = 0.0f;
-    sp38.transl.z = 0.0f;
-    sp38.scale = 1.0f;
-    sp38.roll = 0;
-    sp38.pitch = 0;
-    sp38.yaw = self->srt.yaw;
+    surfNorm.x = trackResult->norm[0];
+    surfNorm.y = trackResult->norm[1];
+    surfNorm.z = trackResult->norm[2];
+    xfm.transl.x = 0.0f;
+    xfm.transl.y = 0.0f;
+    xfm.transl.z = 0.0f;
+    xfm.scale = 1.0f;
+    xfm.roll = 0;
+    xfm.pitch = 0;
+    xfm.yaw = self->srt.yaw;
     
-    mathRotateRPY(&sp38, sp2C.f); 
-    angle = mathAtan2f(sp2C.x, sp2C.y);
-    self->srt.pitch = mathAtan2f(sp2C.z, sp2C.y);
+    mathRotateRPY(&xfm, surfNorm.f); 
+    angle = mathAtan2f(surfNorm.x, surfNorm.y);
+    self->srt.pitch = mathAtan2f(surfNorm.z, surfNorm.y);
     self->srt.roll = angle;
 }
 
