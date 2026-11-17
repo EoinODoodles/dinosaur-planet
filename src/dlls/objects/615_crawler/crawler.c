@@ -1,15 +1,35 @@
 #include "common.h"
+#include "sys/gfx/animseq.h"
+#include "sys/math.h"
 #include "sys/objhits.h"
+#include "sys/objmsg.h"
 #include "sys/objtype.h"
 
 //Used by Skeetlas/Scorpions
 
 typedef struct {
-    u8 _unk0[0x260];
+    ObjSetup base;
+    s8 unk18;
+    s8 unk19;
+    s16 unk1A;
+    s16 unk1C;
+    s16 unk1E;
+} DLL615_Setup;
+
+typedef struct {
+    DLL27_Data unk0;
     u32 unk260;
-    u8 _unk264[0x288 - 0x264];
+    f32 unk264;
+    f32 unk268;
+    Vec3f unk26C;
+    u8 _unk278[0x280 - 0x278];
+    f32 unk280;
+    s16 unk284;
+    s16 unk286;
     s16 unk288;
-    u8 _unk28A[0x290 - 0x28A];
+    s16 unk28A;
+    s16 unk28C;
+    s16 unk28E;
     u16 unk290;
     s8 unk292;
     u8 unk293;
@@ -19,15 +39,15 @@ typedef struct {
     u8 _unk296[0x298 - 0x296];
 } DLL615_Data;
 
-/*0x0*/ static u32 _data_0[] = {
-    0x00000002, 0x00040001, 0x000c03f7, 0x0167050c
+/*0x0*/ static u16 _data_0[] = {
+    0x0000, 0x0002, 0x0004, 0x0001, 0x000c, 0x03f7, 0x0167, 0x050c
 };
 /*0x10*/ static f32 _data_10 = 0.1;
 /*0x14*/ static u32 _data_14 = 0x00000000;
-/*0x18*/ static u32 _data_18[] = {
-    0x00000000, 0x00000000, 0x00000000
-};
+/*0x18*/ static Vec3f _data_18 = VEC3F(0, 0, 0);
 /*0x24*/ static f32 _data_24 = 10;
+
+static int dll_615_func_1AC8(Object* self, Object* animObj, AnimObj_Data* animData);
 
 // offset: 0x0 | ctor
 void dll_615_ctor(void *dll) { }
@@ -36,8 +56,63 @@ void dll_615_ctor(void *dll) { }
 void dll_615_dtor(void *dll) { }
 
 // offset: 0x18 | func: 0 | export: 0
-void dll_615_setup(Object *self, ObjSetup *setup, s32 arg2);
-#pragma GLOBAL_ASM("asm/nonmatchings/dlls/objects/615_crawler/dll_615_setup.s")
+void dll_615_setup(Object* self, DLL615_Setup* objSetup, s32 reset) {
+    DLL615_Data* objData = self->data;
+    
+    objAddObjectType(self, OBJTYPE_Baddie);
+    
+    self->srt.yaw = objSetup->unk18 << 8;
+    
+    objInitMesgQueue(self, 2);
+    
+    objData->unk26C.x = objSetup->base.x;
+    objData->unk26C.y = objSetup->base.y;
+    objData->unk26C.z = objSetup->base.z;
+    objData->unk264 = objSetup->unk1A;
+    objData->unk294 = objSetup->unk19;
+    objData->unk290 = _data_0[objData->unk294];
+    objData->unk286 = 0;
+    objData->unk288 = 0;
+    
+    if (objData->unk290 & 1) {
+        objData->unk284 = 0;
+        self->srt.roll = 0;
+        objData->unk292 = 1;
+    } else if (objData->unk290 & 8) {
+        objData->unk284 = 0;
+        objData->unk286 = 1200;
+        objData->unk264 = 100.0f;
+        self->srt.roll = 0;
+        objData->unk292 = 1;
+    } else {
+        objData->unk284 = 400;
+        self->srt.roll = -(M_180_DEGREES - 1);
+        objData->unk292 = 0;
+    }
+    
+    if (objData->unk290 & 0x40) {
+        self->opacity = 0;
+    }
+    
+    objData->unk280 = 0.0f;
+    objData->unk28A = objSetup->unk1C;
+    self->srt.transl.y = objSetup->base.y + objData->unk28A;
+    objData->unk28C = 400 + mathRnd(0, 80);
+    objData->unk268 = 80.0f;
+    objData->unk28E = objSetup->unk1E;
+    
+    if (objData->unk290 & 2) {
+        objData->unk0.mode = 1;
+        gDLL_27->vtbl->init(&objData->unk0, 0, 0, 1);
+        gDLL_27->vtbl->setup_hits_collider(&objData->unk0, 1, &_data_18, &_data_24, 4);
+        objData->unk0.flags |= 0x40000 | 8;
+    }
+    
+    self->animCallback = (void*)&dll_615_func_1AC8;
+    
+    func_8002674C(self);
+    func_800267C4(self);
+}
 
 // offset: 0x288 | func: 1 | export: 1
 void dll_615_control(Object *self);
@@ -131,7 +206,7 @@ void dll_615_func_19FC(Object* self, f32* arg1) {
 }
 
 // offset: 0x1AC8 | func: 8
-s32 dll_615_func_1AC8(Object* self, s32 arg1, s32 arg2) {
+int dll_615_func_1AC8(Object* self, Object* animObj, AnimObj_Data* animData/*, s8 prevCallbackValue */) {
     DLL615_Data* objData = self->data;
     objData->unk292 = 1;
     return 0;
