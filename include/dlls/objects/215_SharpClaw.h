@@ -348,7 +348,7 @@ typedef enum {
     SharpClaw_FLAG_20 = 0x20,
     SharpClaw_FLAG_40 = 0x40,
     SharpClaw_FLAG_80_Vulnerable_During_Attack = 0x80 //Harder SharpClaw, parries attacks when not vulnerable
-} SharpClaw_Flags_3B0;
+} SharpClaw_Flags_3B0; //TODO: might be general Baddie flags rather than specifically for the SharpClaw?
 
 typedef enum {
     SharpClaw_OTHERFLAG_1 = 1,

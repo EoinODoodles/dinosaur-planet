@@ -1,0 +1,13 @@
+.text = 0x0:
+CCSH_Creator_ctor = 0x0;
+CCSH_Creator_dtor = 0xC;
+CCSH_Creator_obj_Setup = 0x18;
+CCSH_Creator_obj_Control = 0x50;
+CCSH_Creator_obj_Update = 0x308;
+CCSH_Creator_obj_Print = 0x314;
+CCSH_Creator_obj_Free = 0x368;
+CCSH_Creator_obj_GetModelFlags = 0x378;
+CCSH_Creator_obj_GetDataSize = 0x388;
+
+.rodata = 0x3E4:
+_oob_rodata_0 = 0x0; // absolute:0x3E4

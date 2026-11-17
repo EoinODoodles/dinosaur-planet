@@ -1469,7 +1469,7 @@ typedef enum {
     BIT_5B6 = 0x5B6, // len:1 group:0
     BIT_5B7 = 0x5B7, // len:1 group:0
     BIT_5B8 = 0x5B8, // len:1 group:0
-    BIT_5B9 = 0x5B9, // len:1 group:0
+    BIT_5B9 = 0x5B9, // len:1 group:0 (Test of Character, stop/reset SabreBaddie ObjCreator?)
     BIT_5BA = 0x5BA, // len:1 group:1
     BIT_5BB = 0x5BB, // len:1 group:1
     BIT_5BC = 0x5BC, // len:1 group:0
