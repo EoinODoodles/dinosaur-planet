@@ -4,14 +4,14 @@
 _exports:
 
 # ctor/dtor
-.dword dll_615_ctor
-.dword dll_615_dtor
+.dword crawler_ctor
+.dword crawler_dtor
 
 # export table
-/*0*/ .dword dll_615_setup
-/*1*/ .dword dll_615_control
-/*2*/ .dword dll_615_update
-/*3*/ .dword dll_615_print
-/*4*/ .dword dll_615_free
-/*5*/ .dword dll_615_get_model_flags
-/*6*/ .dword dll_615_get_data_size
+/*0*/ .dword crawler_obj_Setup
+/*1*/ .dword crawler_obj_Control
+/*2*/ .dword crawler_obj_Update
+/*3*/ .dword crawler_obj_Print
+/*4*/ .dword crawler_obj_Free
+/*5*/ .dword crawler_obj_GetModelFlags
+/*6*/ .dword crawler_obj_GetDataSize

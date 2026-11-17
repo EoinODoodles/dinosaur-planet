@@ -477,7 +477,7 @@ typedef enum {
     BIT_Dino_Bag_Blue_Grubs = 0x1D6, // len:6 group:1   [INVENTORY]
     BIT_Spell_Forcefield = 0x1D7, // len:1 group:1      [INVENTORY]
     BIT_1D8 = 0x1D8, // len:1 group:0
-    BIT_Player_Immune_to_Rainbow_Scarabs = 0x1D9, // len:1 group:0 (immune to Rainbow Scarabs and some other attacks, OBJ_NWSH_rock, OBJ_WMrock)
+    BIT_Player_Immune_to_Rainbow_Scarabs = 0x1D9, // len:1 group:0 (immune to Rainbow Scarabs and some other attacks, OBJ_NWSH_rock, OBJ_WMrock. Causes Skeetlas to fall immediately too?)
     BIT_1DA = 0x1DA, // len:1 group:0
     BIT_1DB = 0x1DB, // len:1 group:1
     BIT_1DC = 0x1DC, // len:1 group:1
@@ -686,12 +686,12 @@ typedef enum {
     BIT_2A7 = 0x2A7, // len:1 group:1
     BIT_2A8 = 0x2A8, // len:1 group:1
     BIT_2A9 = 0x2A9, // len:1 group:1
-    BIT_WM_Killed_SharpClaw_2573 = 0x2AA, // len:1 group:0
-    BIT_2AB = 0x2AB, // len:1 group:0
-    BIT_2AC = 0x2AC, // len:1 group:0
-    BIT_2AD = 0x2AD, // len:1 group:0
-    BIT_2AE = 0x2AE, // len:1 group:0
-    BIT_2AF = 0x2AF, // len:1 group:0
+    BIT_WM_Killed_SharpClaw_2573 = 0x2AA, // len:1 group:0 (Crawler: can partially disable crawlers when all 6 bits are set)
+    BIT_2AB = 0x2AB, // len:1 group:0 (Crawler: can partially disable crawlers when all 6 bits are set)
+    BIT_2AC = 0x2AC, // len:1 group:0 (Crawler: can partially disable crawlers when all 6 bits are set)
+    BIT_2AD = 0x2AD, // len:1 group:0 (Crawler: can partially disable crawlers when all 6 bits are set)
+    BIT_2AE = 0x2AE, // len:1 group:0 (Crawler: can partially disable crawlers when all 6 bits are set)
+    BIT_2AF = 0x2AF, // len:1 group:0 (Crawler: can partially disable crawlers when all 6 bits are set)
     BIT_WC_Sun_Temple_Portal_Spell_Door_Opened = 0x2B0, // len:1 group:1
     BIT_WC_Sun_Temple_Maze_Timed_Challenge_Switch_Pressed = 0x2B1, // len:1 group:1
     BIT_2B2 = 0x2B2, // len:1 group:2 task:5

@@ -710,7 +710,15 @@ enum SoundID {
     SOUND_7B0 = 0x7B0,
     SOUND_7B1 = 0x7B1,
 
+    SOUND_7BB_Crawler_Chirp = 0x7BB,
+    SOUND_7BC_Crawler_Squeak = 0x7BC,
+    SOUND_7BD_Crawler_Trill = 0x7BD,
+
     SOUND_7F6_Firefly_Twinkle_Loop = 0x7F6,
+
+    SOUND_7F8_Crawler_Chomp = 0x7F8,
+    SOUND_7F9_Crawler_Dying = 0x7F9,
+    SOUND_7FA_Crawler_Hurt = 0x7FA, //Skeetla hurt by a light source, or by Guard Command
 
     SOUND_809_Mechanical_Ratcheting_Loop = 0x809,
 
@@ -908,6 +916,7 @@ enum SoundID {
 
     SOUND_B55 = 0xB55,
 
+    SOUND_B5B_Crawler_Attack = 0xB5B, //Empty, but played by crawlers when attacking
     SOUND_B5C_Machinery_Clunk = 0xB5C,
 
     SOUND_B62 = 0xB62, // ProjBall
