@@ -579,6 +579,15 @@ GENERIC_SETUP(WMPlanets_Setup,
 /*20*/ s16 unused3;
 )
 
+GENERIC_SETUP(Crawler_Setup, 
+/*18*/ s8 yaw8;            //Rotation
+/*19*/ s8 configIdx;       //Which flag preset to use (from `dFlagConfigs`)
+/*1A*/ s16 activateRange;  //Crawler falls/activates when their target is inside this range
+/*1C*/ s16 yOffset;        //Initial vertical offset from the base ObjSetup position (used when Skeetlas hang from ceilings initially, etc.)
+/*1E*/ s16 gamebitDied;    //Gamebit to increment when the crawler's dying animation finishes (not set if the crawler vanishes on dying)
+/*20*/ s16 unused1;
+)
+
 GENERIC_SETUP(WM_MovePlatform_Setup, 
 /*18*/ s8 yaw;
 /*19*/ s8 unused1;

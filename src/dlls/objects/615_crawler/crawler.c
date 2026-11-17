@@ -3,6 +3,7 @@
 #include "dlls/objects/common/sidekick.h"
 #include "game/gamebits.h"
 #include "game/objects/interaction_arrow.h"
+#include "game/objects/setups/51_Generic.h"
 #include "sys/gfx/animseq.h"
 #include "sys/main.h"
 #include "sys/math.h"
@@ -15,15 +16,6 @@
 #include "sys/rand.h"
 
 //Used by Skeetlas/Scorpions
-
-typedef struct {
-    ObjSetup base;
-    s8 yaw8;            //Rotation
-    s8 configIdx;       //Which flag preset to use (from `dFlagConfigs`)
-    s16 activateRange;  //Crawler falls/activates when their target is inside this range
-    s16 yOffset;        //Initial vertical offset from the base ObjSetup position (used when Skeetlas hang from ceilings initially, etc.)
-    s16 gamebitDied;    //Gamebit to increment when the crawler's dying animation finishes (not set if the crawler vanishes on dying)
-} Crawler_Setup;
 
 typedef struct {
     DLL27_Data collision;
