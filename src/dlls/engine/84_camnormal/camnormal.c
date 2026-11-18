@@ -78,7 +78,7 @@ typedef struct {
 void camnormal_func_ED4(Cam* cam, Object* arg1);
 void camnormal_func_11F0(Cam* cam, f32 arg1, f32 arg2);
 void camnormal_func_12E8(Cam* cam, Object* arg1, f32 arg2, f32 arg3);
-void camnormal_func_1A58(Cam* cam, u32 flags, s32 arg2, f32* nearestFloorY, f32* nearestCeilingY);
+void camnormal_func_1A58(Cam* cam, u32 flags, s32 colliderSize, f32* nearestFloorY, f32* nearestCeilingY);
 static void camnormal_func_1DEC(Cam* cam);
 static void camnormal_func_1FFC(Cam* cam, Object* arg1);
 static void camnormal_func_22D0(Cam* cam, f32 arg1, f32 arg2);
@@ -110,21 +110,22 @@ void camnormal_func_A8(Cam* cam, s32 arg1, CamNormal_Params* data) {
     f32 sp3C;
 
     player = cam->player;
+    
     switch (arg1) {
     case 0:
-        cam->srt.transl.x = player->srt.transl.x + (mathSinfInterp(player->srt.yaw) * (f32) data->unk1A);
-        cam->srt.transl.y = player->srt.transl.y + (f32) data->unk1F;
-        cam->srt.transl.z = player->srt.transl.z + (mathCosfInterp(player->srt.yaw) * (f32) data->unk1A);
+        cam->srt.transl.x = player->srt.transl.x + (mathSinfInterp(player->srt.yaw) * data->unk1A);
+        cam->srt.transl.y = player->srt.transl.y + data->unk1F;
+        cam->srt.transl.z = player->srt.transl.z + (mathCosfInterp(player->srt.yaw) * data->unk1A);
         cam->srt.yaw = 0;
         cam->srt.pitch = 0;
         cam->srt.roll = 0;
-        cam->fov = (f32) data->unk19;
+        cam->fov = data->unk19;
         bzero(sState, sizeof(CamNormal));
-        sState->unk30 = sState->unk0 = (f32) data->unk1C;
-        sState->unk38 = sState->unk4 = (f32) data->unk1A;
-        sState->unk40 = sState->unk8 = sState->unk98 = (f32) data->unk1F;
-        sState->unk48 = sState->unkC = sState->unk9C = (f32) data->unk1F;
-        sState->unk94 = sState->unk8C = (f32) data->unk1E;
+        sState->unk30 = sState->unk0 = data->unk1C;
+        sState->unk38 = sState->unk4 = data->unk1A;
+        sState->unk40 = sState->unk8 = sState->unk98 = data->unk1F;
+        sState->unk48 = sState->unkC = sState->unk9C = data->unk1F;
+        sState->unk94 = sState->unk8C = data->unk1E;
         sState->unk50 = sState->unk10 = 0.09f;
         sState->unk58 = sState->unk14 = sState->unk54 = 0.04f;
         sState->unk60 = sState->unk18 = 50.0f;
@@ -132,7 +133,7 @@ void camnormal_func_A8(Cam* cam, s32 arg1, CamNormal_Params* data) {
         sState->unk24 = -100000.0f;
         sState->unk20 = 100000.0f;
         sState->unkAD = 1;
-        sState->unk70 = (f32) cam->fov;
+        sState->unk70 = cam->fov;
         break;
     case 4:
         camnormal_func_2A5C(cam, player);
@@ -148,21 +149,21 @@ void camnormal_func_A8(Cam* cam, s32 arg1, CamNormal_Params* data) {
         break;
     case 2:
         if (data != NULL) {
-            sState->unk94 = (f32) data->unk5;
-            sState->unk40 = sState->unk98 = (f32) data->unk6;
-            sState->unk48 = sState->unk9C = (f32) data->unk8;
-            sState->unk30 = (f32) data->unk3;
-            sState->unk38 = (f32) data->unk4;
-            sState->unk70 = (f32) data->unk2;
-            sState->unk60 = (f32) data->unk9;
-            sState->unk68 = (f32) data->unkA;
+            sState->unk94 = data->unk5;
+            sState->unk40 = sState->unk98 = data->unk6;
+            sState->unk48 = sState->unk9C = data->unk8;
+            sState->unk30 = data->unk3;
+            sState->unk38 = data->unk4;
+            sState->unk70 = data->unk2;
+            sState->unk60 = data->unk9;
+            sState->unk68 = data->unkA;
             if (data->unkB != 0) {
-                sState->unk50 = (f32) data->unkB / 255.0f;
+                sState->unk50 = data->unkB / 255.0f;
             } else {
                 sState->unk50 = 0.09f;
             }
             if (data->unkC != 0) {
-                sState->unk58 = (f32) data->unkC / 255.0f;
+                sState->unk58 = data->unkC / 255.0f;
             } else {
                 sState->unk58 = 0.09f;
             }
@@ -180,8 +181,8 @@ void camnormal_func_A8(Cam* cam, s32 arg1, CamNormal_Params* data) {
             sState->unk68 = sState->unk64;
             sState->unk50 = sState->unk4C;
             sState->unk58 = sState->unk54;
-            sState->unk82 = 0x3C;
-            sState->unk84 = 0x3C;
+            sState->unk82 = 60;
+            sState->unk84 = 60;
         }
         sState->unk90 = sState->unk8C;
         sState->unk3C = sState->unk8;
@@ -212,7 +213,8 @@ void camnormal_func_A8(Cam* cam, s32 arg1, CamNormal_Params* data) {
         cam->fov = sState->unk70;
         break;
     }
-    cam->unk118 = 1;
+
+    cam->easeActive1stPerson = TRUE;
 }
 
 // offset: 0x860 | func: 1 | export: 1
@@ -250,16 +252,16 @@ void camnormal_func_860(Cam* cam) {
         } else {
             bss_4 = gUpdateRateF;
         }
-        cam->unk118 = 0;
+        cam->easeActive1stPerson = FALSE;
         camnormal_func_1DEC(cam);
         camnormal_func_ED4(cam, player);
         camnormal_func_1FFC(cam, player);
-        camnormal_func_1A58(cam, 3, 3, &sState->unkA0, &sState->unkA4);
+        camnormal_func_1A58(cam, CamNormal_TRACKFLAG_Check_All, 3, &sState->unkA0, &sState->unkA4);
         cam->positionMirror.x = cam->srt.transl.x;
         cam->positionMirror.y = cam->srt.transl.y;
         cam->positionMirror.z = cam->srt.transl.z;
         camnormal_func_12E8(cam, player, sState->unkA0, sState->unkA4);
-        camnormal_func_1A58(cam, 1, 5, NULL, NULL);
+        camnormal_func_1A58(cam, CamNormal_TRACKFLAG_Do_Intersect_Check, 5, NULL, NULL);
         gDLL_2_Camera->vtbl->get_player_to_camera_distances(cam, &sp48, &sp44, &sp40, &sp3C, sState->unk8C);
         camnormal_func_22D0(cam, sp48, sp40);
         camnormal_func_11F0(cam, player->srt.transl.y, sp3C);
@@ -383,11 +385,11 @@ void camnormal_func_11F0(Cam* cam, f32 arg1, f32 arg2) {
 }
 
 // offset: 0x12E8 | func: 6 | export: 6
-void camnormal_func_12E8(Cam* cam, Object* arg1, f32 arg2, f32 arg3) {
-    f32 spD4;
-    f32 spD0;
-    f32 spCC;
-    f32 spC8;
+void camnormal_func_12E8(Cam* cam, Object* obj, f32 nearestFloorY, f32 nearestCeilingY) {
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    f32 distance;
     f32 spC4;
     f32 spC0;
     s32 _pad;
@@ -395,47 +397,50 @@ void camnormal_func_12E8(Cam* cam, Object* arg1, f32 arg2, f32 arg3) {
     s32 _pad2;
     f32 spB0;
     DLL27_Data* collider;
-    MtxF sp6C;
+    MtxF mtx;
     f32 sp68;
     f32 sp64;
     f32 sp60;
     f32 var_fv1;
-    SRT sp44;
+    SRT xfm;
     Player_Data* sp40;
 
     spB0 = bss_4;
-    gDLL_2_Camera->vtbl->get_player_to_camera_distances(cam, &spD4, &spD0, &spCC, &spC8, sState->unk8C);
-    spC8 = SQ(spD4) + SQ(spD0) + SQ(spCC);
-    if (spC8 > 0.0f) {
-        spC8 = sqrtf(spC8);
+    gDLL_2_Camera->vtbl->get_player_to_camera_distances(cam, &dx, &dy, &dz, &distance, sState->unk8C);
+    distance = SQ(dx) + SQ(dy) + SQ(dz);
+    if (distance > 0.0f) {
+        distance = sqrtf(distance);
     }
-    if (spC8 < 5.0f) {
-        spC8 = 5.0f;
+    if (distance < 5.0f) {
+        distance = 5.0f;
     }
-    spC4 = arg1->srt.transl.y + sState->unk8C + sState->unkC;
-    spC0 = arg1->srt.transl.y + sState->unk8C + sState->unk8;
-    if (arg1->controlNo == OBJCONTROL_Player) {
-        sp40 = arg1->data;
+
+    spC4 = obj->srt.transl.y + sState->unk8C + sState->unkC;
+    spC0 = obj->srt.transl.y + sState->unk8C + sState->unk8;
+
+    if (obj->controlNo == OBJCONTROL_Player) {
+        sp40 = obj->data;
         collider = &sp40->unk0.unk4;
-        sp44.yaw = 0x8000 - mathAtan2f(spD4, spCC);
-        sp44.pitch = 0;
-        sp44.roll = 0;
-        sp44.scale = 1.0f;
-        sp44.transl.x = 0.0f;
-        sp44.transl.y = 0.0f;
-        sp44.transl.z = 0.0f;
-        mathRpyXyzMtx(&sp6C, &sp44);
-        mathMtxXFMF(&sp6C, 
+        xfm.yaw = M_180_DEGREES - mathAtan2f(dx, dz);
+        xfm.pitch = 0;
+        xfm.roll = 0;
+        xfm.scale = 1.0f;
+        xfm.transl.x = 0.0f;
+        xfm.transl.y = 0.0f;
+        xfm.transl.z = 0.0f;
+        mathRpyXyzMtx(&mtx, &xfm);
+        mathMtxXFMF(&mtx, 
             collider->floorNormalX, collider->floorNormalY, collider->floorNormalZ, 
             &sp68, &sp64, &sp60);
-        sState->unkA8 += ((s32) (((-mathAtan2f(sp64, sp60) - sState->unkA8) + 0x4000) * gUpdateRate) >> 5);
+        sState->unkA8 += (((-mathAtan2f(sp64, sp60) - sState->unkA8) + M_90_DEGREES) * gUpdateRate) >> 5;
     } else {
-        sState->unkA8 -= ((s32) (sState->unkA8 * gUpdateRate) >> 5);
+        sState->unkA8 -= (sState->unkA8 * gUpdateRate) >> 5;
     }
+
     if (sState->unkA8 < 0) {
-        var_fv1 = mathSinfInterp((s16) sState->unkA8) * sState->unk1C;
+        var_fv1 = mathSinfInterp(sState->unkA8) * sState->unk1C;
     } else if (sState->unkA8 > 0) {
-        var_fv1 = mathSinfInterp((s16) sState->unkA8) * sState->unk18;
+        var_fv1 = mathSinfInterp(sState->unkA8) * sState->unk18;
     } else {
         var_fv1 = 0.0f;
     }
@@ -445,75 +450,75 @@ void camnormal_func_12E8(Cam* cam, Object* arg1, f32 arg2, f32 arg3) {
     if (spB8 < 30.0f) {
         spB8 = 30.0f;
     }
-    if (arg1->controlNo == OBJCONTROL_Player) {
-        if (((DLL_210_Player*)arg1->dll)->vtbl->func79(arg1) <= 30.0f) {
-            spD0 = (sState->unk4 * 0.8f) - sState->unk8;
-            spD0 *= 0.05f;
-            if (spD0 > 10.0f) {
-                spD0 = 10.0f;
+    if (obj->controlNo == OBJCONTROL_Player) {
+        if (((DLL_210_Player*)obj->dll)->vtbl->func79(obj) <= 30.0f) {
+            dy = (sState->unk4 * 0.8f) - sState->unk8;
+            dy *= 0.05f;
+            if (dy > 10.0f) {
+                dy = 10.0f;
             }
-            sState->unk8 += spD0;
+            sState->unk8 += dy;
             if (sState->unk4 < sState->unk8) {
                 sState->unk8 = sState->unk4;
             }
-            spD0 = (sState->unk4 * 0.8f) - sState->unkC;
-            spD0 *= 0.05f;
-            if (spD0 > 10.0f) {
-                spD0 = 10.0f;
+            dy = (sState->unk4 * 0.8f) - sState->unkC;
+            dy *= 0.05f;
+            if (dy > 10.0f) {
+                dy = 10.0f;
             }
-            sState->unkC += spD0;
+            sState->unkC += dy;
             if (sState->unk4 < sState->unkC) {
                 sState->unkC = sState->unk4;
             }
         } else {
-            spD0 = sState->unk98 - sState->unk8;
-            spD0 *= 0.05f;
-            if (spD0 > 10.0f) {
-                spD0 = 10.0f;
+            dy = sState->unk98 - sState->unk8;
+            dy *= 0.05f;
+            if (dy > 10.0f) {
+                dy = 10.0f;
             }
-            sState->unk8 += spD0;
+            sState->unk8 += dy;
             if (sState->unk8 < sState->unk98) {
                 sState->unk8 = sState->unk98;
             }
-            spD0 = sState->unk9C - sState->unkC;
-            spD0 *= 0.05f;
-            if (spD0 > 10.0f) {
-                spD0 = 10.0f;
+            dy = sState->unk9C - sState->unkC;
+            dy *= 0.05f;
+            if (dy > 10.0f) {
+                dy = 10.0f;
             }
-            sState->unkC += spD0;
+            sState->unkC += dy;
             if (sState->unkC < sState->unk9C) {
                 sState->unkC = sState->unk9C;
             }
-            if (spC8 > 30.0f) {
-                if (spC8 <= spB8) {
-                    spC8 = (spC8 - 30.0f) / (spB8 - 30.0f);
-                    if (spC8 < 0.0f) { spC8 = 0.0f; } else if (spC8 > 1.0f) { spC8 = 1.0f; }
-                    spC0 = arg1->srt.transl.y + sState->unk8C + (sState->unk8 * spC8);
-                    spC4 = arg1->srt.transl.y + sState->unk8C + (sState->unkC * spC8);
+            if (distance > 30.0f) {
+                if (distance <= spB8) {
+                    distance = (distance - 30.0f) / (spB8 - 30.0f);
+                    if (distance < 0.0f) { distance = 0.0f; } else if (distance > 1.0f) { distance = 1.0f; }
+                    spC0 = obj->srt.transl.y + sState->unk8C + (sState->unk8 * distance);
+                    spC4 = obj->srt.transl.y + sState->unk8C + (sState->unkC * distance);
                 }
             } else {
-                spC0 = spC4 = arg1->srt.transl.y + sState->unk8C + ((30.0f - spC8) * 0.8f);
+                spC0 = spC4 = obj->srt.transl.y + sState->unk8C + ((30.0f - distance) * 0.8f);
             }
         }
     }
     if (cam->srt.transl.y < spC0) {
-        spD0 = spC0 - cam->srt.transl.y;
+        dy = spC0 - cam->srt.transl.y;
     } else if (spC4 < cam->srt.transl.y) {
-        spD0 = spC4 - cam->srt.transl.y;
+        dy = spC4 - cam->srt.transl.y;
     } else {
-        spD0 = 0.0f;
+        dy = 0.0f;
     }
     spB0 *= sState->unk14;
     if (spB0 > 1.0f) {
         spB0 = 1.0f;
     }
-    spD0 *= spB0;
-    cam->srt.transl.y += spD0;
-    if (cam->srt.transl.y < (arg2 + 10.0f)) {
-        cam->srt.transl.y = (arg2 + 10.0f);
+    dy *= spB0;
+    cam->srt.transl.y += dy;
+    if (cam->srt.transl.y < (nearestFloorY + 10.0f)) {
+        cam->srt.transl.y = (nearestFloorY + 10.0f);
     }
-    if ((arg3 - 10.0f) < cam->srt.transl.y) {
-        cam->srt.transl.y = (arg3 - 10.0f);
+    if (cam->srt.transl.y > (nearestCeilingY - 10.0f)) {
+        cam->srt.transl.y = (nearestCeilingY - 10.0f);
     }
 }
 
@@ -533,7 +538,7 @@ void camnormal_func_19E8(f32* arg0, f32* arg1, f32* arg2, f32* arg3, f32* arg4) 
 }
 
 // offset: 0x1A58 | func: 8 | export: 8
-void camnormal_func_1A58(Cam* cam, u32 flags, s32 arg2, f32* nearestFloorY, f32* nearestCeilingY) {
+void camnormal_func_1A58(Cam* cam, u32 flags, s32 colliderSize, f32* nearestFloorY, f32* nearestCeilingY) {
     f32 minCeilingDist;
     f32 minFloorDistance;
     f32 dy;
@@ -545,16 +550,16 @@ void camnormal_func_1A58(Cam* cam, u32 flags, s32 arg2, f32* nearestFloorY, f32*
 
     player = cam->player;
 
-    if (flags & 1) {
+    if (flags & CamNormal_TRACKFLAG_Do_Intersect_Check) {
         cam->unk34.unk50[0] = -1;
         cam->unk34.unk40[0] = 4.5f;
-        cam->unk34.unk54[0] = arg2;
+        cam->unk34.unk54[0] = colliderSize;
         trackIntersectBuildAABB(&aabb, &cam->positionMirror, &cam->srt.transl, cam->unk34.unk40, 1);
         trackIntersectBroadphase(player, &aabb, 1);
         trackGetIntersect(player, &cam->positionMirror.x, &cam->srt.transl.x, 1, &cam->unk34, 0);
     }
 
-    if (flags & 2) {
+    if (flags & CamNormal_TRACKFLAG_Get_Floor_Ceiling_Heights) {
         count = trackGetHeight(player, cam->srt.transl.x, cam->srt.transl.y, cam->srt.transl.z, &track, 0, 0);
         *nearestFloorY = -100000.0f;
         *nearestCeilingY = 100000.0f;
@@ -798,9 +803,9 @@ static void camnormal_func_26E4(Cam* cam, Object* arg1) {
                 ((((DLL_210_Player*)arg1->dll)->vtbl->func60(arg1) != 0))) {
             gDLL_2_Camera->vtbl->change_camera_module(DLL_ID_CAMLOCKON, TRUE, 0, sizeof(&cam->highlight), &cam->highlight, 0x3C, Cam_Ease_All);
         } else if ((btns & U_CBUTTONS) && !(cam->highlightFlags & 1)) {
-            cam1stPerson.unk0 = sState->unk4;
-            cam1stPerson.unk4 = sState->unk8;
-            cam1stPerson.unk8 = (s16) (u32) sState->unk8C;
+            cam1stPerson.distance3D = sState->unk4;
+            cam1stPerson.offsetY = sState->unk8;
+            cam1stPerson.verticalAdjust = sState->unk8C;
             gDLL_2_Camera->vtbl->change_camera_module(DLL_ID_CAM1STPERSON, TRUE, 0, sizeof(cam1stPerson), &cam1stPerson, 0, Cam_Ease_All);
         } else if ((btns & Z_TRIG) && !(cam->srt.flags & OBJFLAG_UNK_4)) {
             attentionCam.endThresholdDegrees = 5;

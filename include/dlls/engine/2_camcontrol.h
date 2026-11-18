@@ -60,7 +60,7 @@ typedef struct {
 /*115*/    s8 letterboxGoal;   //Height to ease towards
 /*116*/    s8 letterboxSpeed;  //Rate of change of letterbox height
 /*117*/    u8 setPlayerPosition;  //Changes the player's location to `newPlayerPosition` when nonzero
-/*118*/    s8 unk118;
+/*118*/    s8 easeActive1stPerson; //Boolean: TRUE when a 1st-person mode camera DLL is currently easing in
 /*119*/    u8 easeFlags;          //Which SRT components to interpolate (see CamEaseFlags)
 /*11A*/    u8 highlightFlags;     //Can disable LockIcon Object highlighting (stops searching for nearby highlightable Objects)
 /*11B*/    u8 targetFlags;        //Affects LockIcon being greyed out (Seems to use same flags as Object->unkAF, and generally mirrors unkAF value of Object being highlighted)

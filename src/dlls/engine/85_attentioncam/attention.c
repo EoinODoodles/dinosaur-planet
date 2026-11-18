@@ -295,9 +295,9 @@ static void attentioncam_handleButtons(Cam* cam, Object* player) {
             ((((DLL_210_Player*)player->dll)->vtbl->func60(player) != 0))) {
         gDLL_2_Camera->vtbl->change_camera_module(DLL_ID_CAMLOCKON, TRUE, 0, sizeof(&cam->highlight), &cam->highlight, 0x3C, Cam_Ease_All);
     } else if ((btns & U_CBUTTONS) && !(cam->targetFlags & 1)) {
-        cam1stPerson.unk0 = sState->unk4;
-        cam1stPerson.unk4 = sState->unk8;
-        cam1stPerson.unk8 = sState->unkC;
+        cam1stPerson.distance3D = sState->unk4;
+        cam1stPerson.offsetY = sState->unk8;
+        cam1stPerson.verticalAdjust = sState->unkC;
         gDLL_2_Camera->vtbl->change_camera_module(DLL_ID_CAM1STPERSON, TRUE, 0, sizeof(cam1stPerson), &cam1stPerson, 0, Cam_Ease_All);
     }
 }

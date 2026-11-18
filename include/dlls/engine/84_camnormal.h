@@ -21,12 +21,19 @@ typedef struct {
     u8 unkB;
     u8 unkC;
     u8 _unkD[0x19 - 0xD];
-    u8 unk19;
-    u16 unk1A;
+    u8 unk19; //fov-related
+    u16 unk1A; //lateral radius
     u16 unk1C;
     u8 unk1E;
-    u8 unk1F;
+    u8 unk1F; //y offset
 } CamNormal_Params;
+
+/* Flags for `camnormal_func_1A58` */
+typedef enum {
+    CamNormal_TRACKFLAG_Do_Intersect_Check = 1,
+    CamNormal_TRACKFLAG_Get_Floor_Ceiling_Heights = 2
+} CamNormal_TrackFlags;
+#define CamNormal_TRACKFLAG_Check_All (CamNormal_TRACKFLAG_Do_Intersect_Check | CamNormal_TRACKFLAG_Get_Floor_Ceiling_Heights)
 
 DLL_INTERFACE(DLL_84_camnormal) {
 /*:*/ DLL_INTERFACE_BASE(DLL_ICamControlModule);

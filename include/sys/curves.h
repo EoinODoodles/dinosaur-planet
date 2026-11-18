@@ -115,14 +115,14 @@ typedef struct {
 /*10*/ s32 unk10;
 /*14*/ f32 unk14[20];
 /*64*/ f32 unk64;
-/*68*/ Vec3f unk68; //lerp_result_x?
+/*68*/ Vec3f unk68; //interpolation result, current point on curve
 /*74*/ f32 unk74; //curve tangent x
 /*78*/ f32 unk78; //curve tangent y
 /*7C*/ f32 unk7C; //curve tangent z
 /*80*/ s32 unk80;
-/*84*/ f32* unk84;
-/*88*/ f32* unk88;
-/*8C*/ f32* unk8C;
+/*84*/ f32* unk84; //splineX points/handles
+/*88*/ f32* unk88; //splineY points/handles
+/*8C*/ f32* unk8C; //splineZ points/handles
 /*90*/ s32 numControlPoints;
 /*94*/ SplineFunc splineFunc;
 /*98*/ SplineConverterFunc splineConverterFunc;

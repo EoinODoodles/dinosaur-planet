@@ -124,12 +124,12 @@ void cam1stperson2_func_18(Cam* cam, s32 arg1, void* data) {
             sState->unk40[1] += 65535.0f;
         }
     }
-    sState->unk50[0] = (f32) cam->srt.pitch;
+    sState->unk50[0] = cam->srt.pitch;
     sState->unk50[1] = 0.0f;
     sState->unk50[2] = 0.0f;
     sState->unk50[3] = 0.0f;
     sState->unk11C = 0;
-    cam->unk118 = 1;
+    cam->easeActive1stPerson = 1;
     bss_4 = 0;
 }
 
@@ -149,7 +149,7 @@ void cam1stperson2_func_4BC(Cam* cam) {
     switch (sState->unk11C) {
     case 0:
         sState->unk11C = cam1stperson2_func_9C4(cam, cam->player);
-        cam->unk118 = 1;
+        cam->easeActive1stPerson = 1;
         break;
     case 1:
         if (curves_func_800053B0(&sState->unk78, 1000.0f) != 0) {
@@ -158,7 +158,7 @@ void cam1stperson2_func_4BC(Cam* cam) {
             sState->unk11C = 2;
         }
         cam->srt.yaw = (s16) sState->unk78.unk68.x;
-        cam->unk118 = 1;
+        cam->easeActive1stPerson = 1;
         break;
     case 2:
         cam1stperson2_func_CE0(cam);
@@ -166,7 +166,7 @@ void cam1stperson2_func_4BC(Cam* cam) {
             cam1stperson2_func_E60(cam);
             sState->unk11C = 3;
         }
-        cam->unk118 = 0;
+        cam->easeActive1stPerson = 0;
         break;
     case 3:
         temp_v0 = curves_func_800053B0(&sState->unk78, 1000.0f);
@@ -176,7 +176,7 @@ void cam1stperson2_func_4BC(Cam* cam) {
             cam1stperson2_func_137C(cam, cam->player);
             sState->unk11C = 4;
         }
-        cam->unk118 = 0;
+        cam->easeActive1stPerson = 0;
         break;
     case 4:
         var_fv0 = sState->unk78.unk0 - 0.2f;
@@ -202,7 +202,7 @@ void cam1stperson2_func_4BC(Cam* cam) {
         } else {
             ((DLL_84_camnormal*)sp3C->dll)->vtbl->func5(cam, cam->player->srt.transl.y, sqrtf(temp_fa0));
         }
-        cam->unk118 = 1;
+        cam->easeActive1stPerson = 1;
         break;
     }
     temp_v0_4 = objGetPlayer();

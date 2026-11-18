@@ -1,14 +1,14 @@
 .text = 0x0:
 cam1stperson_ctor = 0x0;
 cam1stperson_dtor = 0xC;
-cam1stperson_func_18 = 0x18;
-cam1stperson_func_4F8 = 0x4F8;
-cam1stperson_func_A04 = 0xA04;
-cam1stperson_func_A64 = 0xA64;
-cam1stperson_func_A74 = 0xA74;
-cam1stperson_func_D90 = 0xD90;
-cam1stperson_func_1008 = 0x1008;
-cam1stperson_func_1524 = 0x1524;
+cam1stperson_Setup = 0x18;
+cam1stperson_Control = 0x4F8;
+cam1stperson_Free = 0xA04;
+cam1stperson_Func_A64 = 0xA64;
+cam1stperson_easeIn = 0xA74;
+cam1stperson_lookAround = 0xD90;
+cam1stperson_easeOutCalculate = 0x1008;
+cam1stperson_easeOutBegin = 0x1524;
 
 .rodata = 0x165C:
 

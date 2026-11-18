@@ -3167,14 +3167,14 @@ void anim_update_camera(void) {
             break;
         case DLL_ID_CAM1STPERSON:
             if (sCamParam1 != 0) {
-                cam1stpersonData.unk0 = 90.0f;
-                cam1stpersonData.unk4 = 20.0f;
-                cam1stpersonData.unk8 = 5;
+                cam1stpersonData.distance3D = 90.0f;
+                cam1stpersonData.offsetY = 20.0f;
+                cam1stpersonData.verticalAdjust = 5;
                 gDLL_2_Camera->vtbl->change_camera_module(DLL_ID_CAM1STPERSON, TRUE, 1, sizeof(cam1stpersonData), &cam1stpersonData, 0, Cam_Ease_All);
             } else {
-                cam1stpersonData.unk0 = 90.0f;
-                cam1stpersonData.unk4 = 20.0f;
-                cam1stpersonData.unk8 = 30;
+                cam1stpersonData.distance3D = 90.0f;
+                cam1stpersonData.offsetY = 20.0f;
+                cam1stpersonData.verticalAdjust = 30;
                 gDLL_2_Camera->vtbl->change_camera_module(DLL_ID_CAM1STPERSON, TRUE, 0, sizeof(cam1stpersonData), &cam1stpersonData, 0, Cam_Ease_All);
             }
             dummy_label_3: ; // @fake
