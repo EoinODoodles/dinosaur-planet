@@ -64,8 +64,8 @@ typedef enum {
 
 typedef enum {
     Crawler_MODANIM_0_Crawl_LOOP,
-    Crawler_MODANIM_1_Dying,
-    Crawler_MODANIM_2_Attack
+    Crawler_MODANIM_1_Dying,    //NOTE: Scorpions seem to be missing a dying animation, and Skeetlas' dying animations are at a different index, but this slot seems intended for it
+    Crawler_MODANIM_2_Attack    //NOTE: the Skeetlas and Scorpions both seem to be missing attack animations, but this slot seems intended for one
 } Crawler_ModAnim;
 
 /*0x0*/ static u16 dFlagConfigs[] = {
